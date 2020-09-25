@@ -2,7 +2,9 @@ package com.rogurea.research;
 
 import com.googlecode.lanterna.Symbols;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class R_Dungeon {
 
@@ -19,10 +21,10 @@ public class R_Dungeon {
 
     public static char EmptyCell = ' ';
 
-    static char[][] CurrentRoom;
+    static char[][] CurrentRoom = new char[Height][Widght];
 
     public static boolean CheckExit(char c){
-        if(!CheckWall(c)){
+        if(CheckWall(c)){
             return c == Symbols.ARROW_DOWN;
         }
         return false;
@@ -71,10 +73,9 @@ public class R_Dungeon {
 
     public static void GenerateDungeon(){
 
-        Height = random.nextInt(30)+5;
-        Widght = random.nextInt(15)+5;
-
         for(int i = 0; i < DungeonLenght; i++){
+            Height = random.nextInt(30)+5;
+            Widght = random.nextInt(15)+5;
             if(i == DungeonLenght-1){
                 Rooms.put(new R_Room(i+1, true, Height, Widght), new char[Height][Widght]);
             }
@@ -82,13 +83,25 @@ public class R_Dungeon {
                 Rooms.put(new R_Room(i+1, Height, Widght), new char[Height][Widght]);
         }
         ConnectRooms();
+
     }
 
     public static void GenerateRoom(R_Room room) {
 
         CurrentRoom = Rooms.get(room);
-
-        System.out.println("Dungeon length = " + CurrentRoom.length + " " + CurrentRoom[0].length);
+        R_Player.CurrentRoom = room.NumberOfRoom;
+        System.out.println("CurrentRoom " + room.NumberOfRoom);
+        try {
+            if(T_View.terminal != null) {
+                T_View.terminal.clearScreen();
+                T_View.terminal.flush();
+                System.out.println("Screen cleaned");
+            }
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("Room dimensions = " + CurrentRoom.length + " " + CurrentRoom[0].length);
         CurrentRoom[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
         CurrentRoom[CurrentRoom.length-1][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
         CurrentRoom[0][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
@@ -112,11 +125,14 @@ public class R_Dungeon {
                 }
             }
         }
-        CurrentRoom[CurrentRoom.length/2][CurrentRoom[0].length-1] = Symbols.ARROW_DOWN;
+        if(!room.IsEndRoom)
+            CurrentRoom[CurrentRoom.length/2][CurrentRoom[0].length-1] = Symbols.ARROW_DOWN;
     }
 
    public static void PutPlayerInDungeon(){
         CurrentRoom[1][1] = R_Player.Player;
+        R_Player.Pos.x = 1;
+        R_Player.Pos.y = 1;
     }
     public static String ShowDungeon(int i, int j){
         return Objects.toString(CurrentRoom[i][j]);

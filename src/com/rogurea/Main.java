@@ -10,7 +10,12 @@ public class Main{
     public static void main(String[] args){
 
         R_Dungeon.GenerateDungeon();
-        R_Dungeon.GenerateRoom(R_Dungeon.Rooms.keys().nextElement());
+        R_Dungeon.GenerateRoom(R_Dungeon.Rooms.keySet()
+                                .stream()
+                                .filter(
+                                        r_room -> r_room.NumberOfRoom == 1
+                                ).findAny().orElse(null)
+        );
         //T_GUI.InitGUI();
         T_View.InitTerminal();
 

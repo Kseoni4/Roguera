@@ -17,11 +17,12 @@ public class T_View {
 
     static DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     static Terminal terminal = null;
-    static TerminalPosition topLeft = new TerminalPosition(R_Dungeon.CurrentRoom.length + 1,1);
     static TerminalSize terminalSize = new TerminalSize(getPlayerPositionInfo().length() + 2, 5);
-    static TerminalPosition topRight = topLeft.withRelativeColumn(terminalSize.getColumns()-1);
+    static TerminalPosition topLeft;
+    static TerminalPosition topRight;
 
-    static void InitNewTextGraphics(TextGraphics textGraphics1){
+
+    static void InitNewTextGraphics(TextGraphics textGraphics1, TerminalPosition topLeft){
         textGraphics1.fillRectangle(topLeft, terminalSize, ' ');
     }
 
@@ -57,12 +58,36 @@ public class T_View {
 
     static Random random = new Random();
 
-    static void NextRoomWindow(Terminal terminal) throws IOException {
-        Screen screen = new TerminalScreen(terminal);
+//    static void NextRoomWindow(Terminal terminal) throws IOException {
+//        Screen screen = new TerminalScreen(terminal);
+//    }
+
+    static void ResetTerminalPosition(){
+
+        topLeft = new TerminalPosition(R_Dungeon.CurrentRoom.length + 1,1);
+
+        topRight = topLeft.withRelativeColumn(terminalSize.getColumns()-1);
+    }
+
+    static void DrawInformation(TextGraphics textGraphics1, TerminalPosition topLeft){
+
+        textGraphics1.putString(topLeft.withRelative(1,2),
+                "Dungeon size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length);
+
+        textGraphics1.putString(topLeft.withRelative(1,3), "" +
+                "Player: " + R_Player.nickName + " "
+                + "HP:" + R_Player.HP + " "
+                + "MP:" + R_Player.MP + " "
+                + "Level:" + R_Player.Level + " "
+                + "Room:" + R_Player.CurrentRoom);
+
+        textGraphics1.putString(topLeft.withRelative(1, 1), getPlayerPositionInfo());
     }
 
     static void GameScreen(Terminal terminal) throws IOException {
+
         final TextGraphics textGraphics = terminal.newTextGraphics();
+
         TextGraphics textGraphics1 = terminal.newTextGraphics();
 
         terminal.resetColorAndSGR();
@@ -73,17 +98,13 @@ public class T_View {
 
         char cell = ' ';
 
-        InitNewTextGraphics(textGraphics1);
-
-        textGraphics1.putString(topLeft.withRelative(1,2),
-                "Dungeon size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length);
         while (keyStroke.getKeyType() != KeyType.Escape) {
-            textGraphics1.putString(topLeft.withRelative(1,3), "" +
-                    "Player: " + R_Player.nickName + " "
-                    + "HP:" + R_Player.HP + " "
-                    + "MP:" + R_Player.MP + " "
-                    + "Level:" + R_Player.Level);
-            textGraphics1.putString(topLeft.withRelative(1, 1), getPlayerPositionInfo());
+
+            ResetTerminalPosition();
+
+            InitNewTextGraphics(textGraphics1, topLeft);
+
+            DrawInformation(textGraphics1, topLeft);
 
             DrawDungeon(textGraphics, cell);
 
@@ -95,57 +116,58 @@ public class T_View {
         }
     }
 
-    public static void setRandom(Screen screen, TerminalSize terminalSize){
-        for(int column = 0; column < terminalSize.getColumns(); column++) {
-            for(int row = 0; row < terminalSize.getRows(); row++) {
-                screen.setCharacter(column, row, new TextCharacter(
-                        ' ',
-                        TextColor.ANSI.DEFAULT,
-                        // This will pick a random background color
-                        TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)]));
-            }
-        }
-    }
+//    public static void setRandom(Screen screen, TerminalSize terminalSize){
+//        for(int column = 0; column < terminalSize.getColumns(); column++) {
+//            for(int row = 0; row < terminalSize.getRows(); row++) {
+//                screen.setCharacter(column, row, new TextCharacter(
+//                        ' ',
+//                        TextColor.ANSI.DEFAULT,
+//                        // This will pick a random background color
+//                        TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)]));
+//            }
+//        }
+//    }
 
-    public static void CheckResize(Screen screen, TerminalSize terminalSize){
-        final int charactersToModifyPerLoop = 30;
-        for(int i = 0; i < charactersToModifyPerLoop; i++) {
-            TerminalPosition cellToModify = new TerminalPosition(
-                    random.nextInt(terminalSize.getColumns()),
-                    random.nextInt(terminalSize.getRows()));
-            TextColor.ANSI color = TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)];
-            TextCharacter characterInBackBuffer = screen.getBackCharacter(cellToModify);
-            characterInBackBuffer = characterInBackBuffer.withBackgroundColor(color);
-            characterInBackBuffer = characterInBackBuffer.withCharacter(' ');   // Because of the label box further down, if it shrinks
-            screen.setCharacter(cellToModify, characterInBackBuffer);
-        }
-        String sizeLabel = "Terminal Size: " + terminalSize;
-        TerminalPosition labelBoxTopLeft = new TerminalPosition(1, 1);
-        TerminalSize labelBoxSize = new TerminalSize(sizeLabel.length() + 2, 3);
-        TerminalPosition labelBoxTopRightCorner = labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 1);
-        TextGraphics textGraphics = screen.newTextGraphics();
-        //This isn't really needed as we are overwriting everything below anyway, but just for demonstrative purpose
-        textGraphics.fillRectangle(labelBoxTopLeft, labelBoxSize, ' ');
-        textGraphics.drawLine(
-                labelBoxTopLeft.withRelativeColumn(1),
-                labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 2),
-                Symbols.DOUBLE_LINE_HORIZONTAL);
-        textGraphics.drawLine(
-                labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(1),
-                labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(labelBoxSize.getColumns() - 2),
-                Symbols.DOUBLE_LINE_HORIZONTAL);
-        textGraphics.setCharacter(labelBoxTopLeft, Symbols.DOUBLE_LINE_TOP_LEFT_CORNER);
-        textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
-        textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER);
-        textGraphics.setCharacter(labelBoxTopRightCorner, Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER);
-        textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
-        textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER);
-        textGraphics.putString(labelBoxTopLeft.withRelative(1, 1), sizeLabel);
-    }
+//    public static void CheckResize(Screen screen, TerminalSize terminalSize){
+//        final int charactersToModifyPerLoop = 30;
+//        for(int i = 0; i < charactersToModifyPerLoop; i++) {
+//            TerminalPosition cellToModify = new TerminalPosition(
+//                    random.nextInt(terminalSize.getColumns()),
+//                    random.nextInt(terminalSize.getRows()));
+//            TextColor.ANSI color = TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)];
+//            TextCharacter characterInBackBuffer = screen.getBackCharacter(cellToModify);
+//            characterInBackBuffer = characterInBackBuffer.withBackgroundColor(color);
+//            characterInBackBuffer = characterInBackBuffer.withCharacter(' ');   // Because of the label box further down, if it shrinks
+//            screen.setCharacter(cellToModify, characterInBackBuffer);
+//        }
+//        String sizeLabel = "Terminal Size: " + terminalSize;
+//        TerminalPosition labelBoxTopLeft = new TerminalPosition(1, 1);
+//        TerminalSize labelBoxSize = new TerminalSize(sizeLabel.length() + 2, 3);
+//        TerminalPosition labelBoxTopRightCorner = labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 1);
+//        TextGraphics textGraphics = screen.newTextGraphics();
+//        //This isn't really needed as we are overwriting everything below anyway, but just for demonstrative purpose
+//        textGraphics.fillRectangle(labelBoxTopLeft, labelBoxSize, ' ');
+//        textGraphics.drawLine(
+//                labelBoxTopLeft.withRelativeColumn(1),
+//                labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 2),
+//                Symbols.DOUBLE_LINE_HORIZONTAL);
+//        textGraphics.drawLine(
+//                labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(1),
+//                labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(labelBoxSize.getColumns() - 2),
+//                Symbols.DOUBLE_LINE_HORIZONTAL);
+//        textGraphics.setCharacter(labelBoxTopLeft, Symbols.DOUBLE_LINE_TOP_LEFT_CORNER);
+//        textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
+//        textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER);
+//        textGraphics.setCharacter(labelBoxTopRightCorner, Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER);
+//        textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
+//        textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER);
+//        textGraphics.putString(labelBoxTopLeft.withRelative(1, 1), sizeLabel);
+//    }
 
     public static void InitTerminal(){
         try{
             terminal = defaultTerminalFactory.createTerminal();
+            terminal.clearScreen();
             terminal.flush();
             terminal.enterPrivateMode();
             terminal.clearScreen();
