@@ -18,13 +18,13 @@ public class R_MoveController {
         }
     }
     public static void Move(int x, int y) throws IOException {
-        if(R_Dungeon.CheckWall(R_Dungeon.Dungeon[x][y])){
-                R_Dungeon.Dungeon[R_Player.Pos.x][R_Player.Pos.y] = ' ';
-                R_Dungeon.Dungeon[x][y] = Player;
+        if(R_Dungeon.CheckWall(R_Dungeon.CurrentRoom[x][y])){
+                R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
+                R_Dungeon.CurrentRoom[x][y] = Player;
                 R_Player.Pos.x = x;
                 R_Player.Pos.y = y;
             }
-        if(R_Dungeon.CheckExit(R_Dungeon.Dungeon[x][y])) {
+        if(R_Dungeon.CheckExit(R_Dungeon.CurrentRoom[x][y])) {
             T_View.NextRoomWindow(T_View.terminal);
         }
     }

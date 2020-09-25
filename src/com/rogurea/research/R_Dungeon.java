@@ -1,18 +1,25 @@
 package com.rogurea.research;
 
 import com.googlecode.lanterna.Symbols;
-import com.googlecode.lanterna.input.KeyStroke;
-import com.rogurea.main.Player;
 
-import javax.swing.*;
-import java.util.Objects;
+import java.util.*;
 
 public class R_Dungeon {
 
-    static int Height = 20;
-    static int Widght = 15;
+    static int Height = 1;
+    static int Widght = 1;
+
+    static int DungeonLenght = 5;
+
+    static Random random = new Random();
+
+   // static ArrayList<R_Room> Rooms = new ArrayList<>();
+
+    public static Hashtable<R_Room, char[][]> Rooms = new Hashtable<>();
 
     public static char EmptyCell = ' ';
+
+    static char[][] CurrentRoom;
 
     public static boolean CheckExit(char c){
         if(!CheckWall(c)){
@@ -34,45 +41,84 @@ public class R_Dungeon {
             return false;
         if (c == Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER)
             return false;
-        if (c == Symbols.ARROW_DOWN)
-            return false;
         return  true;
     }
 
-    public static char[][] Dungeon = new char[Height][Widght];
+    public static void ConnectRooms(){
 
-    public static void GenerateDungeon() {
-        System.out.println("Dungeon length = " + Dungeon.length + " " + Dungeon[0].length);
-        Dungeon[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
-        Dungeon[Dungeon.length-1][Dungeon[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
-        Dungeon[0][Dungeon[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
-        Dungeon[Dungeon.length-1][0] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-        for (int i = 1; i < Dungeon[0].length-1; i++) {
-            Dungeon[0][i] = Symbols.DOUBLE_LINE_VERTICAL;
+        int i = 2;
+
+        ArrayList<R_Room> Keys = new ArrayList<>();
+
+        for (Map.Entry<R_Room, char[][]> r_roomEntry : Rooms.entrySet()) {
+            Keys.add(r_roomEntry.getKey());
         }
-        for (int i = 1; i < Dungeon.length - 1; i++) {
-            Dungeon[i][Dungeon[0].length - 1] = Symbols.DOUBLE_LINE_HORIZONTAL;
+
+        Keys.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
+
+        for(R_Room room : Keys){
+            if(!room.IsEndRoom) {
+                int finalI = i;
+                room.nextRoom = Rooms.keySet()
+                                .stream()
+                                .filter(r_room -> r_room.NumberOfRoom == finalI)
+                                .findFirst()
+                                .orElse(null);
+            }
+            i++;
         }
-        for (int i = 1; i < Dungeon[0].length - 1; i++) {
-            Dungeon[Dungeon.length - 1][i] = Symbols.DOUBLE_LINE_VERTICAL;
+    }
+
+    public static void GenerateDungeon(){
+
+        Height = random.nextInt(30)+5;
+        Widght = random.nextInt(15)+5;
+
+        for(int i = 0; i < DungeonLenght; i++){
+            if(i == DungeonLenght-1){
+                Rooms.put(new R_Room(i+1, true, Height, Widght), new char[Height][Widght]);
+            }
+            else
+                Rooms.put(new R_Room(i+1, Height, Widght), new char[Height][Widght]);
         }
-        for (int i = 1; i < Dungeon.length-1; i++) {
-            Dungeon[i][0] = Symbols.DOUBLE_LINE_HORIZONTAL;
+        ConnectRooms();
+    }
+
+    public static void GenerateRoom(R_Room room) {
+
+        CurrentRoom = Rooms.get(room);
+
+        System.out.println("Dungeon length = " + CurrentRoom.length + " " + CurrentRoom[0].length);
+        CurrentRoom[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
+        CurrentRoom[CurrentRoom.length-1][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
+        CurrentRoom[0][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+        CurrentRoom[CurrentRoom.length-1][0] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
+        for (int i = 1; i < CurrentRoom[0].length-1; i++) {
+            CurrentRoom[0][i] = Symbols.DOUBLE_LINE_VERTICAL;
         }
-        for (int i = 0; i < Dungeon.length; i++) {
-            for (int j = 0; j < Dungeon[0].length; j++) {
-                if (CheckWall(Dungeon[i][j])) {
-                    Dungeon[i][j] = EmptyCell;
+        for (int i = 1; i < CurrentRoom.length - 1; i++) {
+            CurrentRoom[i][CurrentRoom[0].length - 1] = Symbols.DOUBLE_LINE_HORIZONTAL;
+        }
+        for (int i = 1; i < CurrentRoom[0].length - 1; i++) {
+            CurrentRoom[CurrentRoom.length - 1][i] = Symbols.DOUBLE_LINE_VERTICAL;
+        }
+        for (int i = 1; i < CurrentRoom.length-1; i++) {
+            CurrentRoom[i][0] = Symbols.DOUBLE_LINE_HORIZONTAL;
+        }
+        for (int i = 0; i < CurrentRoom.length; i++) {
+            for (int j = 0; j < CurrentRoom[0].length; j++) {
+                if (CheckWall(CurrentRoom[i][j])) {
+                    CurrentRoom[i][j] = EmptyCell;
                 }
             }
         }
-        Dungeon[Dungeon.length/2][Dungeon[0].length-1] = Symbols.ARROW_DOWN;
+        CurrentRoom[CurrentRoom.length/2][CurrentRoom[0].length-1] = Symbols.ARROW_DOWN;
     }
 
    public static void PutPlayerInDungeon(){
-        Dungeon[1][1] = R_Player.Player;
+        CurrentRoom[1][1] = R_Player.Player;
     }
     public static String ShowDungeon(int i, int j){
-        return Objects.toString(Dungeon[i][j]);
+        return Objects.toString(CurrentRoom[i][j]);
     }
 }

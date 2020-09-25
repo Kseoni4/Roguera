@@ -2,10 +2,6 @@ package com.rogurea.research;
 
 import com.googlecode.lanterna.*;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.gui2.BasicWindow;
-import com.googlecode.lanterna.gui2.DefaultWindowManager;
-import com.googlecode.lanterna.gui2.EmptySpace;
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
@@ -21,7 +17,7 @@ public class T_View {
 
     static DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     static Terminal terminal = null;
-    static TerminalPosition topLeft = new TerminalPosition(R_Dungeon.Dungeon.length + 1,1);
+    static TerminalPosition topLeft = new TerminalPosition(R_Dungeon.CurrentRoom.length + 1,1);
     static TerminalSize terminalSize = new TerminalSize(getPlayerPositionInfo().length() + 2, 5);
     static TerminalPosition topRight = topLeft.withRelativeColumn(terminalSize.getColumns()-1);
 
@@ -43,8 +39,8 @@ public class T_View {
     }
 
     static void DrawDungeon(TextGraphics textGraphics, char cell){
-        for (int i = 0; i < R_Dungeon.Dungeon.length; i++)
-            for (int j = 0; j < R_Dungeon.Dungeon[0].length; j++) {
+        for (int i = 0; i < R_Dungeon.CurrentRoom.length; i++)
+            for (int j = 0; j < R_Dungeon.CurrentRoom[0].length; j++) {
                 // System.out.println("i:"+ i + " " + "j:" + j);
                 //  System.out.println(R_Dungeon.Dungeon[i][j]);
                 cell = R_Dungeon.ShowDungeon(i,j).charAt(0);
@@ -54,7 +50,7 @@ public class T_View {
                 else{
                     textGraphics.putString(i, j, R_Dungeon.ShowDungeon(i, j));
                 }
-                if (j == R_Dungeon.Dungeon[0].length - 1)
+                if (j == R_Dungeon.CurrentRoom[0].length - 1)
                     textGraphics.putString(i, j, "\n", SGR.BOLD);
             }
     }
@@ -80,9 +76,13 @@ public class T_View {
         InitNewTextGraphics(textGraphics1);
 
         textGraphics1.putString(topLeft.withRelative(1,2),
-                "Dungeon size: " + R_Dungeon.Dungeon.length + "x" + R_Dungeon.Dungeon[0].length);
+                "Dungeon size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length);
         while (keyStroke.getKeyType() != KeyType.Escape) {
-
+            textGraphics1.putString(topLeft.withRelative(1,3), "" +
+                    "Player: " + R_Player.nickName + " "
+                    + "HP:" + R_Player.HP + " "
+                    + "MP:" + R_Player.MP + " "
+                    + "Level:" + R_Player.Level);
             textGraphics1.putString(topLeft.withRelative(1, 1), getPlayerPositionInfo());
 
             DrawDungeon(textGraphics, cell);
