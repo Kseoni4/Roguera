@@ -13,6 +13,8 @@ public class R_Room {
 
     public ArrayList<R_Mob> RoomCreatures;
 
+    public char[][] RoomStructure;
+
     public R_Room nextRoom;
 
 //    public DungeonShop dungeonShop;
@@ -25,6 +27,7 @@ public class R_Room {
             RoomCreatures = R_MobFactory.getMobs();
         else
             RoomCreatures = new ArrayList<>(0);
+        RoomStructure = new char[x][y];
     }
 
 //    public R_Room(int RoomCounter, DungeonShop DS){
@@ -38,5 +41,6 @@ public class R_Room {
         this.X = x;
         this.Y = y;
         this.IsEndRoom = IsEndRoom;
+        RoomStructure = new char[x][y];
     }
 }

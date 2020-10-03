@@ -15,10 +15,49 @@ public class R_Generate {
 
     public static char EmptyCell = ' ';
 
+    static Predicate<R_Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == R_Player.CurrentRoom;
+
+    static Predicate<R_Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
+
+    public static void GenerateDungeon(int Height, int Widght, int DungeonLenght){
+
+        for(int i = 0; i < DungeonLenght; i++){
+
+            Height = random.nextInt(15)+5;
+            Widght = random.nextInt(20)+5;
+
+            if(i == DungeonLenght-1){
+                R_Dungeon.Rooms.add(new R_Room(i+1, true, Widght, Height));
+            }
+            else
+                R_Dungeon.Rooms.add(new R_Room(i+1, Widght, Height));
+        }
+        ConnectRooms();
+    }
+
+    public static void ConnectRooms(){
+
+        int i = 2;
+
+        R_Dungeon.Rooms.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
+
+        for(R_Room room : R_Dungeon.Rooms){
+            if(!room.IsEndRoom) {
+                int finalI = i;
+                room.nextRoom = R_Dungeon.Rooms
+                        .stream()
+                        .filter(r_room -> r_room.NumberOfRoom == finalI)
+                        .findFirst()
+                        .orElse(null);
+            }
+            i++;
+        }
+    }
+
     public static R_Room GetRoom(R_Dungeon.Direction direction) {
         switch (direction) {
             case NEXT -> {
-                return GetFromSet(ByCurrentRoom);
+                return GetFromSet(ByPlayerCurrentRoom);
             }
             case BACK -> {
                 return GetFromSet(ByPlayerCurrentRoom);
@@ -30,52 +69,54 @@ public class R_Generate {
         return null;
     }
 
-    static Predicate<R_Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == R_Player.CurrentRoom;
-
-    static Predicate<R_Room> ByCurrentRoom = R_Room -> R_Dungeon.CurrentRoom == R_Dungeon.Rooms.get(R_Room);
-
-    static Predicate<R_Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
-
-    static R_Room GetFromSet(Predicate ByPredicate){
-        return (R_Room) R_Dungeon.Rooms.keySet()
-                .stream()
-                .filter(ByPredicate)
-                .findAny()
-                .orElse(null);
+    static R_Room GetFromSet(Predicate<R_Room> predicate){
+        return R_Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
     }
 
-    public static int GetCenterOfRoom(){
-        return Math.floorDiv(R_Dungeon.CurrentRoom.length, 2);
-    }
+    public static void GenerateRoom(R_Room room) {
 
-    public static boolean CheckExit(char c){
-        if(CheckWall(c)){
-            return c == Symbols.ARROW_DOWN;
+        char[][] CurrentRoom = room.RoomStructure;
+
+        R_Player.CurrentRoom = room.NumberOfRoom;
+
+        int RoomLenghtY = CurrentRoom.length;
+
+        int RoomLenghtX = CurrentRoom[0].length;
+
+        System.out.println("CurrentRoom " + room.NumberOfRoom);
+
+        System.out.println("Room dimensions = " + CurrentRoom.length + " " + CurrentRoom[0].length);
+
+        try {
+            if(T_View.terminal != null) {
+                T_View.terminal.clearScreen();
+                T_View.terminal.flush();
+                System.out.println("Screen cleaned");
+            }
         }
-        return false;
-    }
-
-    public static boolean CheckBack(char c){
-        if(CheckWall(c)){
-            return c == Symbols.ARROW_UP;
+        catch (IOException e){
+            e.printStackTrace();
         }
-        return false;
-    }
 
-    public static boolean CheckWall(char c){
-        if (c == Symbols.DOUBLE_LINE_HORIZONTAL)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_VERTICAL)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_TOP_LEFT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER)
-            return false;
-        return  true;
+        PlaceBorders(CurrentRoom);
+
+        FillSpaceWithEmpty(CurrentRoom);
+
+        PlaceDoors(room, CurrentRoom);
+
+/*        if(RoomLenghtX >= 12 && RoomLenghtY >= 12){
+            PlaceSubRoom(GenerateSubRoom(), CurrentRoom);
+        }*/
+
+        if (RoomLenghtX >=3 && RoomLenghtY >=3){
+            PlaceMobs(room, CurrentRoom);
+        }
+
+        R_Dungeon.CurrentRoom = CurrentRoom;
+
+        room.RoomStructure = CurrentRoom;
+
+        System.out.println("Center of room:" + GetCenterOfRoom());
     }
 
     static void PlaceBorders(char[][] CurrentRoom){
@@ -97,6 +138,16 @@ public class R_Generate {
         }
     }
 
+    static void FillSpaceWithEmpty(char[][] CurrentRoom){
+        for (int i = 0; i < CurrentRoom.length; i++) {
+            for (int j = 0; j < CurrentRoom[0].length; j++) {
+                if (Scans.CheckWall(CurrentRoom[i][j])) {
+                    CurrentRoom[i][j] = EmptyCell;
+                }
+            }
+        }
+    }
+
     static void PlaceDoors(R_Room room, char[][] CurrentRoom){
         if(!room.IsEndRoom)
             CurrentRoom[CurrentRoom.length/2][CurrentRoom[0].length-1] = Symbols.ARROW_DOWN;
@@ -104,17 +155,7 @@ public class R_Generate {
             CurrentRoom[CurrentRoom.length/2][0] = Symbols.ARROW_UP;
     }
 
-    static void FillSpaceWithEmpty(char[][] CurrentRoom){
-        for (int i = 0; i < CurrentRoom.length; i++) {
-            for (int j = 0; j < CurrentRoom[0].length; j++) {
-                if (CheckWall(CurrentRoom[i][j])) {
-                    CurrentRoom[i][j] = EmptyCell;
-                }
-            }
-        }
-    }
-
-    static char[][] GenerateSubRoom(){
+/*    static char[][] GenerateSubRoom(){
         int LengthY, LengthX,
                 LengthXY,
                 PointTopLeftX, PointTopY,
@@ -170,7 +211,7 @@ public class R_Generate {
                 CurrentRoom[RoomPointX+x][RoomPointY+y] = SubRoom[y][x];
             }
         }
-    }
+    }*/
 
     static void PlaceMobs(R_Room room, char[][] CurrentRoom){
 
@@ -182,7 +223,7 @@ public class R_Generate {
 
             System.out.println("MobPosition" + " " + "x:" + x + " " + "y:" + y);
 
-            if(CheckWall(CurrentRoom[x][y])) {
+            if(Scans.CheckWall(CurrentRoom[x][y])) {
                 CurrentRoom[x][y] = mob.getCreatureSymbol();
                 mob.setMobPosition(x,y);
                 R_Dungeon.CurrentRoomCreatures.put((R_Mob) mob, mob.id);
@@ -190,82 +231,8 @@ public class R_Generate {
         }
     }
 
-    public static void ConnectRooms(){
-
-        int i = 2;
-
-        ArrayList<R_Room> Keys = new ArrayList<>();
-
-        for (Map.Entry<R_Room, char[][]> r_roomEntry : R_Dungeon.Rooms.entrySet()) {
-            Keys.add(r_roomEntry.getKey());
-        }
-
-        Keys.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
-
-        for(R_Room room : Keys){
-            if(!room.IsEndRoom) {
-                int finalI = i;
-                room.nextRoom = R_Dungeon.Rooms.keySet()
-                        .stream()
-                        .filter(r_room -> r_room.NumberOfRoom == finalI)
-                        .findFirst()
-                        .orElse(null);
-            }
-            i++;
-        }
-    }
-
-    public static void GenerateDungeon(int Height, int Widght, int DungeonLenght){
-
-        for(int i = 0; i < DungeonLenght; i++){
-            Height = random.nextInt(15)+5;
-            Widght = random.nextInt(20)+5;
-
-            if(i == DungeonLenght-1){
-                R_Dungeon.Rooms.put(new R_Room(i+1, true, Widght, Height), new char[Widght][Height]);
-            }
-            else
-                R_Dungeon.Rooms.put(new R_Room(i+1, Widght, Height), new char[Widght][Height]);
-        }
-        ConnectRooms();
-    }
-
-    public static void GenerateRoom(R_Room room, char[][] CurrentRoom) {
-
-        CurrentRoom = R_Dungeon.Rooms.get(room);
-        R_Player.CurrentRoom = room.NumberOfRoom;
-        System.out.println("CurrentRoom " + room.NumberOfRoom);
-        try {
-            if(T_View.terminal != null) {
-                T_View.terminal.clearScreen();
-                T_View.terminal.flush();
-                System.out.println("Screen cleaned");
-            }
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-        System.out.println("Room dimensions = " + CurrentRoom.length + " " + CurrentRoom[0].length);
-
-        int RoomLenghtY = CurrentRoom.length;
-        int RoomLenghtX = CurrentRoom[0].length;
-
-        PlaceBorders(CurrentRoom);
-
-        FillSpaceWithEmpty(CurrentRoom);
-
-        PlaceDoors(room, CurrentRoom);
-
-        if(RoomLenghtX >= 12 && RoomLenghtY >= 12){
-            PlaceSubRoom(GenerateSubRoom(), CurrentRoom);
-        }
-        if (RoomLenghtX >=3 && RoomLenghtY >=3){
-            PlaceMobs(room, CurrentRoom);
-        }
-
-        R_Dungeon.CurrentRoom = CurrentRoom;
-
-        System.out.println("Center of room:" + GetCenterOfRoom());
+    public static int GetCenterOfRoom(){
+        return Math.floorDiv(R_Dungeon.CurrentRoom.length, 2);
     }
 
     public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){
@@ -274,9 +241,4 @@ public class R_Generate {
         R_Player.Pos.y = y;
     }
 
-    public static void PutSomething(char c, char[][] CurrentRoom){
-    }
-
-    public static void PutSomething(String s, char[][] CurrentRoom){
-    }
 }

@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 public class R_Dungeon {
 
-    public static enum Direction {
+    public enum Direction {
         NEXT,
         BACK,
         FIRST
@@ -20,18 +20,18 @@ public class R_Dungeon {
 
     static int DungeonLenght = 5;
 
-    public static Hashtable<R_Room, char[][]> Rooms = new Hashtable<>();
+    //public static Hashtable<R_Room, char[][]> Rooms = new Hashtable<>();
+
+    public static ArrayList<R_Room> Rooms = new ArrayList<>();
 
     public static Hashtable<R_Mob, Integer> CurrentRoomCreatures = new Hashtable<R_Mob, Integer>();
 
     static char[][] CurrentRoom = new char[Height][Widght];
 
     public static void Generate(){
+
         R_Generate.GenerateDungeon(Height, Widght, DungeonLenght);
-        R_Generate.GenerateRoom(
-                R_Generate.GetRoom(Direction.FIRST),
-                CurrentRoom
-        );
+        R_Generate.GenerateRoom(Objects.requireNonNull(R_Generate.GetRoom(Direction.FIRST)));
         R_Generate.PutPlayerInDungeon(1,1, R_Dungeon.CurrentRoom);
     }
 

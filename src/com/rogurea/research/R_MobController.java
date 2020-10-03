@@ -37,7 +37,7 @@ public class R_MobController {
     static void RemoveMob(R_Mob mob){
         R_Dungeon.CurrentRoomCreatures.remove(mob);
         R_Dungeon.CurrentRoom[mob.MobPosX][mob.MobPosY] = ' ';
-        Objects.requireNonNull(R_Dungeon.Rooms.keySet()
+        Objects.requireNonNull(R_Dungeon.Rooms
                 .stream().filter(
                         room -> room.NumberOfRoom == R_Player.CurrentRoom
                 )

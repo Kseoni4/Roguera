@@ -19,16 +19,15 @@ public class R_MoveController {
         }
     }
     public static void Move(int x, int y) throws IOException {
-        if(R_Generate.CheckWall(R_Dungeon.CurrentRoom[x][y])
+        if(Scans.CheckWall(R_Dungeon.CurrentRoom[x][y])
                 && !T_View.CheckCreature(R_Dungeon.CurrentRoom[x][y])){
-            if(R_Generate.CheckExit(R_Dungeon.CurrentRoom[x][y])){
+            if(Scans.CheckExit(R_Dungeon.CurrentRoom[x][y])){
 
                 R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
 
                 try {
                     R_Generate.GenerateRoom(
-                            Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom,
-                            R_Dungeon.CurrentRoom);
+                            Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom);
                 }
                 catch (NullPointerException e){
                     e.getMessage();
@@ -40,13 +39,12 @@ public class R_MoveController {
                             R_Dungeon.CurrentRoom);
                 }
             }
-            else if(R_Generate.CheckBack(R_Dungeon.CurrentRoom[x][y]))
+            else if(Scans.CheckBack(R_Dungeon.CurrentRoom[x][y]))
                 {
                     R_Player.CurrentRoom--;
                     R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
                     try {
-                        R_Generate.GenerateRoom(R_Generate.GetRoom(R_Dungeon.Direction.BACK),
-                                R_Dungeon.CurrentRoom);
+                        R_Generate.GenerateRoom(Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.BACK)));
                     }
                     catch (NullPointerException e) {
                         e.getMessage();
