@@ -11,7 +11,7 @@ public class R_Room {
 
     public boolean IsEndRoom = false;
 
-//    public List<Creature> RoomCreatures;
+    public ArrayList<R_Mob> RoomCreatures;
 
     public R_Room nextRoom;
 
@@ -21,10 +21,10 @@ public class R_Room {
         NumberOfRoom = RoomCounter;
         this.X = x;
         this.Y = y;
-//        if(RoomCounter > 1)
-//        //    RoomCreatures = Dungeon.InsertCreatures();
-//        else
-//        //    RoomCreatures = new ArrayList<>(0);
+        if(RoomCounter > 1)
+            RoomCreatures = R_MobFactory.getMobs();
+        else
+            RoomCreatures = new ArrayList<>(0);
     }
 
 //    public R_Room(int RoomCounter, DungeonShop DS){
@@ -34,7 +34,7 @@ public class R_Room {
 
     public R_Room(int RoomCounter, boolean IsEndRoom, int x, int y){
         this.NumberOfRoom = RoomCounter;
-//        RoomCreatures = Dungeon.InsertCreatures();
+        RoomCreatures = R_MobFactory.getMobs();
         this.X = x;
         this.Y = y;
         this.IsEndRoom = IsEndRoom;

@@ -1,23 +1,17 @@
 package com.rogurea;
 
 import com.rogurea.research.R_Dungeon;
-import com.rogurea.research.R_Room;
-import com.rogurea.research.T_GUI;
+import com.rogurea.research.R_GameLoop;
 import com.rogurea.research.T_View;
+
+import java.io.IOException;
 
 public class Main{
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
-        R_Dungeon.GenerateDungeon();
-        R_Dungeon.GenerateRoom(R_Dungeon.Rooms.keySet()
-                                .stream()
-                                .filter(
-                                        r_room -> r_room.NumberOfRoom == 1
-                                ).findAny().orElse(null)
-        );
-        //T_GUI.InitGUI();
-        T_View.InitTerminal();
+        R_Dungeon.Generate();
+        R_GameLoop.Start();
 
 //         if(Dungeon.Generate()){
 //             for(Room r : Dungeon.Rooms){
