@@ -1,5 +1,6 @@
 package com.rogurea;
 
+import com.googlecode.lanterna.Symbols;
 import com.rogurea.research.R_Dungeon;
 import com.rogurea.research.R_GameLoop;
 import com.rogurea.research.T_View;
@@ -12,6 +13,8 @@ public class Main{
 
         R_Dungeon.Generate();
         R_GameLoop.Start();
+
+        System.out.println("Closed");
 
     }
 }

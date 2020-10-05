@@ -12,53 +12,37 @@ public class R_MoveController {
 
     public static void MovePlayer(KeyType key) throws IOException {
         switch (key) {
-            case ArrowUp -> Move(R_Player.Pos.x, R_Player.Pos.y + 1);
-            case ArrowLeft -> Move(R_Player.Pos.x - 1, R_Player.Pos.y);
-            case ArrowDown -> Move(R_Player.Pos.x, R_Player.Pos.y - 1);
-            case ArrowRight -> Move(R_Player.Pos.x + 1, R_Player.Pos.y);
+            case ArrowUp -> Move(R_Player.Pos.y + 1, R_Player.Pos.x);
+            case ArrowLeft -> Move(R_Player.Pos.y, R_Player.Pos.x-1);
+            case ArrowDown -> Move(R_Player.Pos.y - 1, R_Player.Pos.x);
+            case ArrowRight -> Move(R_Player.Pos.y, R_Player.Pos.x + 1);
         }
     }
-    public static void Move(int x, int y) throws IOException {
-        if(Scans.CheckWall(R_Dungeon.CurrentRoom[x][y])
-                && !T_View.CheckCreature(R_Dungeon.CurrentRoom[x][y])){
-            if(Scans.CheckExit(R_Dungeon.CurrentRoom[x][y])){
+    public static void Move(int y, int x) throws IOException {
+        if(Scans.CheckWall(R_Dungeon.CurrentRoom[y][x])
+                && !T_View.CheckCreature(R_Dungeon.CurrentRoom[y][x])){
 
-                R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
+            if(Scans.CheckExit(R_Dungeon.CurrentRoom[y][x])){
 
-                try {
-                    R_Generate.GenerateRoom(
-                            Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom);
-                }
-                catch (NullPointerException e){
-                    e.getMessage();
-                    R_Dungeon.CurrentRoom[1][1] = Player;
-                }
-                finally {
-                    R_Generate.PutPlayerInDungeon(
-                            R_Generate.GetCenterOfRoom(), 1,
-                            R_Dungeon.CurrentRoom);
-                }
+                R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+                R_GameLoop.ChangeRoom(
+                        Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom
+                );
             }
-            else if(Scans.CheckBack(R_Dungeon.CurrentRoom[x][y]))
+            else if(Scans.CheckBack(R_Dungeon.CurrentRoom[y][x]))
                 {
                     R_Player.CurrentRoom--;
-                    R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
-                    try {
-                        R_Generate.GenerateRoom(Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.BACK)));
-                    }
-                    catch (NullPointerException e) {
-                        e.getMessage();
-                    }
-                    finally {
-                        R_Generate.PutPlayerInDungeon(
-                                R_Generate.GetCenterOfRoom(), 1,
-                                R_Dungeon.CurrentRoom);
-                    }
+
+                    R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+
+                    R_GameLoop.ChangeRoom(
+                            Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.BACK))
+                    );
                 }
             else
                 {
-                    R_Dungeon.CurrentRoom[R_Player.Pos.x][R_Player.Pos.y] = ' ';
-                    R_Dungeon.CurrentRoom[x][y] = Player;
+                    R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+                    R_Dungeon.CurrentRoom[y][x] = Player;
                     R_Player.Pos.x = x;
                     R_Player.Pos.y = y;
                 }

@@ -9,11 +9,15 @@ public class R_Room {
     public int X = 1;
     public int Y = 1;
 
+    public R_Generate.RoomSize roomSize;
+
     public boolean IsEndRoom = false;
 
     public ArrayList<R_Mob> RoomCreatures;
 
     public char[][] RoomStructure;
+
+    public boolean IsRoomStructureGenerate = false;
 
     public R_Room nextRoom;
 

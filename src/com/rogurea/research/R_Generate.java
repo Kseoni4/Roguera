@@ -15,22 +15,77 @@ public class R_Generate {
 
     public static char EmptyCell = ' ';
 
+    enum RoomSize {
+        SMALL{
+            @Override
+            public int[] GetWidghtX() {
+                return new int[]{
+                        3, 5, 10
+                };
+            }
+
+            @Override
+            public int[] GetHeightY() {
+                return new int[] {
+                        3, 5, 10
+                };
+            }
+
+            },
+        MIDDLE{
+
+            @Override
+            public int[] GetWidghtX() {
+                return new int[]{
+                        12, 15, 22
+                };
+            }
+
+            @Override
+            public int[] GetHeightY() {
+                return new int[] {
+                        10, 15, 20
+                };
+            }
+        };
+
+        public int[] GetWidghtX() {
+            return new int[0];
+        }
+
+        public int[] GetHeightY() {
+            return new int[0];
+        }
+    }
+
     static Predicate<R_Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == R_Player.CurrentRoom;
 
     static Predicate<R_Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
 
     public static void GenerateDungeon(int Height, int Widght, int DungeonLenght){
 
+        int r = 0;
+
+        RoomSize[] roomSizes = RoomSize.values();
+
         for(int i = 0; i < DungeonLenght; i++){
 
-            Height = random.nextInt(15)+5;
-            Widght = random.nextInt(20)+5;
+            r = random.nextInt(roomSizes.length);
+
+            Height = roomSizes[r].GetHeightY()[random.nextInt(3)];
+            Widght = roomSizes[r].GetWidghtX()[random.nextInt(3)];
+
 
             if(i == DungeonLenght-1){
                 R_Dungeon.Rooms.add(new R_Room(i+1, true, Widght, Height));
             }
             else
                 R_Dungeon.Rooms.add(new R_Room(i+1, Widght, Height));
+
+            R_Dungeon.Rooms.get(i).roomSize = roomSizes[r];
+
+            MapEditor.PlaceCorners(R_Dungeon.Rooms.get(i).RoomStructure);
+            MapEditor.FillSpaceWithEmpty(R_Dungeon.Rooms.get(i).RoomStructure);
         }
         ConnectRooms();
     }
@@ -73,7 +128,7 @@ public class R_Generate {
         return R_Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
     }
 
-    public static void GenerateRoom(R_Room room) {
+    public static void GenerateRoom(R_Room room){
 
         char[][] CurrentRoom = room.RoomStructure;
 
@@ -98,120 +153,38 @@ public class R_Generate {
             e.printStackTrace();
         }
 
-        PlaceBorders(CurrentRoom);
+        MapEditor.InsertShapeFlat(CurrentRoom, MapEditor.DrawRectangle(RoomLenghtY,
+                RoomLenghtX), 0, 0);
 
-        FillSpaceWithEmpty(CurrentRoom);
+        System.out.println("Border placed");
 
-        PlaceDoors(room, CurrentRoom);
+       MapEditor.PlaceSubShapes(room.roomSize, CurrentRoom);
 
-/*        if(RoomLenghtX >= 12 && RoomLenghtY >= 12){
-            PlaceSubRoom(GenerateSubRoom(), CurrentRoom);
-        }*/
+       System.out.println("Subshapes placed");
 
-        if (RoomLenghtX >=3 && RoomLenghtY >=3){
-            PlaceMobs(room, CurrentRoom);
-        }
+        MapEditor.PlaceDoors(room, CurrentRoom);
+
+        System.out.println("Door placed");
 
         R_Dungeon.CurrentRoom = CurrentRoom;
 
         room.RoomStructure = CurrentRoom;
 
-        System.out.println("Center of room:" + GetCenterOfRoom());
+        room.IsRoomStructureGenerate = true;
     }
 
-    static void PlaceBorders(char[][] CurrentRoom){
-        CurrentRoom[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
-        CurrentRoom[CurrentRoom.length-1][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
-        CurrentRoom[0][CurrentRoom[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
-        CurrentRoom[CurrentRoom.length-1][0] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-        for (int i = 1; i < CurrentRoom[0].length-1; i++) {
-            CurrentRoom[0][i] = Symbols.DOUBLE_LINE_VERTICAL;
-        }
-        for (int i = 1; i < CurrentRoom.length - 1; i++) {
-            CurrentRoom[i][CurrentRoom[0].length - 1] = Symbols.DOUBLE_LINE_HORIZONTAL;
-        }
-        for (int i = 1; i < CurrentRoom[0].length - 1; i++) {
-            CurrentRoom[CurrentRoom.length - 1][i] = Symbols.DOUBLE_LINE_VERTICAL;
-        }
-        for (int i = 1; i < CurrentRoom.length-1; i++) {
-            CurrentRoom[i][0] = Symbols.DOUBLE_LINE_HORIZONTAL;
-        }
+    public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){
+        CurrentRoom[y][x] = R_Player.Player;
+        R_Player.Pos.x = x;
+        R_Player.Pos.y = y;
     }
 
-    static void FillSpaceWithEmpty(char[][] CurrentRoom){
-        for (int i = 0; i < CurrentRoom.length; i++) {
-            for (int j = 0; j < CurrentRoom[0].length; j++) {
-                if (Scans.CheckWall(CurrentRoom[i][j])) {
-                    CurrentRoom[i][j] = EmptyCell;
-                }
-            }
-        }
+    public static int GetCenterOfRoom(R_Room room){
+        return Math.floorDiv(room.RoomStructure[0].length, 2);
     }
 
-    static void PlaceDoors(R_Room room, char[][] CurrentRoom){
-        if(!room.IsEndRoom)
-            CurrentRoom[CurrentRoom.length/2][CurrentRoom[0].length-1] = Symbols.ARROW_DOWN;
-        if(room.NumberOfRoom > 1)
-            CurrentRoom[CurrentRoom.length/2][0] = Symbols.ARROW_UP;
-    }
 
-/*    static char[][] GenerateSubRoom(){
-        int LengthY, LengthX,
-                LengthXY,
-                PointTopLeftX, PointTopY,
-                PointBottomY, PointTopRightX;
-
-        LengthY = (int) Math.pow(random.nextInt(1)+2,2);
-        LengthX = LengthY;
-
-        PointBottomY = LengthY;
-        PointTopY = 0;
-
-        PointTopRightX = LengthX;
-        PointTopLeftX = 0;
-
-        LengthXY = LengthY;
-
-        char[][] BufferSubRoom = new char[LengthY][LengthX];
-        for(int y = 0; y < BufferSubRoom.length; y++){
-            BufferSubRoom[y][0] = Symbols.DOUBLE_LINE_VERTICAL;
-            BufferSubRoom[y][LengthX-1] = Symbols.DOUBLE_LINE_VERTICAL;
-            System.out.print(BufferSubRoom[y][0]);
-        }
-        System.out.print('\n');
-        for(int x = 0; x < BufferSubRoom[0].length; x++){
-            BufferSubRoom[0][x] = Symbols.DOUBLE_LINE_HORIZONTAL;
-            BufferSubRoom[LengthY-1][x] = Symbols.DOUBLE_LINE_HORIZONTAL;
-            System.out.print(BufferSubRoom[0][x]);
-        }
-        System.out.print('\n');
-        FillSpaceWithEmpty(BufferSubRoom);
-        BufferSubRoom[PointTopY][PointTopLeftX] = Symbols.DOUBLE_LINE_T_RIGHT;
-        BufferSubRoom[PointBottomY-1][PointTopLeftX] = Symbols.DOUBLE_LINE_T_RIGHT;
-
-        BufferSubRoom[PointTopY][PointTopRightX-1] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-        BufferSubRoom[PointBottomY-1][PointTopRightX-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
-
-        return BufferSubRoom;
-
-    }
-
-    static void PlaceSubRoom(char[][] SubRoom, char[][] CurrentRoom){
-        int SubRoomLenghtY = SubRoom.length;
-        int SubRoomLenghtX = SubRoom[0].length;
-
-        int RoomPointY = ((CurrentRoom.length/SubRoomLenghtY));
-        int RoomPointX = 0;
-
-        for(int y = 0; y < SubRoomLenghtY; y++){
-            for(int x = 0; x < SubRoomLenghtX; x++){
-                System.out.println("x:" + x + " " + "y:" + y);
-                System.out.println("RoomPointX:" + RoomPointX + " " + "RoomPointX + x:" + (RoomPointX+x));
-                System.out.println("RoomPointY:" + RoomPointY + " " + "RoomPointY + y:" + (RoomPointY+y));
-                CurrentRoom[RoomPointX+x][RoomPointY+y] = SubRoom[y][x];
-            }
-        }
-    }*/
+    /*
 
     static void PlaceMobs(R_Room room, char[][] CurrentRoom){
 
@@ -230,15 +203,6 @@ public class R_Generate {
             }
         }
     }
-
-    public static int GetCenterOfRoom(){
-        return Math.floorDiv(R_Dungeon.CurrentRoom.length, 2);
-    }
-
-    public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){
-        CurrentRoom[x][y] = R_Player.Player;
-        R_Player.Pos.x = x;
-        R_Player.Pos.y = y;
-    }
+*/
 
 }

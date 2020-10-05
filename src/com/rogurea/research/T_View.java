@@ -8,10 +8,10 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 public class T_View extends Thread{
-
 
     static int OffsetPositionName = 1;
 
@@ -37,6 +37,9 @@ public class T_View extends Thread{
 
     static TerminalSize FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
 
+    static int r = 255, g = 200, b = 100;
+
+    static TextColor.RGB textColor = new TextColor.RGB(r, g, b);
 
     static String getPlayerPositionInfo(){
         return  "Player position "
@@ -76,6 +79,9 @@ public class T_View extends Thread{
     }
 
     static void Drawcall() throws IOException {
+
+        terminal.clearScreen();
+
         ResetTerminalPosition();
 
         InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
@@ -89,9 +95,9 @@ public class T_View extends Thread{
 
     static void ResetTerminalPosition(){
 
-        topPlayerInfoLeft = new TerminalPosition(R_Dungeon.CurrentRoom.length + 1,1);
+        topPlayerInfoLeft = new TerminalPosition(R_Dungeon.CurrentRoom[0].length + 1,1);
 
-        topFightInfoLeft = new TerminalPosition(R_Dungeon.CurrentRoom.length + 1,
+        topFightInfoLeft = new TerminalPosition(R_Dungeon.CurrentRoom[0].length + 1,
                 topPlayerInfoLeft.getRow()+1);
 
         FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
@@ -108,13 +114,16 @@ public class T_View extends Thread{
 
     static void DrawPlayerInformation(){
 
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(1, 1),
+        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2, 1),
                 getPlayerPositionInfo());
 
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(1,2),
-                "Room size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length);
+        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2,2),
+                "Room size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length
+                        + " (" + Objects.requireNonNull(R_Dungeon.Rooms.stream()
+                        .filter(room -> room.NumberOfRoom == R_Player.CurrentRoom)
+                        .findAny().orElse(null)).roomSize + ")");
 
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(1,3), "" +
+        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2,3), "" +
                 "Player: " + R_Player.nickName + " "
                 + "HP:" + R_Player.HP + " "
                 + "MP:" + R_Player.MP + " "
@@ -122,27 +131,29 @@ public class T_View extends Thread{
                 + "Room:" + R_Player.CurrentRoom);
     }
 
-    static void DrawDungeon(){
-        char cell;
-        for (int i = 0; i < R_Dungeon.CurrentRoom.length; i++)
+    static void DrawDungeon() throws IOException {
+        char cell = MapEditor.EmptyCell;
+        for (int i = 0; i < R_Dungeon.CurrentRoom.length; i++) {
             for (int j = 0; j < R_Dungeon.CurrentRoom[0].length; j++) {
-                cell = R_Dungeon.ShowDungeon(i,j).charAt(0);
-                if(cell == R_Player.Player) {
+                cell = R_Dungeon.ShowDungeon(i, j).charAt(0);
+                if (cell == R_Player.Player) {
                     DrawPlayer(MapDrawGraphics, i, j);
-                }
-                else if(CheckCreature(cell)){
+                } else if (CheckCreature(cell)) {
                     DrawMob(MapDrawGraphics, i, j);
+                } else if (Scans.CheckWall(cell)){
+                    DrawCell(MapDrawGraphics, i, j);
                 }
                 else{
-                    MapDrawGraphics.putString(i, j, R_Dungeon.ShowDungeon(i, j));
+                    MapDrawGraphics.putString(j,i, R_Dungeon.ShowDungeon(i,j));
                 }
-                if (j == R_Dungeon.CurrentRoom[0].length - 1)
-                    MapDrawGraphics.putString(i, j, "\n", SGR.BOLD);
+                //if (j == R_Dungeon.CurrentRoom[0].length - 1)
+                    //MapDrawGraphics.putString(i, j, "\n", SGR.BOLD);
             }
+        }
     }
     static void DrawPlayer(TextGraphics textGraphics, int i, int j){
         textGraphics.setForegroundColor(TextColor.ANSI.GREEN_BRIGHT);
-        textGraphics.putString(i, j, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
+        textGraphics.putString(j, i, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
     }
 
@@ -157,7 +168,13 @@ public class T_View extends Thread{
 
     static void DrawMob(TextGraphics textGraphics, int i, int j){
         textGraphics.setForegroundColor(TextColor.ANSI.RED_BRIGHT);
-        textGraphics.putString(i, j, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
+        textGraphics.putString(j, i, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+    }
+
+    static void DrawCell(TextGraphics textGraphics, int i, int j){
+        textGraphics.setForegroundColor(textColor);
+        textGraphics.putString(j, i, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
     }
 /*
