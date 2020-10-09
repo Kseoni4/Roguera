@@ -18,37 +18,53 @@ public class R_MoveController {
             case ArrowRight -> Move(R_Player.Pos.y, R_Player.Pos.x + 1);
         }
     }
-    public static void Move(int y, int x) throws IOException {
-        if(Scans.CheckWall(R_Dungeon.CurrentRoom[y][x])
-                && !T_View.CheckCreature(R_Dungeon.CurrentRoom[y][x])){
+    public static void Move(int y, int x){
 
-            if(Scans.CheckExit(R_Dungeon.CurrentRoom[y][x])){
-
-                R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
-                R_GameLoop.ChangeRoom(
-                        Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom
-                );
-            }
-            else if(Scans.CheckBack(R_Dungeon.CurrentRoom[y][x]))
-                {
-                    R_Player.CurrentRoom--;
-
-                    R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
-
-                    R_GameLoop.ChangeRoom(
-                            Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.BACK))
-                    );
-                }
-            else
-                {
-                    R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
-                    R_Dungeon.CurrentRoom[y][x] = Player;
-                    R_Player.Pos.x = x;
-                    R_Player.Pos.y = y;
-                }
-            }
+        if(!Scans.CheckWall(R_Dungeon.CurrentRoom[y][x])
+         || T_View.CheckCreature(R_Dungeon.CurrentRoom[y][x])){
+            return;
         }
+
+        if(Scans.CheckExit(R_Dungeon.CurrentRoom[y][x])){
+
+            R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+            R_GameLoop.ChangeRoom(
+                    Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom
+            );
+            return;
+        }
+
+        if(Scans.CheckBack(R_Dungeon.CurrentRoom[y][x]))
+        {
+            R_Player.CurrentRoom--;
+
+            R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+
+            R_GameLoop.ChangeRoom(
+                    Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.BACK))
+            );
+            return;
+        }
+
+        R_Dungeon.CurrentRoom[R_Player.Pos.y][R_Player.Pos.x] = MapEditor.EmptyCell;
+        R_Dungeon.CurrentRoom[y][x] = Player;
+        R_Player.Pos.x = x;
+        R_Player.Pos.y = y;
+    }
+
 //        if(R_Generate.CheckExit(R_Generate.CurrentRoom[x][y])) {
 //            T_View.NextRoomWindow(T_View.terminal);
 //        }
+
+    /*public static void Move(int y, int x) throws IOException {
+
+
+
+
+            else
+                {
+
+                }
+            }
+        }*/
     }

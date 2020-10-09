@@ -40,6 +40,12 @@ public class R_GameLoop {
 
             T_View.keyStroke = T_View.terminal.readInput();
 
+            if(T_View.keyStroke.getCharacter() != null && T_View.keyStroke.getCharacter() == 'r') {
+                System.out.flush();
+                R_Generate.GenerateRoom(Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.FIRST)));
+                R_Generate.PutPlayerInDungeon(R_Dungeon.CurrentRoom[0].length/2,1, R_Dungeon.CurrentRoom);
+            }
+
 /*            if(R_MobController.MobsScan()) {
                 T_View.DrawFightMenu();
                 T_View.MenuPrompt(R_Dungeon.CurrentRoomCreatures.keySet());
@@ -55,7 +61,7 @@ public class R_GameLoop {
                 R_Generate.GenerateRoom(
                         Objects.requireNonNull(R_Generate.GetRoom(R_Dungeon.Direction.NEXT)).nextRoom);
             }
-            catch (NullPointerException e){
+            catch (NullPointerException | IOException e){
                 e.getMessage();
                 R_Dungeon.CurrentRoom[1][1] = Player;
             }

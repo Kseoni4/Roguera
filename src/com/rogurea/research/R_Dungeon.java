@@ -18,7 +18,7 @@ public class R_Dungeon {
 
     static int Widght = 1;
 
-    static int DungeonLenght = 5;
+    static int DungeonLenght = 10;
 
     //public static Hashtable<R_Room, char[][]> Rooms = new Hashtable<>();
 
@@ -28,11 +28,11 @@ public class R_Dungeon {
 
     static char[][] CurrentRoom = new char[Height][Widght];
 
-    public static void Generate(){
+    public static void Generate() throws IOException {
 
         R_Generate.GenerateDungeon(Height, Widght, DungeonLenght);
         R_Generate.GenerateRoom(Objects.requireNonNull(R_Generate.GetRoom(Direction.FIRST)));
-        R_Generate.PutPlayerInDungeon(1,1, R_Dungeon.CurrentRoom);
+        R_Generate.PutPlayerInDungeon(CurrentRoom[0].length/2,1, R_Dungeon.CurrentRoom);
     }
 
     public static String ShowDungeon(int i, int j){

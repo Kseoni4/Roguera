@@ -1,6 +1,7 @@
 package com.rogurea.research;
 
 import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.Dungeon;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,14 +38,29 @@ public class R_Generate {
             @Override
             public int[] GetWidghtX() {
                 return new int[]{
-                        12, 15, 22
+                        12, 15, 16
                 };
             }
 
             @Override
             public int[] GetHeightY() {
                 return new int[] {
-                        10, 15, 20
+                        10, 12, 15
+                };
+            }
+        },
+        BIG{
+            @Override
+            public int[] GetWidghtX() {
+                return new int[]{
+                        18, 20, 23,
+                };
+            }
+
+            @Override
+            public int[] GetHeightY() {
+                return new int[] {
+                        19, 22, 23
                 };
             }
         };
@@ -72,8 +88,8 @@ public class R_Generate {
 
             r = random.nextInt(roomSizes.length);
 
-            Height = roomSizes[r].GetHeightY()[random.nextInt(3)];
-            Widght = roomSizes[r].GetWidghtX()[random.nextInt(3)];
+            Height = roomSizes[2].GetHeightY()[random.nextInt(3)];
+            Widght = roomSizes[2].GetWidghtX()[random.nextInt(3)];
 
 
             if(i == DungeonLenght-1){
@@ -82,9 +98,9 @@ public class R_Generate {
             else
                 R_Dungeon.Rooms.add(new R_Room(i+1, Widght, Height));
 
-            R_Dungeon.Rooms.get(i).roomSize = roomSizes[r];
+            R_Dungeon.Rooms.get(i).roomSize = roomSizes[2];
 
-            MapEditor.PlaceCorners(R_Dungeon.Rooms.get(i).RoomStructure);
+            //MapEditor.PlaceCorners(R_Dungeon.Rooms.get(i).RoomStructure);
             MapEditor.FillSpaceWithEmpty(R_Dungeon.Rooms.get(i).RoomStructure);
         }
         ConnectRooms();
@@ -128,9 +144,11 @@ public class R_Generate {
         return R_Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
     }
 
-    public static void GenerateRoom(R_Room room){
+    public static void GenerateRoom(R_Room room) throws IOException {
 
         char[][] CurrentRoom = room.RoomStructure;
+
+        MapEditor.FillAllSpaceWithEmpty(CurrentRoom);
 
         R_Player.CurrentRoom = room.NumberOfRoom;
 
@@ -153,24 +171,28 @@ public class R_Generate {
             e.printStackTrace();
         }
 
-        MapEditor.InsertShapeFlat(CurrentRoom, MapEditor.DrawRectangle(RoomLenghtY,
-                RoomLenghtX), 0, 0);
+/*        MapEditor.InsertShapeFlat(CurrentRoom, MapEditor.DrawRectangle(RoomLenghtY,
+                RoomLenghtX), 0, 0);*/
 
         System.out.println("Border placed");
 
-       MapEditor.PlaceSubShapes(room.roomSize, CurrentRoom);
+//        MapEditor.PlaceSubShapes(room.roomSize, CurrentRoom);
 
-       System.out.println("Subshapes placed");
-
-        MapEditor.PlaceDoors(room, CurrentRoom);
-
-        System.out.println("Door placed");
+        System.out.println("Subshapes placed");
 
         R_Dungeon.CurrentRoom = CurrentRoom;
 
         room.RoomStructure = CurrentRoom;
 
         room.IsRoomStructureGenerate = true;
+        if(room.roomSize == RoomSize.BIG) {
+            GenerateRules.GenerationShapeByPoints(CurrentRoom);
+        }
+        MapEditor.PlaceDoors(room, CurrentRoom);
+
+        System.out.println("Door placed");
+
+        //GenerateRules.SearchPoint(0,0,random.nextInt(10),random.nextInt(10), CurrentRoom);
     }
 
     public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){

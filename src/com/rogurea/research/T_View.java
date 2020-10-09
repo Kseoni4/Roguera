@@ -1,6 +1,7 @@
 package com.rogurea.research;
 
 import com.googlecode.lanterna.*;
+import com.googlecode.lanterna.graphics.StyleSet;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -9,9 +10,13 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 
 public class T_View extends Thread{
+
+    static Random random = new Random();
+
 
     static int OffsetPositionName = 1;
 
@@ -33,20 +38,13 @@ public class T_View extends Thread{
 
     static TerminalPosition topFightInfoLeft;
 
-    static TerminalSize PlayerInfoSize = new TerminalSize(getPlayerPositionInfo().length() + 2, 5);
+    static TerminalSize PlayerInfoSize = new TerminalSize(Resources.getPlayerPositionInfo().length() + 2, 5);
 
     static TerminalSize FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
 
     static int r = 255, g = 200, b = 100;
 
     static TextColor.RGB textColor = new TextColor.RGB(r, g, b);
-
-    static String getPlayerPositionInfo(){
-        return  "Player position "
-                + "x:" + R_Player.Pos.x
-                + " "
-                + "y:" + R_Player.Pos.y + ' ';
-    }
 
     static void SetGameScreen() throws IOException {
 
@@ -78,6 +76,12 @@ public class T_View extends Thread{
         }
     }
 
+/*  Хочу кратко рассказать, как устроен рендеринг в игре. Мы нажали на стрелочку - тут же активируется функция drawcall(), которая очищает экран, заново рисует блок информации и рисует карту.
+    На примере показан процесс отрисовки (я специально немного замедлил для наглядности)
+
+    На самом деле между нажатием на стрелочку и отрисовкой карты, в памяти игры позиция нашей собачки меняется в соответствующую сторону и мы выводим новое состояние игрового поля.
+    Игровое поле - это эдакая таблица, где строки и столбцы - (y,x), а 0,0 начинается в левом верхнем углу */
+
     static void Drawcall() throws IOException {
 
         terminal.clearScreen();
@@ -101,11 +105,6 @@ public class T_View extends Thread{
                 topPlayerInfoLeft.getRow()+1);
 
         FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
-
-/*        System.out.println("topLeft: " +
-                topPlayerInfoLeft.toString() + " topFightLeft: "
-                + topFightInfoLeft.toString() + " FightMenuSize: "
-                + FightMenuSize.toString());*/
     }
 
     static void InitGraphics(TextGraphics textGraphics, TerminalPosition terminalPosition, TerminalSize terminalSize){
@@ -115,7 +114,7 @@ public class T_View extends Thread{
     static void DrawPlayerInformation(){
 
         PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2, 1),
-                getPlayerPositionInfo());
+                Resources.getPlayerPositionInfo());
 
         PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2,2),
                 "Room size: " + R_Dungeon.CurrentRoom.length + "x" + R_Dungeon.CurrentRoom[0].length
@@ -123,12 +122,48 @@ public class T_View extends Thread{
                         .filter(room -> room.NumberOfRoom == R_Player.CurrentRoom)
                         .findAny().orElse(null)).roomSize + ")");
 
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2,3), "" +
-                "Player: " + R_Player.nickName + " "
-                + "HP:" + R_Player.HP + " "
-                + "MP:" + R_Player.MP + " "
-                + "Level:" + R_Player.Level + " "
-                + "Room:" + R_Player.CurrentRoom);
+        int TextOffset = 2;
+
+        TextColor.ANSI ansi;
+
+        for(String info : Resources.PlayerInfo){
+
+            PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(TextOffset, 3), " " + info);
+
+            TextOffset += info.length();
+
+            switch (info) {
+                case "Player: " -> {
+                    info = R_Player.nickName;
+                    ansi = TextColor.ANSI.GREEN;
+                }
+                case "HP: " -> {
+                    info = String.valueOf(R_Player.HP);
+                    ansi = TextColor.ANSI.RED;
+                }
+                case "MP: " -> {
+                    info = String.valueOf(R_Player.MP);
+                    ansi = TextColor.ANSI.BLUE_BRIGHT;
+                }
+                case "Level: " -> {
+                    info = String.valueOf(R_Player.Level);
+                    ansi = TextColor.ANSI.CYAN;
+                }
+                case "Room: " -> {
+                    info = String.valueOf(R_Player.CurrentRoom);
+                    ansi = TextColor.ANSI.MAGENTA;
+                }
+                default -> ansi = TextColor.ANSI.WHITE;
+            }
+            PlayerInfoGraphics.setForegroundColor(ansi);
+
+            PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(TextOffset, 3), info + " ");
+
+            PlayerInfoGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+
+            TextOffset += info.length();
+
+        }
     }
 
     static void DrawDungeon() throws IOException {
@@ -141,13 +176,13 @@ public class T_View extends Thread{
                 } else if (CheckCreature(cell)) {
                     DrawMob(MapDrawGraphics, i, j);
                 } else if (Scans.CheckWall(cell)){
+                    //PutRandomCharacter(MapDrawGraphics, i, j);
                     DrawCell(MapDrawGraphics, i, j);
                 }
                 else{
+                    //PutRandomCharacter(MapDrawGraphics, i, j);
                     MapDrawGraphics.putString(j,i, R_Dungeon.ShowDungeon(i,j));
                 }
-                //if (j == R_Dungeon.CurrentRoom[0].length - 1)
-                    //MapDrawGraphics.putString(i, j, "\n", SGR.BOLD);
             }
         }
     }
@@ -176,6 +211,20 @@ public class T_View extends Thread{
         textGraphics.setForegroundColor(textColor);
         textGraphics.putString(j, i, R_Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+    }
+
+    static void PutRandomCharacter(TextGraphics textGraphics, int i, int j) throws InterruptedException, IOException {
+        TextColor rgb = new TextColor.RGB(
+                random.nextInt(255),
+                random.nextInt(255),
+                random.nextInt(255)
+        );
+        textGraphics.setForegroundColor(rgb);
+        textGraphics.putString(j,i, String.valueOf(Resources.rsymbls[random.nextInt(Resources.rsymbls.length-1)]),
+                SGR.ITALIC);
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+        Thread.sleep(30);
+        terminal.flush();
     }
 /*
 
