@@ -7,19 +7,11 @@ import com.rogurea.main.view.Log;
 public class Scans {
 
     public static boolean CheckWall(char c){
-        if (c == GameResources.HWall)
-            return false;
-        if (c == GameResources.VWall)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_TOP_LEFT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER)
-            return false;
-        if (c == Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER)
-            return false;
-        return  true;
+        for(char cell : GameResources.MapStructureAtlas){
+            if(cell == c)
+                return false;
+        }
+        return true;
     }
 
     public static boolean CheckExit(char c){
@@ -38,9 +30,11 @@ public class Scans {
 
     public static boolean CheckProps(char c){
         if(CheckWall(c)){
-            return c == GameResources.chair
-                    || c == GameResources.table_rect
-                    || c == GameResources.table_hex;
+            for(char prop : GameResources.FurnitureAtlas){
+                if(prop == c){
+                    return true;
+                }
+            }
         }
         return false;
     }

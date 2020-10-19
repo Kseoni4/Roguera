@@ -1,7 +1,6 @@
 package com.rogurea.main.mapgenerate;
 
 import com.rogurea.main.items.Item;
-import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.map.Room;
@@ -15,8 +14,6 @@ import java.util.function.Predicate;
 public class BaseGenerate {
 
     public static Random random = new Random();
-
-    public static char EmptyCell = ' ';
 
     public enum RoomSize {
         SMALL{
@@ -151,10 +148,6 @@ public class BaseGenerate {
         MapEditor.FillAllSpaceWithEmpty(CurrentRoom);
 
         Player.CurrentRoom = room.NumberOfRoom;
-
-        int RoomLenghtY = CurrentRoom.length;
-
-        int RoomLenghtX = CurrentRoom[0].length;
 
         System.out.println("CurrentRoom " + room.NumberOfRoom);
 

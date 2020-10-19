@@ -10,6 +10,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Item;
+import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
@@ -98,9 +99,7 @@ public class TerminalView implements Runnable{
         try {
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera build: " + GameResources.version);
 
-            Font font = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
-
-            SwingTerminalFontConfiguration fontConfiguration = SwingTerminalFontConfiguration.newInstance(font);
+            SwingTerminalFontConfiguration fontConfiguration = SwingTerminalFontConfiguration.newInstance(GameResources.TerminalFont);
 
             defaultTerminalFactory.setTerminalEmulatorFontConfiguration(fontConfiguration);
 
@@ -289,7 +288,6 @@ public class TerminalView implements Runnable{
         if(LogHistoryIndex < LogHistory.length) {
             sb.insert(0,"\u001b[38;5;n" + "m");
             LogHistory[LogHistoryIndex] = sb.toString();
-//            LoggerGraphics.putString(topLoggerLeft.withRelative(0, LogHistoryIndex), sb.toString());
             LogHistoryIndex++;
         }
         else {
@@ -374,12 +372,15 @@ public class TerminalView implements Runnable{
     }
 
     public static void ShowItemInfo(Item item){
+        Weapon weapon = (Weapon) item;
         if(item != null)
             InventoryGraphics.putCSIStyledString(
-                    topInventoryLeft.getColumn(),
-                    topInventoryLeft.getRow()+4,
-                    item._model + " " + item.name + " " +
-                    + item.SellPrice
+                        topInventoryLeft.getColumn(),
+                        topInventoryLeft.getRow()+4,
+                        weapon._model + " "
+                         + weapon.name + " " + Colors.ORANGE + "$"
+                         + weapon.SellPrice + Colors.RED_BRIGHT + " dmg"
+                         + weapon.getDamage()
             );
     }
 /*

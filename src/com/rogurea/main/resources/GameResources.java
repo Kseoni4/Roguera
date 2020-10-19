@@ -1,14 +1,16 @@
 package com.rogurea.main.resources;
 
 import com.googlecode.lanterna.Symbols;
-import com.googlecode.lanterna.TextColor;
 import com.rogurea.main.player.Player;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
 public class GameResources {
+
+    public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
     public static final String version = "0.0.3:1910:1526";
 
@@ -43,6 +45,13 @@ public class GameResources {
     public static final char HWall = '━';
 
     public static final char VWall = '┃';
+
+    public static final char LBCorner = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+    public static final char RTCorner = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
+    public static final char LTCorner = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
+    public static final char RBCorner = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
+
+    public static final char[] MapStructureAtlas = {HWall, VWall, LBCorner, RTCorner, LTCorner, RBCorner};
 
     public static final char InvHWallDown = '┬';
     public static final char InvHWallUp = '┴';

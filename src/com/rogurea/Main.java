@@ -3,7 +3,6 @@ package com.rogurea;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.GameLoop;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.screentesting.ScreenView;
 
 import java.io.IOException;
 

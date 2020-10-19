@@ -1,6 +1,7 @@
 package com.rogurea.main.mapgenerate;
 
 import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.resources.GameResources;
 
 import java.util.Random;
 
@@ -233,41 +234,41 @@ public class GenerateRules {
         && currentDirection == MapEditor.DrawDirection.RIGHT
         || previousDirection == MapEditor.DrawDirection.LEFT
         && currentDirection == MapEditor.DrawDirection.UP)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+            CurrentRoom[y1][x1] = GameResources.LBCorner;
 
         if(previousDirection == MapEditor.DrawDirection.RIGHT
         && currentDirection == MapEditor.DrawDirection.DOWN
         || previousDirection == MapEditor.DrawDirection.UP
         && currentDirection == MapEditor.DrawDirection.LEFT)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
+            CurrentRoom[y1][x1] = GameResources.RTCorner;
 
         if(previousDirection == MapEditor.DrawDirection.UP
         && currentDirection == MapEditor.DrawDirection.RIGHT
         || previousDirection == MapEditor.DrawDirection.LEFT
         && currentDirection == MapEditor.DrawDirection.DOWN)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
+            CurrentRoom[y1][x1] = GameResources.LTCorner;
 
         if(previousDirection == MapEditor.DrawDirection.DOWN
         && currentDirection == MapEditor.DrawDirection.LEFT
         ||previousDirection == MapEditor.DrawDirection.RIGHT
         && currentDirection == MapEditor.DrawDirection.UP)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
+            CurrentRoom[y1][x1] = GameResources.RBCorner;
 
         if(previousDirection == MapEditor.DrawDirection.RIGHT
                 && currentDirection == MapEditor.DrawDirection.LEFT)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_HORIZONTAL;
+            CurrentRoom[y1][x1] = GameResources.HWall;
 
         if(previousDirection == MapEditor.DrawDirection.LEFT
                 && currentDirection == MapEditor.DrawDirection.RIGHT)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_HORIZONTAL;
+            CurrentRoom[y1][x1] = GameResources.HWall;
 
         if(previousDirection == MapEditor.DrawDirection.UP
                 && currentDirection == MapEditor.DrawDirection.DOWN)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_VERTICAL;
+            CurrentRoom[y1][x1] = GameResources.VWall;
 
         if(previousDirection == MapEditor.DrawDirection.DOWN
                 && currentDirection == MapEditor.DrawDirection.UP)
-            CurrentRoom[y1][x1] = Symbols.DOUBLE_LINE_VERTICAL;
+            CurrentRoom[y1][x1] = GameResources.VWall;
 
     }
 
