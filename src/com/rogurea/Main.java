@@ -1,18 +1,19 @@
 package com.rogurea;
 
-import com.googlecode.lanterna.Symbols;
-import com.rogurea.research.R_Dungeon;
-import com.rogurea.research.R_GameLoop;
-import com.rogurea.research.T_View;
+import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.GameLoop;
+import com.rogurea.main.resources.GameResources;
+import com.rogurea.screentesting.ScreenView;
 
 import java.io.IOException;
 
 public class Main{
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, IllegalAccessException {
 
-        R_Dungeon.Generate();
-        R_GameLoop.Start();
+        GameResources.MakeMap();
+        Dungeon.Generate();
+        GameLoop.Start();
 
         System.out.println("Closed");
 

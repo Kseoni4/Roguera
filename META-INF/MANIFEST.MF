@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: com.rogurea.Main
+Class-Path: /Users/kseno/IdeaProjects/RogueLike/lib/lanterna-3.2.0-alpha
+ 1.jar
+

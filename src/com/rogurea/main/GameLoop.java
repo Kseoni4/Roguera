@@ -1,107 +1,112 @@
 package com.rogurea.main;
 
+import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.main.gamelogic.Scans;
+import com.rogurea.main.items.Weapon;
+import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Room;
+import com.rogurea.main.mapgenerate.BaseGenerate;
+import com.rogurea.main.player.KeyController;
+import com.rogurea.main.player.Player;
+import com.rogurea.main.player.PlayerMoveController;
+import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.view.Log;
+import com.rogurea.main.view.TerminalView;
+
+import java.io.IOException;
+import java.util.Objects;
+
+import static com.rogurea.main.player.Player.CurrentRoom;
+import static com.rogurea.main.player.Player.PlayerModel;
+
 public class GameLoop {
 
+    public static void Start(){
+        try{
+            TerminalView.InitTerminal();
+            InLoop();
 
+        } catch (IOException e) {
 
-    static enum Options {
-        ActionMenu{
-            public void show(Player p, Room r, Options option){
-                View.Print(p, r, option);
+            e.printStackTrace();
+
+        } finally {
+            if (TerminalView.terminal != null) {
+                try {
+                    TerminalView.terminal.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        },
-        FightMenu{
-            public void show(Player p, Room r, Options option){
-                View.Print(p, r, option);
-            }
-        },
-        TargetMenu{
-            public void show(Player p, Room r, Options option){
-                View.Print(p, r, option);
-            }
-        };
-        public abstract void show(Player p, Room r, Options option);
-    }
-
-    static Options option;
-
-    static boolean q = false;
-
-    static int FirstRoom = 1;
-
-    static boolean IsDef = false;
-
-    public static void Start(Player player){
-        while(!q){
-            if(player.CurrentRoom == FirstRoom){
-                StartRoom(player, Dungeon.Rooms.get(FirstRoom-1));
-            }
-            else
-                CurrentRoom(player, Dungeon.Rooms.get(player.CurrentRoom-1));
         }
     }
 
-    static void CurrentRoom(Player p, Room room){
-        p.CurrentRoom = room.NumberOfRoom;
-        if(room.RoomCreatures.isEmpty())
-            try{
-                ActionDo(GetChooseAction(p, room), p);
+    public static void InLoop() throws IOException {
+
+        Thread drawcall = new Thread(new TerminalView(), "drawcall");
+
+        drawcall.start();
+
+        /*Runnable r = () -> {
+            for(int i = 0; i < GameResources.ProgessBar.length; i++) {
+                Dungeon.CurrentRoom[3][3] = GameResources.ProgessBar[i];
+                try {
+                    Thread.sleep(600);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            catch (NullPointerException ignored) {
+        };*/
+        //new BotController_3().start();
 
+        while (TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
+
+            Player.AutoEquip();
+
+            TerminalView.keyStroke = TerminalView.terminal.readInput();
+
+/*            if(R_MobController.MobsScan()) {
+                T_View.DrawFightMenu();
+                T_View.MenuPrompt(R_Dungeon.CurrentRoomCreatures.keySet());
+            }*/
+
+            if (TerminalView.keyStroke.getKeyType() == KeyType.Character) {
+                KeyController.GetKey(TerminalView.keyStroke.getCharacter());
             }
-        else
-            GoFight(p, room);
+            PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
 
-    }
-
-    static void GoFight(Player p, Room room){
-
-        int turns = 1;
-
-        while(!room.RoomCreatures.isEmpty()){
-            IsDef = false;
-            System.out.printf("Turn: %d \n", turns);
-            ActionDo(GetChooseActionFight(p, room), p);
-
-            if(!IsDef){
-                Encounter.SetTarget();
-                Encounter.Attack(Encounter.target, p);
-                Encounter.RemoveCreature(Encounter.target, room);
-                Input.WaitFromPlayer();
-            }
-            Encounter.MobAttack(room.RoomCreatures, p);
-        };
-    }
-
-
-    static void StartRoom(Player p, Room room){
-        System.out.print("Welcome to the start room! \n");
-        ActionDo(GetChooseAction(p, room), p);
-    }
-
-    static View.Actions GetChooseAction(Player p, Room room){
-        View.ShowPrompt(p, room, Options.ActionMenu);
-        return View.actions[Input.WaitFromPlayer()];
-    }
-
-    private static View.Actions GetChooseActionFight(Player p, Room r) {
-        View.ShowPrompt(p, r, Options.FightMenu);
-        return View.actions[Input.WaitFromPlayer()];
-    }
-
-    private static void GoBack(Player player){
-        player.CurrentRoom--;
-        CurrentRoom(player, Dungeon.Rooms.get((player.CurrentRoom-1)));
-    }
-
-    static void ActionDo (View.Actions actions, Player player) {
-        switch (actions){
-            case NEXTROOM -> CurrentRoom(player, Dungeon.Rooms.get((player.CurrentRoom-1)).nextRoom);
-            case BACK, ESC -> GoBack(player);
-            case CHECHINV -> View.ShowInventory(player);
-            case ATK -> View.ShowPrompt(player, Dungeon.Rooms.get(player.CurrentRoom-1), Options.TargetMenu);
-            case DEF -> IsDef = true;
+            Scans.CheckSee(Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x]);
         }
     }
+
+    public static void RegenRoom() throws IOException {
+        System.out.flush();
+        BaseGenerate.GenerateRoom(Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.FIRST)));
+        BaseGenerate.PutPlayerInDungeon(Dungeon.CurrentRoom[0].length/2,1, Dungeon.CurrentRoom);
+    }
+
+    public static void ChangeRoom(Room room){
+        if(!room.IsRoomStructureGenerate){
+            try {
+                BaseGenerate.GenerateRoom(
+                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
+            }
+            catch (NullPointerException | IOException e){
+                e.getMessage();
+                Dungeon.CurrentRoom[1][1] = PlayerModel;
+            }
+            finally {
+                BaseGenerate.PutPlayerInDungeon(
+                        BaseGenerate.GetCenterOfRoom(room), 1,
+                        Dungeon.CurrentRoom);
+            }
+        }
+        else{
+            com.rogurea.main.player.Player.CurrentRoom = room.NumberOfRoom;
+            Dungeon.CurrentRoom = room.RoomStructure;
+            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), 1,
+                    room.RoomStructure);
+        }
+    }
+
 }
