@@ -64,7 +64,8 @@ public class GameResources {
     public static final char InvRPorner = '┐';
     public static final char InvRDorner = '┘';
 
-    public static final char PointerUp = '⏶';
+    public static final char PointerUp = '▲';
+    public static final char PointerRight = '»';
 
     public static final char NextRoom = Symbols.ARROW_DOWN;
 

@@ -18,6 +18,8 @@ import static com.rogurea.main.player.Player.PlayerModel;
 
 public class GameLoop {
 
+    public static Thread drawcall = new Thread(new TerminalView(), "drawcall");
+
     public static void Start(){
         try{
             TerminalView.InitTerminal();
@@ -39,8 +41,6 @@ public class GameLoop {
     }
 
     private static void InLoop() throws IOException {
-
-        Thread drawcall = new Thread(new TerminalView(), "drawcall");
 
         drawcall.start();
 

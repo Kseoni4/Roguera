@@ -3,14 +3,12 @@ package com.rogurea.main.player;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.GameLoop;
 import com.rogurea.main.gamelogic.Scans;
-import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
-import com.rogurea.main.view.Log;
-import com.rogurea.main.view.TerminalView;
+import com.rogurea.main.view.LogBlock;
 
 import java.util.Objects;
 
@@ -29,7 +27,7 @@ public class PlayerMoveController {
         char cell = Dungeon.CurrentRoom[y][x];
 
         if(!Scans.CheckWall(cell)
-         || TerminalView.CheckCreature(cell)
+         || Scans.CheckCreature(cell)
         || Scans.CheckProps(cell)){
             return;
         }
@@ -40,7 +38,7 @@ public class PlayerMoveController {
             GameLoop.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
             );
-            Log.Action("are enter the room");
+            LogBlock.Action("are enter the room");
             return;
         }
 

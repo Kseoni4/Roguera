@@ -1,8 +1,9 @@
 package com.rogurea.main.gamelogic;
 
-import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.Log;
+import com.rogurea.main.view.LogBlock;
 
 public class Scans {
 
@@ -49,6 +50,15 @@ public class Scans {
 
     public static void CheckSee(char c){
         if(GameResources.ModelNameMap.get(c) != null)
-            Log.Action("see the " + GameResources.ModelNameMap.get(c));
+            LogBlock.Action("see the " + GameResources.ModelNameMap.get(c));
+    }
+
+    public static boolean CheckCreature(char cell){
+
+        for(Mob mob : Dungeon.CurrentRoomCreatures.keySet()){
+            if(cell == mob.getCreatureSymbol())
+                return true;
+        }
+        return false;
     }
 }

@@ -17,78 +17,34 @@ import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Random;
 
 public class TerminalView implements Runnable{
 
-    static Random random = new Random();
+    private static final Random random = new Random();
 
-    static boolean HideInv = true;
-
-    static int OffsetPositionName = 1;
-
-    static int FightMenuSizeRows = 5;
-
-    static DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+    private static final DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 
     public static Terminal terminal = null;
 
-    static TextGraphics MapDrawGraphics = null;
-
-    static TextGraphics PlayerInfoGraphics = null;
-
-    static TextGraphics FightInfoGraphics = null;
-
-    static TextGraphics LoggerGraphics = null;
-
-    static TextGraphics InventoryGraphics = null;
-
     static TextGraphics Controls = null;
-
-    static int LogHistorySize = 11;
-
-    static String[] LogHistory = new String[LogHistorySize];
-
-    static int LogHistoryIndex = 0;
 
     public static KeyStroke keyStroke = KeyStroke.fromString(" ");
 
-    static TerminalPosition topPlayerInfoLeft;
-
-    static TerminalPosition topFightInfoLeft;
-
-    static TerminalSize PlayerInfoSize = new TerminalSize(GameResources.getPlayerPositionInfo().length() + 2, 5);
-
-    static TerminalSize FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
-
-    static TerminalSize LogSize = new TerminalSize(256, LogHistory.length);
-
-    static TerminalSize InventorySize = new TerminalSize(10,10);
-
-    static TerminalPosition topLoggerLeft;
-
-    static TerminalPosition topInventoryLeft;
-
     static int r = 255, g = 200, b = 100;
-
-    static TextColor.RGB textColor = new TextColor.RGB(r, g, b);
 
     static void SetGameScreen() throws IOException {
 
-        MapDrawGraphics = terminal.newTextGraphics();
+        GameMapBlock.Init();
 
-        PlayerInfoGraphics = terminal.newTextGraphics();
+        PlayerInfoBlock.Init();
 
-        FightInfoGraphics = terminal.newTextGraphics();
+        LogBlock.Init();
 
-        LoggerGraphics = terminal.newTextGraphics();
+        InventoryMenu.Init();
 
         Controls = terminal.newTextGraphics();
-
-        InventoryGraphics = terminal.newTextGraphics();
 
         terminal.resetColorAndSGR();
 
@@ -120,12 +76,14 @@ public class TerminalView implements Runnable{
         }
     }
 
-/*  Хочу кратко рассказать, как устроен рендеринг в игре. Мы нажали на стрелочку - тут же активируется функция drawcall(), которая очищает экран, заново рисует блок информации и рисует карту.
+  /*
+  Хочу кратко рассказать, как устроен рендеринг в игре. Мы нажали на стрелочку - тут же активируется функция drawcall(), которая очищает экран, заново рисует блок информации и рисует карту.
     На примере показан процесс отрисовки (я специально немного замедлил для наглядности)
 
     На самом деле между нажатием на стрелочку и отрисовкой карты, в памяти игры позиция нашей собачки меняется в соответствующую сторону и мы выводим новое состояние игрового поля.
-    Игровое поле - это эдакая таблица, где строки и столбцы - (y,x), а 0,0 начинается в левом верхнем углу */
+    Игровое поле - это эдакая таблица, где строки и столбцы - (y,x), а 0,0 начинается в левом верхнем углу
 
+*/
     public void run() {
         while(keyStroke.getKeyType() != KeyType.Escape) {
             try {
@@ -144,15 +102,13 @@ public class TerminalView implements Runnable{
 
         ResetTerminalPosition();
 
-        InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
+        PlayerInfoBlock.GetInfo();
 
-        DrawPlayerInformation();
+        GameMapBlock.DrawDungeon();
 
-        RedrawLog();
+        LogBlock.RedrawLog();
 
-        DrawInventory(HideInv);
-
-        DrawDungeon();
+        InventoryMenu.DrawInventory();
 
         Controls.putCSIStyledString(new TerminalPosition(0, terminal.getTerminalSize().getRows()-1),
                 "i\u001b[48;5;57mInv\u001b[0m r\u001b[48;5;57mGenRoom\u001b[0m c\u001b[48;5;57mClrLog\u001b[0m ESC\u001b[48;5;57mQuit");
@@ -161,113 +117,22 @@ public class TerminalView implements Runnable{
 
     static void ResetTerminalPosition(){
 
-        topPlayerInfoLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 1,1);
-
-        topFightInfoLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 1,
-                topPlayerInfoLeft.getRow()+1);
-
-        FightMenuSize = new TerminalSize(OffsetPositionName, FightMenuSizeRows);
-
-        topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
-
-        topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+35, 12);
     }
 
     static void InitGraphics(TextGraphics textGraphics, TerminalPosition terminalPosition, TerminalSize terminalSize){
         textGraphics.fillRectangle(terminalPosition, terminalSize, MapEditor.EmptyCell);
     }
 
-    static void DrawPlayerInformation(){
-
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2, 1),
-                GameResources.getPlayerPositionInfo());
-
-        PlayerInfoGraphics.putString(topPlayerInfoLeft.withRelative(2,2),
-                "Room size: " + Dungeon.CurrentRoom.length + "x" + Dungeon.CurrentRoom[0].length
-                        + " (" + Objects.requireNonNull(Dungeon.Rooms.stream()
-                        .filter(room -> room.NumberOfRoom == Player.CurrentRoom)
-                        .findAny().orElse(null)).roomSize + ")");
-
-        PlayerInfoGraphics.putCSIStyledString(topPlayerInfoLeft.withRelative(2, 3),
-                GameResources.UpdatePlayerInfo());
-
-        PlayerInfoGraphics.putCSIStyledString(topPlayerInfoLeft.withRelative(2,4),
-                "Equped: " + (Player.Equip.get("FirstWeapon") != null ? Colors.ORANGE + Player.Equip.get("FirstWeapon")._model : "none")
-        );
+    static void DrawBlockInTerminal(TextGraphics textgui, String data, TerminalPosition position){
+        textgui.putCSIStyledString(position, data);
     }
 
-    static void RedrawLog(){
-        InitGraphics(LoggerGraphics, topLoggerLeft, LogSize);
-        DrawLogBorders();
-        if(LogHistory[0] != null) {
-            int i = 0;
-            for (String s : LogHistory) {
-                if (s != null) {
-                    s = s.replaceFirst("(\\[38;5;nm)", "[38;5;" + (245+(LogHistory.length-(LogHistoryIndex*2))+i) + "m");
-                    LoggerGraphics.putCSIStyledString(topLoggerLeft.withRelative(0,i),s);
-                    i++;
-                }
-                else
-                    break;
-            }
-        }
+    static void DrawBlockInTerminal(TextGraphics textgui, String data, int x, int y){
+        textgui.putCSIStyledString(x, y, data);
     }
 
-    static void DrawLogBorders(){
-        LoggerGraphics.putString(topLoggerLeft.withRow(10), "Log");
-        LoggerGraphics.drawLine(topLoggerLeft.withRow(11), new TerminalPosition(topLoggerLeft.getColumn()+20,topLoggerLeft.getRow()-1), Symbols.SINGLE_LINE_HORIZONTAL);
-    }
-
-    static void DrawDungeon() throws IOException {
-        char cell = MapEditor.EmptyCell;
-        for (int i = 0; i < Dungeon.CurrentRoom.length; i++) {
-            for (int j = 0; j < Dungeon.CurrentRoom[0].length; j++) {
-                cell = Dungeon.ShowDungeon(i, j).charAt(0);
-                if (cell == Player.PlayerModel) {
-                    DrawPlayer(MapDrawGraphics, i, j);
-                } else if (CheckCreature(cell)) {
-                    DrawMob(MapDrawGraphics, i, j);
-                } else if (Scans.CheckWall(cell)){
-                    DrawCell(MapDrawGraphics, i, j);
-/*                    if(cell == GameResources.Bot)
-                    {
-                        MapDrawGraphics.setForegroundColor(TextColor.ANSI.CYAN_BRIGHT);
-                        MapDrawGraphics.putString(j, i, Dungeon.ShowDungeon(i, j));
-                        MapDrawGraphics.setForegroundColor(TextColor.ANSI.WHITE);
-                    }*/
-                }
-                else{
-                    MapDrawGraphics.putString(j,i, Dungeon.ShowDungeon(i,j));
-                }
-            }
-        }
-    }
-
-    static void DrawPlayer(TextGraphics textGraphics, int i, int j){
-        textGraphics.setForegroundColor(TextColor.ANSI.GREEN_BRIGHT);
-        textGraphics.putString(j, i, Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
-        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
-    }
-
-    public static boolean CheckCreature(char cell){
-
-        for(Mob mob : Dungeon.CurrentRoomCreatures.keySet()){
-            if(cell == mob.getCreatureSymbol())
-                return true;
-        }
-        return false;
-    }
-
-    static void DrawMob(TextGraphics textGraphics, int i, int j){
-        textGraphics.setForegroundColor(TextColor.ANSI.RED_BRIGHT);
-        textGraphics.putString(j, i, Dungeon.ShowDungeon(i, j), SGR.CIRCLED);
-        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
-    }
-
-    static void DrawCell(TextGraphics textGraphics, int i, int j){
-        textGraphics.setForegroundColor(textColor);
-        textGraphics.putString(j, i,Dungeon.ShowDungeon(i,j));
-        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+    static void SetPointerIntoPosition(TextGraphics textgui, char pointer, TerminalPosition position){
+        textgui.setCharacter(position, pointer);
     }
 
     static void PutRandomCharacter(TextGraphics textGraphics, int i, int j) throws InterruptedException, IOException {
@@ -283,108 +148,7 @@ public class TerminalView implements Runnable{
         Thread.sleep(30);
         terminal.flush();
     }
-
-    static void WriteLog(StringBuilder sb){
-        if(LogHistoryIndex < LogHistory.length) {
-            sb.insert(0,"\u001b[38;5;n" + "m");
-            LogHistory[LogHistoryIndex] = sb.toString();
-            LogHistoryIndex++;
-        }
-        else {
-            ClearLog();
-            sb.insert(0,"\u001b[38;5;255m");
-            LogHistory[LogHistoryIndex] = sb.toString();
-        }
-    }
-
-    public static void ClearLog(){
-        LogHistory = new String[LogHistorySize];
-        LogHistoryIndex = 0;
-    }
-
-    public static void DrawInventory(boolean hide){
-        if(!hide){
-            Item thisItem = InventoryMenu.GetItem();
-            DrawInventoryBorders();
-            int offset = 1;
-            for(Item item : Player.Inventory){
-                InventoryGraphics.putCSIStyledString(topInventoryLeft.withRelative(offset,1),
-                        "\u001b[38;5;202m" + item._model);
-                offset++;
-            }
-            PutCursonOnPos(InventoryMenu.CursorPos);
-            ShowItemInfo(thisItem);
-        }
-    }
-
-    public static void DrawInventoryBorders(){
-        InventoryGraphics.putCSIStyledString(topInventoryLeft.getColumn(), topInventoryLeft.getRow()-1,
-                "Inventory");
-        InventoryGraphics.drawLine(
-                topInventoryLeft,
-                new TerminalPosition(topInventoryLeft.getColumn()+10, topInventoryLeft.getRow()),
-                GameResources.InvHWallDown
-        );
-        InventoryGraphics.drawLine(
-                new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+2),
-                new TerminalPosition(topInventoryLeft.getColumn()+10, topInventoryLeft.getRow()+2),
-                GameResources.InvHWallUp
-        );
-
-        InventoryGraphics.drawLine(
-                new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+1),
-                new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+1),
-                GameResources.InvVWallRight
-        );
-        InventoryGraphics.drawLine(
-                new TerminalPosition(topInventoryLeft.getColumn()+11, topInventoryLeft.getRow()+1),
-                new TerminalPosition(topInventoryLeft.getColumn()+11, topInventoryLeft.getRow()+1),
-                GameResources.InvVWallLeft
-        );
-        InventoryGraphics.setCharacter(
-                topInventoryLeft.getColumn(),
-                topInventoryLeft.getRow(),
-                GameResources.InvLPCorner
-        );
-        InventoryGraphics.setCharacter(
-                topInventoryLeft.getColumn()+11,
-                topInventoryLeft.getRow(),
-                GameResources.InvRPorner
-        );
-        InventoryGraphics.setCharacter(
-                topInventoryLeft.getColumn(),
-                topInventoryLeft.getRow()+2,
-                GameResources.InvLDorner
-        );
-        InventoryGraphics.setCharacter(
-                topInventoryLeft.getColumn()+11,
-                topInventoryLeft.getRow()+2,
-                GameResources.InvRDorner
-        );
-
-    }
-
-    public static void PutCursonOnPos(TerminalPosition position){
-        InventoryGraphics.setCharacter(
-                position,
-                GameResources.PointerUp
-        );
-    }
-
-    public static void ShowItemInfo(Item item){
-        Weapon weapon = (Weapon) item;
-        if(item != null)
-            InventoryGraphics.putCSIStyledString(
-                        topInventoryLeft.getColumn(),
-                        topInventoryLeft.getRow()+4,
-                        weapon._model + " "
-                         + weapon.name + " " + Colors.ORANGE + "$"
-                         + weapon.SellPrice + Colors.RED_BRIGHT + " dmg"
-                         + weapon.getDamage()
-            );
-    }
 /*
-
     static void FightTextGraphics(TextGraphics fightGraphics, TerminalPosition topFightLeft){
         fightGraphics.fillRectangle(topFightLeft, FightMenuSize, ' ');
         FightMenuSize = new TerminalSize(Offset, 1);
@@ -444,12 +208,13 @@ public class TerminalView implements Runnable{
 
         KeyStroke KeyMenu;
 
-        */
-/*System.out.println("In fight: \n" + "\ttopLeft: " +
+
+
+System.out.println("In fight: \n" + "\ttopLeft: " +
                 topLeft.toString() + " topFightLeft: "
                 + topFightLeft.toString() + " FightMenuSize: "
                 + FightMenuSize.toString() + " topRight: "
-                + topRight.toString());*//*
+                + topRight.toString());
 
 
         ResetMobNames(NameOffset, CurrentRoomMobSet);
@@ -505,12 +270,13 @@ public class TerminalView implements Runnable{
 
         fightGraphics.putString(topFightLeft.withRelative(1, 3),
                 "Creatures:");
-    }
+    }*/
 
 
 
 
 
 
-*/
+
+
 }

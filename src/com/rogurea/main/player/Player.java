@@ -1,10 +1,11 @@
 package com.rogurea.main.player;
 
+import com.rogurea.main.items.InventoryController;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.Log;
+import com.rogurea.main.view.LogBlock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +38,13 @@ public class Player {
     };
 
     public static void PutInInventory(Item item){
-        Inventory.add(item);
-        Log.Action("get the " + "\u001b[38;5;202m" + item.name + "\u001b[0m" + '!');
+        if(Inventory.size() < 10) {
+            Inventory.add(item);
+            LogBlock.Action("get the " + "\u001b[38;5;202m" + item.name + "\u001b[0m" + '!');
+        }
+        else{
+            LogBlock.Event("Your inventory is full!");
+        }
     }
 
     public static Item GetFromInventory(Predicate<Item> predicate){
@@ -48,8 +54,8 @@ public class Player {
     }
 
     public static void EquipWeapon(String place, Weapon weapon){
-        Equip.put(place, weapon);
-        Log.Action("are equip an " + Colors.ORANGE + weapon.name);
+        InventoryController.EquipItem(weapon, place);
+        LogBlock.Action("are equip an " + Colors.ORANGE + weapon.name);
     }
 
     public static void AutoEquip() {

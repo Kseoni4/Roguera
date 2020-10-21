@@ -1,16 +1,14 @@
 package com.rogurea.main.player;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.GameLoop;
 import com.rogurea.main.view.InventoryMenu;
-import com.rogurea.main.view.Log;
+import com.rogurea.main.view.LogBlock;
 
 import java.io.IOException;
 
 
 public class KeyController {
-    public static void GetKey (Character key){
+    public static char GetKey (Character key){
             switch (key){
                 case 'r':
                     try {
@@ -18,12 +16,16 @@ public class KeyController {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    return 'r';
                 case 'c':
-                    Log.Clear();
+                    LogBlock.Clear();
+                    return 'c';
                 case 'i':
                     InventoryMenu.show();
+                    return 'i';
                 default:
                     break;
             }
+            return ' ';
     }
 }
