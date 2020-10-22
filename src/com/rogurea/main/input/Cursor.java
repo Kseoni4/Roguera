@@ -33,7 +33,10 @@ public class Cursor {
 
         menu = container;
 
-        Index = menu.getIndex();
+        if(menu.getOptionNames() != null)
+            Index = menu.getIndexcontext();
+        else
+            Index = menu.getIndexoffset();
 
         offset = menu.getOffset();
 
@@ -46,11 +49,17 @@ public class Cursor {
         ShiftType = shifttype;
 
         switch (key) {
+            case ArrowUp -> {}
             case ArrowLeft -> Move(Left);
             case ArrowRight -> Move(Right);
             case Enter -> action.Do(Index);
         }
         TerminalView.CurrentPointerPosition = CursorPos;
+
+        if(menu.getOptionNames() == null){
+            Index = menu.UpdateCursor(Index);
+            menu.setIndexoffset(Index);
+        }
 
         return Index;
     }

@@ -2,6 +2,7 @@ package com.rogurea.main.resources;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.rogurea.main.player.Player;
 
 public class MenuContainer {
 
@@ -11,7 +12,9 @@ public class MenuContainer {
 
     private char pointer;
 
-    private int index;
+    private int indexoffset;
+
+    private int indexcontext;
 
     private int offset;
 
@@ -33,13 +36,13 @@ public class MenuContainer {
         this.pointer = pointer;
     }
 
-    public int getIndex(){
-        return this.index;
+    public int getIndexoffset(){
+        return this.indexoffset;
     }
+    public int getIndexcontext(){ return this.indexcontext; }
 
-    public void setIndex(int index){
-        this.index = index;
-    }
+    public void setIndexoffset(int index){ this.indexoffset = index; }
+    public void setIndexcontext(int index){ this.indexcontext = index; }
 
     public int getOffset(){
         return this.offset;
@@ -57,12 +60,19 @@ public class MenuContainer {
         this.OptionNames = names;
     }
 
+    public int UpdateCursor(int index){
+        while (index >= Player.Inventory.size()){
+            index--;
+        }
+        return index;
+    }
+
     public MenuContainer(TerminalPosition topLeftPosition, TextGraphics textGUI, char pointer,
                          int index, int offset){
         this.topLeftPosition = topLeftPosition;
         this.textGUI = textGUI;
         this.pointer = pointer;
-        this.index = index;
+        this.indexoffset = index;
         this.offset = offset;
     }
 

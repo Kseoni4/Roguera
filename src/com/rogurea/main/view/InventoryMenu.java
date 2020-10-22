@@ -64,14 +64,6 @@ public class InventoryMenu {
         topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+35, 12);
 
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
-
-        InventoryContainer = new MenuContainer(
-                topInventoryLeft,
-                InventoryGraphics,
-                pointer,
-                IndexOffset,
-                Offset
-        );
     }
 
     public static void show(){
@@ -89,6 +81,14 @@ public class InventoryMenu {
     }
 
     private static void ControlContext(){
+
+        InventoryContainer = new MenuContainer(
+                topInventoryLeft,
+                InventoryGraphics,
+                pointer,
+                IndexOffset,
+                Offset
+        );
 
         while(!HideInv){
             pointer = GameResources.PointerUp;
@@ -110,18 +110,19 @@ public class InventoryMenu {
                     PosY,
                     ShiftPlusOne,
                     invAction);
+
+            /*InventoryMenu.UpdateCursor();*/
+
             System.out.println("IndexOffset: " + IndexOffset);
 
-            InventoryMenu.UpdateCursor();
-
-            InventoryContainer.setIndex(IndexOffset);
+            InventoryContainer.setIndexoffset(IndexOffset);
         }
 
         ResetIndex();
 
         InventoryContainer.setOffset(Offset);
 
-        InventoryContainer.setIndex(IndexOffset);
+        InventoryContainer.setIndexoffset(IndexOffset);
 
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
     }
@@ -138,7 +139,7 @@ public class InventoryMenu {
 
         Offset = contextOffset;
 
-        InventoryContainer.setIndex(contextOffset);
+        InventoryContainer.setIndexcontext(contextOffset);
 
         InventoryContainer.setOffset(Offset);
 
@@ -161,12 +162,16 @@ public class InventoryMenu {
             }
             contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, ShiftPlusN, invContextActions);
 
-            InventoryMenu.UpdateCursor();
+            /*InventoryMenu.UpdateCursor();*/
 
             System.out.println("CO: " + contextOffset);
 
-            InventoryContainer.setIndex(contextOffset);
+            InventoryContainer.setIndexcontext(contextOffset);
         }
+
+/*
+        InventoryMenu.UpdateCursor();
+*/
 
         Selected = "";
 
@@ -178,7 +183,7 @@ public class InventoryMenu {
 
         InventoryContainer.setOptionNames(null);
 
-        InventoryContainer.setIndex(IndexOffset);
+        InventoryContainer.setIndexoffset(IndexOffset);
 
         InventoryContainer.setOffset(Offset);
 
@@ -276,11 +281,11 @@ public class InventoryMenu {
         }
     }
 
-    public static void UpdateCursor(){
+    /*public static void UpdateCursor(){
         if(IndexOffset >= Player.Inventory.size()){
             IndexOffset--;
         }
-    }
+    }*/
 
     public static Item GetItem(){
         if(Player.Inventory.size() > 0){
@@ -296,5 +301,7 @@ public class InventoryMenu {
 
     public static void Reset(){
         topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+35, 12);
+        Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
+        ResetIndex();
     }
 }
