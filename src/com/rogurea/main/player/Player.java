@@ -29,13 +29,14 @@ public class Player {
     public static ArrayList<Item> Inventory = new ArrayList<>();
 
     public static HashMap<String, Weapon> Equip;
+
     static{
         Equip = new HashMap<>();
         Equip.put("FirstWeapon", null);
         Equip.put("SecondWeapon", null);
         Equip.put("Armor", null);
         Equip.put("Amulet", null);
-    };
+    }
 
     public static void PutInInventory(Item item){
         if(Inventory.size() < 10) {
@@ -55,7 +56,7 @@ public class Player {
 
     public static void EquipWeapon(String place, Weapon weapon){
         InventoryController.EquipItem(weapon, place);
-        LogBlock.Action("are equip an " + Colors.ORANGE + weapon.name);
+        LogBlock.Action("equip an " + Colors.ORANGE + weapon.name);
     }
 
     public static void AutoEquip() {

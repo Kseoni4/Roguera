@@ -74,7 +74,7 @@ public class GameLoop {
                         Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
             }
             catch (NullPointerException | IOException e){
-                e.getMessage();
+                e.getStackTrace();
                 Dungeon.CurrentRoom[1][1] = PlayerModel;
             }
             finally {
@@ -89,6 +89,7 @@ public class GameLoop {
             BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), 1,
                     room.RoomStructure);
         }
+        TerminalView.ResetPositions();
     }
 
 }

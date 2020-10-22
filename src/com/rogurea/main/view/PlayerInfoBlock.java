@@ -15,7 +15,7 @@ public class PlayerInfoBlock {
 
     static TextGraphics PlayerInfoGraphics = null;
 
-    public static TerminalPosition topPlayerInfoLeft;
+    static TerminalPosition topPlayerInfoLeft;
 
     static TerminalSize PlayerInfoSize = new TerminalSize(GameResources.getPlayerPositionInfo().length() + 2, 5);
 
@@ -54,5 +54,9 @@ public class PlayerInfoBlock {
                         + (Player.Equip.get("FirstWeapon") != null ? Colors.ORANGE + Player.Equip.get("FirstWeapon")._model : "none"),
                 topPlayerInfoLeft.withRelative(2,4));
 
+    }
+
+    public static void Reset(){
+        topPlayerInfoLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 1,1);
     }
 }

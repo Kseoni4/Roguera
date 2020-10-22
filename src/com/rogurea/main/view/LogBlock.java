@@ -6,7 +6,6 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.map.Dungeon;
-import com.rogurea.main.player.Player;
 
 import java.io.IOException;
 
@@ -22,7 +21,7 @@ public class LogBlock {
 
     static TerminalSize LogSize = new TerminalSize(256, LogHistory.length);
 
-    public static TerminalPosition topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
+    static TerminalPosition topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
 
     private static StringBuilder OutMessage = new StringBuilder();
 
@@ -109,5 +108,9 @@ public class LogBlock {
     public static void ClearLog(){
         LogHistory = new String[LogHistorySize];
         LogHistoryIndex = 0;
+    }
+
+    public static void Reset(){
+        topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
     }
 }

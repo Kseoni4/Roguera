@@ -31,15 +31,7 @@ public class Room {
 //    public DungeonShop dungeonShop;
 
     public Room(int RoomCounter, int x, int y){
-        NumberOfRoom = RoomCounter;
-        this.X = x;
-        this.Y = y;
-        if(RoomCounter > 1)
-            RoomCreatures = MobFactory.getMobs();
-        else
-            RoomCreatures = new ArrayList<>(0);
-        RoomStructure = new char[y][x];
-        RoomItems = ItemGenerate.PutItemsIntoRoom();
+        MakeRoom(RoomCounter, x, y);
     }
 
 //    public R_Room(int RoomCounter, DungeonShop DS){
@@ -48,11 +40,24 @@ public class Room {
 //    }
 
     public Room(int RoomCounter, boolean IsEndRoom, int x, int y){
-        this.NumberOfRoom = RoomCounter;
-        RoomCreatures = MobFactory.getMobs();
-        this.X = x;
-        this.Y = y;
         this.IsEndRoom = IsEndRoom;
+        MakeRoom(RoomCounter, x, y);
+    }
+
+    private void MakeRoom(int RoomCounter, int x, int y){
+        this.NumberOfRoom = RoomCounter;
+
+        this.X = x;
+
+        this.Y = y;
+
+        if(RoomCounter > 1)
+            RoomCreatures = MobFactory.getMobs();
+        else
+            RoomCreatures = new ArrayList<>(0);
+
         RoomStructure = new char[y][x];
+
+        RoomItems = ItemGenerate.PutItemsIntoRoom();
     }
 }

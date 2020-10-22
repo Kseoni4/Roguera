@@ -38,7 +38,7 @@ public class PlayerMoveController {
             GameLoop.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
             );
-            LogBlock.Action("are enter the room");
+            LogBlock.Action("enter the room");
             return;
         }
 
@@ -55,6 +55,10 @@ public class PlayerMoveController {
         }
 
         if(Scans.CheckItems(cell)){
+            if(Player.Inventory.size() >= 10){
+                LogBlock.Event("Your inventory is full!");
+                return;
+            }
             Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
                     .filter(
                             room -> room.NumberOfRoom == Player.CurrentRoom
@@ -63,7 +67,7 @@ public class PlayerMoveController {
                     .orElse(null));
             Weapon wp = (Weapon) rm.RoomItems.stream()
                     .filter(
-                            item -> ((Weapon) item)._model == cell
+                            item -> item._model == cell
                     )
                     .findFirst().orElse(null);
             rm.RoomItems.remove(wp);

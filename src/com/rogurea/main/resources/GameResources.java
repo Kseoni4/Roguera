@@ -12,7 +12,7 @@ public class GameResources {
 
     public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
-    public static final String version = "0.0.3:1910:1526";
+    public static final String version = "0.0.3:2110:1521";
 
     public static final char EmptyCell = ' ';
 
@@ -125,7 +125,7 @@ public class GameResources {
                 + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ";
     }
 
-    public static void MakeMap() throws IllegalAccessException {
+    public static void MakeMap() {
 
         InputStream csvfile = GameResources.class.getResourceAsStream("Roguera | CharAtlas.csv");
 
