@@ -15,6 +15,14 @@ public class Scans {
         return true;
     }
 
+    public static boolean CheckCorner(char c){
+        for(char cell : GameResources.CornersAtlas){
+            if(cell == c)
+                return false;
+        }
+        return true;
+    }
+
     public static boolean CheckExit(char c){
         if(CheckWall(c)){
             return c == GameResources.NextRoom;

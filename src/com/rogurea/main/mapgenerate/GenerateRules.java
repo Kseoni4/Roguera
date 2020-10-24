@@ -21,13 +21,8 @@ public class GenerateRules {
     public static MapEditor.DrawDirection previousDirection;
 
     public static void GenerationShapeByPoints(char[][] CurrentRoom){
-        PlaceFirstPoint(CurrentRoom);
         ClearCoords();
         MainSequence(CurrentRoom);
-    }
-
-    private static void PlaceFirstPoint(char[][] CurrentRoom){
-        //CurrentRoom[0][0] = 'P';
     }
 
     private static void ClearCoords(){
@@ -44,6 +39,11 @@ public class GenerateRules {
     private static void MainSequence(char[][] CurrentRoom){
         {
             System.out.println("[Start Placing Points]");
+
+            System.out.println("[Starting Place]");
+
+            StartPlace(CurrentRoom);
+
             System.out.println("[Induction Place]");
             System.out.println(" ");
         }
@@ -82,6 +82,11 @@ public class GenerateRules {
 
         FinalPlace(CurrentRoom);
 
+    }
+
+    private static void StartPlace(char[][] CurrentRoom){
+        CurrentRoom[2][0] = '.';
+        ConnectPoints(CurrentRoom, y0,x0, 2,0, false);
     }
 
     private static void InductionPlace(char[][] CurrentRoom){
@@ -271,7 +276,6 @@ public class GenerateRules {
             CurrentRoom[y1][x1] = GameResources.VWall;
 
     }
-
 
     /* Правила для размещения точек */
     private static boolean IsNotOutOfBoundsRule(int yp, int xp, char[][] CurrentRoom){

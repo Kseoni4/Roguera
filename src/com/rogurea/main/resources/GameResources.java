@@ -53,6 +53,8 @@ public class GameResources {
 
     public static final char[] MapStructureAtlas = {HWall, VWall, LBCorner, RTCorner, LTCorner, RBCorner};
 
+    public static final char[] CornersAtlas = {LBCorner, RTCorner, LTCorner, RBCorner};
+
     public static final char InvHWallDown = '┬';
     public static final char InvHWallUp = '┴';
 

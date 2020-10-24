@@ -239,10 +239,17 @@ public class MapEditor {
     }
 
     static void PlaceDoors(Room room, char[][] CurrentRoom){
-        boolean isPlaced = false;
 
-        if(!room.IsEndRoom)
-            CurrentRoom[GenerateRules.ye][GenerateRules.xe] = GameResources.NextRoom;
+        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
+
+        if(!room.IsEndRoom) {
+            if (Scans.CheckCorner(cell))
+                CurrentRoom[GenerateRules.ye][GenerateRules.xe] = GameResources.NextRoom;
+            else{
+                int x_shift = FindWall(CurrentRoom);
+                CurrentRoom[GenerateRules.ye][GenerateRules.xe+x_shift] = GameResources.NextRoom;
+            }
+        }
             /*while(!isPlaced) {
 
                 if ((CurrentRoom[GenerateRules.ye][GenerateRules.xe] == GameResources.HWall)) {
@@ -259,6 +266,21 @@ public class MapEditor {
 */
         if(room.NumberOfRoom > 1)
             CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.BackRoom;
+    }
+
+    private static int FindWall(char[][] CurrentRoom){
+        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
+
+        int l = (cell == GameResources.RBCorner || cell == GameResources.RTCorner ? -1 : 1);
+
+        int x_shift = 0;
+
+        while(!Scans.CheckWall(cell) && !Scans.CheckCorner(cell)){
+            x_shift++;
+            cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe+(x_shift*=l)];
+        }
+
+        return x_shift;
     }
 
     static void PlaceProp(char prop, char[][] map, int y, int x){
