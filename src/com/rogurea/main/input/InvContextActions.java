@@ -8,7 +8,9 @@ public class InvContextActions extends Action{
     public enum Options {
         EQUIP{
             public void select(){
-                InventoryController.EquipItem(InventoryMenu.GetItem(), "FirstWeapon");
+                InventoryController.EquipItem(InventoryMenu.GetItem(),
+                        InventoryController.getPlace(
+                        InventoryMenu.GetItem()));
             }
         },
         DROP{

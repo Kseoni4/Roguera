@@ -39,9 +39,11 @@ public class MenuContainer {
     public int getIndexoffset(){
         return this.indexoffset;
     }
+
     public int getIndexcontext(){ return this.indexcontext; }
 
     public void setIndexoffset(int index){ this.indexoffset = index; }
+
     public void setIndexcontext(int index){ this.indexcontext = index; }
 
     public int getOffset(){
@@ -61,7 +63,7 @@ public class MenuContainer {
     }
 
     public int UpdateCursor(int index){
-        while (index >= Player.Inventory.size()){
+        while (index >= Player.Inventory.size() && index > 0){
             index--;
         }
         return index;

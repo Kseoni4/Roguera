@@ -8,14 +8,13 @@ import java.io.IOException;
 
 public class Main{
 
-    public static void main(String[] args) throws IOException, IllegalAccessException {
+    public static void main(String[] args) throws IOException {
 
         GameResources.MakeMap();
         Dungeon.Generate();
         GameLoop.Start();
 
-        System.out.println("Closed");
-
+        System.out.println("Game session end");
     }
 }
 

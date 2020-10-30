@@ -2,9 +2,12 @@ package com.rogurea.main.player;
 
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.GameLoop;
+import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.Scans;
-import com.rogurea.main.items.Weapon;
+import com.rogurea.main.items.Gold;
+import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
@@ -24,20 +27,28 @@ public class PlayerMoveController {
     }
     public static void Move(int y, int x){
 
-        char cell = Dungeon.CurrentRoom[y][x];
+        char cell = MapEditor.getFromCell(y,x);
+
+        Position pos = new Position();
+
+        pos.setPosition(y,x);
 
         if(!Scans.CheckWall(cell)
+/*
          || Scans.CheckCreature(cell)
+*/
         || Scans.CheckProps(cell)){
             return;
         }
 
         if(Scans.CheckExit(cell)){
 
-            Dungeon.CurrentRoom[Player.Pos.y][Player.Pos.x] = MapEditor.EmptyCell;
+            MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
+
             GameLoop.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
             );
+
             LogBlock.Action("enter the room");
             return;
         }
@@ -46,7 +57,7 @@ public class PlayerMoveController {
         {
             Player.CurrentRoom--;
 
-            Dungeon.CurrentRoom[Player.Pos.y][Player.Pos.x] = MapEditor.EmptyCell;
+            MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
             GameLoop.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.BACK))
@@ -59,22 +70,51 @@ public class PlayerMoveController {
                 LogBlock.Event("Your inventory is full!");
                 return;
             }
+
             Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
                     .filter(
                             room -> room.NumberOfRoom == Player.CurrentRoom
                     )
                     .findAny()
                     .orElse(null));
-            Weapon wp = (Weapon) rm.RoomItems.stream()
+
+            Item wp = rm.RoomItems.stream()
                     .filter(
                             item -> item._model == cell
                     )
                     .findFirst().orElse(null);
+
             rm.RoomItems.remove(wp);
+
             Player.PutInInventory(wp);
         }
-        Dungeon.CurrentRoom[Player.Pos.y][Player.Pos.x] = MapEditor.EmptyCell;
-        Dungeon.CurrentRoom[y][x] = Player.PlayerModel;
+
+        if(cell == '$'){
+
+            Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
+                    .filter(
+                            room -> room.NumberOfRoom == Player.CurrentRoom
+                    )
+                    .findAny()
+                    .orElse(null));
+
+            Gold gold = ((Gold) rm.RoomItems.stream()
+                    .filter(
+                            item -> item._model == cell
+                    ).findFirst().orElse(null));
+
+            rm.RoomItems.remove(gold);
+
+            Player.GetGold(gold);
+        }
+
+        if(Scans.CheckCreature(cell)){
+            System.out.println(pos.y + " " + pos.x);
+            Fight.HitMob(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
+            return;
+        }
+        MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
+        MapEditor.setIntoCell(Player.PlayerModel, y, x);
         Player.Pos.x = x;
         Player.Pos.y = y;
     }

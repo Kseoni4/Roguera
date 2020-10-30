@@ -27,7 +27,7 @@ public class GameMapBlock {
 
     }
 
-    public static void DrawDungeon() throws IOException {
+    public static void DrawDungeon(){
         char cell = MapEditor.EmptyCell;
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < Dungeon.CurrentRoom.length; i++) {

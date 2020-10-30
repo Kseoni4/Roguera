@@ -3,11 +3,13 @@ package com.rogurea.main.view;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.rogurea.main.items.Armor;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -46,14 +48,36 @@ public class PlayerInfoBlock {
                 topPlayerInfoLeft.withRelative(2,2));
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
-                GameResources.UpdatePlayerInfo(),
+                GameResources.PlayerName,
                 topPlayerInfoLeft.withRelative(2,3));
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
-                "Equped: "
-                        + (Player.Equip.get("FirstWeapon") != null ? Colors.ORANGE + Player.Equip.get("FirstWeapon")._model : "none"),
+                GameResources.UpdatePlayerInfo(),
                 topPlayerInfoLeft.withRelative(2,4));
 
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,getEquipmentInfo()
+                ,
+                topPlayerInfoLeft.withRelative(2,5));
+
+    }
+
+    public static String getEquipmentInfo(){
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Equip: ");
+
+        for(String s : Player.Equip.keySet()){
+           if(Player.Equip.get(s) == null)
+               continue;
+           sb.append(s).append(": ").append(Player.Equip.get(s) != null ?
+                    Colors.ORANGE + Player.Equip.get(s)._model
+                    : "none").append(Colors.R).append(" ");
+        }
+        if(sb.length() < 10)
+            sb.append("none");
+
+        return sb.toString();
     }
 
     public static void Reset(){

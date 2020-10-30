@@ -4,6 +4,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.rogurea.main.input.*;
+import com.rogurea.main.items.Armor;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
@@ -54,6 +55,10 @@ public class InventoryMenu {
 
     static int Offset = PosX;
 
+    private static final int XOffset = 35;
+
+    private static final int YOffset = 12;
+
     public static void Init(){
 
         try {
@@ -61,7 +66,7 @@ public class InventoryMenu {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+35, 12);
+        topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+XOffset, YOffset);
 
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
     }
@@ -111,10 +116,6 @@ public class InventoryMenu {
                     ShiftPlusOne,
                     invAction);
 
-            /*InventoryMenu.UpdateCursor();*/
-
-            System.out.println("IndexOffset: " + IndexOffset);
-
             InventoryContainer.setIndexoffset(IndexOffset);
         }
 
@@ -162,16 +163,12 @@ public class InventoryMenu {
             }
             contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, ShiftPlusN, invContextActions);
 
-            /*InventoryMenu.UpdateCursor();*/
-
             System.out.println("CO: " + contextOffset);
 
             InventoryContainer.setIndexcontext(contextOffset);
-        }
 
-/*
-        InventoryMenu.UpdateCursor();
-*/
+            IndexOffset = InventoryContainer.UpdateCursor(IndexOffset);
+        }
 
         Selected = "";
 
@@ -258,16 +255,20 @@ public class InventoryMenu {
     }
 
     private static void ShowItemInfo(){
-        Weapon weapon = (Weapon) GetItem();
-        if(weapon != null)
-            InventoryGraphics.putCSIStyledString(
-                    topInventoryLeft.getColumn(),
-                    topInventoryLeft.getRow()+4,
-                    weapon._model + " "
-                            + weapon.name + " " + Colors.ORANGE + "$"
-                            + weapon.SellPrice + Colors.RED_BRIGHT + " dmg"
-                            + weapon.getDamage()
-            );
+        Item item = GetItem();
+        StringBuilder info = new StringBuilder();
+        if(item != null) {
+            info.append(item._model).append(' ')
+                    .append(item.name).append(' ')
+                    .append(Colors.ORANGE).append('$').append(item.SellPrice).append(' ');
+            if (item.getClass() == Weapon.class)
+                info.append(Colors.RED_BRIGHT).append(((Weapon) item).getDamage());
+            else if (item.getClass() == Armor.class)
+                info.append(Colors.VIOLET).append(((Armor) item).getDefense());
+
+            TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn(),
+                    topInventoryLeft.getRow()+4);
+        }
     }
 
     private static void ShowContextMenu() {
@@ -280,12 +281,6 @@ public class InventoryMenu {
             }
         }
     }
-
-    /*public static void UpdateCursor(){
-        if(IndexOffset >= Player.Inventory.size()){
-            IndexOffset--;
-        }
-    }*/
 
     public static Item GetItem(){
         if(Player.Inventory.size() > 0){
@@ -300,7 +295,7 @@ public class InventoryMenu {
     }
 
     public static void Reset(){
-        topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+35, 12);
+        topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+XOffset, YOffset);
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
         ResetIndex();
     }

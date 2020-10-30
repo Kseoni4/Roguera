@@ -7,13 +7,14 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
-import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GameVariables;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
+
+import static java.lang.Thread.currentThread;
 
 public class TerminalView implements Runnable {
 
@@ -24,8 +25,6 @@ public class TerminalView implements Runnable {
     private static final DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 
     public static Terminal terminal = null;
-
-    static TextGraphics Controls = null;
 
     public static KeyStroke keyStroke = KeyStroke.fromString(" ");
 
@@ -39,7 +38,7 @@ public class TerminalView implements Runnable {
 
         InventoryMenu.Init();
 
-        Controls = terminal.newTextGraphics();
+        ControlBlock.Init();
 
         terminal.resetColorAndSGR();
     }
@@ -81,8 +80,10 @@ public class TerminalView implements Runnable {
         while (keyStroke.getKeyType() != KeyType.Escape) {
             try {
                 Drawcall();
-                Thread.sleep(10);
-            } catch (IOException | InterruptedException ignored) { }
+                currentThread().sleep(GameVariables.DCI);
+            } catch (IOException | InterruptedException e) {
+                break;
+            }
         }
         System.out.println("Drawcall ended");
     }
@@ -105,8 +106,8 @@ public class TerminalView implements Runnable {
 
         InventoryMenu.DrawInventory();
 
-        Controls.putCSIStyledString(new TerminalPosition(0, terminal.getTerminalSize().getRows() - 1),
-                "i\u001b[48;5;57mInv\u001b[0m r\u001b[48;5;57mGenRoom\u001b[0m c\u001b[48;5;57mClrLog\u001b[0m ESC\u001b[48;5;57mQuit");
+        ControlBlock.DrawControls();
+
         terminal.flush();
     }
 

@@ -1,6 +1,8 @@
 package com.rogurea.main.items;
 
+import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GetRandom;
 
 public class Weapon extends Item {
 
@@ -10,15 +12,14 @@ public class Weapon extends Item {
 
     public enum _weapontype {
         MELLE{
-            final char _model = GameResources.LongSword;
+
             public char getModel(){
-                return _model;
+                return GetRandom.WeaponModel("MELEE");
             }
         },
         RANGE{
-            final char _model = GameResources.Bow;
             public char getModel(){
-                return _model;
+                return GetRandom.WeaponModel("RANGE");
             }
         };
         public abstract char getModel();
@@ -29,7 +30,8 @@ public class Weapon extends Item {
 
     public Weapon(String name, int SellPrice, _weapontype weapontype) {
         super(name, SellPrice, weapontype.getModel());
-        ItemGenerate.WeaponForge(this._damage, this._minLevel);
+        this._minLevel += Player.CurrentRoom;
+        this._damage = ItemGenerate.WeaponForge(this._minLevel);
     }
 
     public int getDamage(){

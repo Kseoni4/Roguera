@@ -6,6 +6,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.resources.Colors;
 
 import java.io.IOException;
 
@@ -36,7 +37,7 @@ public class LogBlock {
 
     public static void Action(String message){
 
-        OutMessage.append('>').append("You").append(' ');
+        OutMessage.append('>').append(Colors.GREEN_BRIGHT).append("You").append(Colors.R).append(' ');
 
         OutMessage.append(message);
 
@@ -88,6 +89,7 @@ public class LogBlock {
             int i = 0;
             for (String s : LogHistory) {
                 if (s != null) {
+
                     s = s.replaceFirst("(\\[38;5;nm)", "[38;5;" + (245+(LogHistory.length-(LogHistoryIndex*2))+i) + "m");
                     TerminalView.DrawBlockInTerminal(LoggerGraphics, s, topLoggerLeft.withRelative(0,i));
                     i++;

@@ -1,6 +1,7 @@
 package com.rogurea.main.resources;
 
 import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.items.Armor;
 import com.rogurea.main.player.Player;
 
 import java.awt.*;
@@ -12,13 +13,11 @@ public class GameResources {
 
     public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
-    public static final String version = "0.0.3:2110:1521";
+    public static final String version = "0.0.5:3110:0047";
 
     public static final char EmptyCell = ' ';
 
     public static final char PlayerModel = '@';
-
-    public static final char Bot = '♂';
 
     public static final char Gold = '$';
 
@@ -75,25 +74,23 @@ public class GameResources {
 
     public static final char[] RoomEntityAtlas = {NextRoom, BackRoom};
 
-    public static final char[] ProgessBar = {'◯','◔','◑','◕','●'};
-
     public static final char LongSword = '╁';
 
     public static final char ShortSword = '╈';
 
-    public static final char[] MeleeAtlas = {LongSword, ShortSword};
+    public static final char Knife = '╽';
+
+    public static final char ArmorChest = '₼';
+
+    public static final char[] MeleeAtlas = {LongSword, ShortSword, Knife};
 
     public static final char Bow = '⟭';
 
     public static final char[] RangeAtlas = {Bow};
 
-    public static String PlayerInfo =
+    public static final String[] SwordLenght = {"Long", "Short", "Medium"};
 
-            "Player: " + Player.nickName
-            + "HP: " + Player.HP
-            + "MP: " + Player.MP
-            +"Level: " + Player.Level
-            + "Room: " + Player.CurrentRoom;
+    public static final String[] MaterialName = {"Wood", "Stone", "Iron", "Copper", "Golden", "Diamond"};
 
     public static final char chair = '◎';
 
@@ -115,21 +112,35 @@ public class GameResources {
 
     public static final char[][] WeaponAtlas = {MeleeAtlas, RangeAtlas};
 
-    public static final char[][][] EverythingAtlas = {WeaponAtlas, PropAtlas, EntityAtlas};
+    public static final char[] ArmorAtlas = {ArmorChest};
+
+    public static final char[][] WearableAtlas = {ArmorAtlas, MeleeAtlas, RangeAtlas};
+
+    public static final char[][][] EverythingAtlas = {WearableAtlas, PropAtlas, EntityAtlas};
+
+
+    public static final String[] HitsMessages = {
+            "take a small byte of you for %dmg%",
+            "smash you by his sword for %dmg%",
+            "successfull hit! You get %dmg%"
+    };
 
     public static HashMap<Character, String> ModelNameMap = new HashMap<>();
 
+    public static String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
+
     public static String UpdatePlayerInfo() {
-        return "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " "
-                + Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
+        return  Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
                 + Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " "
+                + Colors.R + "Money: " + Colors.ORANGE + Player.Money + " "
+                + Colors.R + "Def: " + Colors.VIOLET + Player.getArmor() + " "
                 + Colors.R + "Level: " + Colors.CYAN + Player.Level + " "
                 + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ";
     }
 
     public static void MakeMap() {
 
-        InputStream csvfile = GameResources.class.getResourceAsStream("Roguera | CharAtlas.csv");
+        InputStream csvfile = GameResources.class.getResourceAsStream("csv/Roguera | CharAtlas.csv");
 
         String[] CharName = null;
 
@@ -146,7 +157,5 @@ public class GameResources {
             String n = CharName[i];
             ModelNameMap.put(s, n);
         }
-
-
     }
 }

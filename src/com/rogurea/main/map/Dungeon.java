@@ -1,12 +1,11 @@
 package com.rogurea.main.map;
 
-import com.googlecode.lanterna.TerminalTextUtils;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.mapgenerate.BaseGenerate;
+import com.rogurea.main.player.Player;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
 
 public class Dungeon {
 
@@ -24,7 +23,7 @@ public class Dungeon {
 
     public static ArrayList<Room> Rooms = new ArrayList<>();
 
-    public static Hashtable<Mob, Integer> CurrentRoomCreatures = new Hashtable<Mob, Integer>();
+    public static ArrayList<Mob> CurrentRoomCreatures = new ArrayList<>();
 
     public static char[][] CurrentRoom = new char[Height][Widght];
 
@@ -35,8 +34,10 @@ public class Dungeon {
         BaseGenerate.PutPlayerInDungeon(CurrentRoom[0].length/2,1, Dungeon.CurrentRoom);
     }
 
-    public static Room GetCurrentRoom(Predicate<Room> predicate){
-        return Rooms.stream().filter(predicate).findAny().orElse(null);
+    public static Room GetCurrentRoom(){
+        return Rooms.stream().filter(
+                room -> room.NumberOfRoom == Player.CurrentRoom
+        ).findAny().orElse(null);
     }
 
     public static String ShowDungeon(int i, int j){

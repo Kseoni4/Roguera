@@ -7,6 +7,7 @@ import com.rogurea.main.map.Room;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -141,9 +142,11 @@ public class BaseGenerate {
         return Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
     }
 
-    public static void GenerateRoom(Room room) throws IOException {
+    public static void GenerateRoom(Room room) {
 
         char[][] CurrentRoom = room.RoomStructure;
+
+        Dungeon.CurrentRoomCreatures = new ArrayList<>();
 
         MapEditor.FillAllSpaceWithEmpty(CurrentRoom);
 
@@ -164,27 +167,26 @@ public class BaseGenerate {
             e.printStackTrace();
         }
 
-        System.out.println("Border placed");
-
-        System.out.println("Subshapes placed");
-
-        Dungeon.CurrentRoom = CurrentRoom;
-
-        room.RoomStructure = CurrentRoom;
-
         room.IsRoomStructureGenerate = true;
+
         if(room.roomSize == RoomSize.BIG) {
             GenerateRules.GenerationShapeByPoints(CurrentRoom);
         }
 
         MapEditor.PlaceDoors(room, CurrentRoom);
 
+        System.out.println("Door placed");
+
         int r = 3;
 
         for(Item i : room.RoomItems)
             CurrentRoom[2][(r++)] = i._model;
 
-        System.out.println("Door placed");
+        MapEditor.PlaceMobs(room, CurrentRoom);
+
+        Dungeon.CurrentRoom = CurrentRoom;
+
+        room.RoomStructure = CurrentRoom;
     }
 
     public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){
@@ -196,27 +198,4 @@ public class BaseGenerate {
     public static int GetCenterOfRoom(Room room){
         return Math.floorDiv(room.RoomStructure[0].length, 2);
     }
-
-
-    /*
-
-    static void PlaceMobs(R_Room room, char[][] CurrentRoom){
-
-        for(R_Mob mob : room.RoomCreatures){
-
-            int y = CurrentRoom[0].length/2-random.nextInt(2)+1;
-
-            int x = random.nextInt(CurrentRoom.length);
-
-            System.out.println("MobPosition" + " " + "x:" + x + " " + "y:" + y);
-
-            if(Scans.CheckWall(CurrentRoom[x][y])) {
-                CurrentRoom[x][y] = mob.getCreatureSymbol();
-                mob.setMobPosition(x,y);
-                R_Dungeon.CurrentRoomCreatures.put((R_Mob) mob, mob.id);
-            }
-        }
-    }
-*/
-
 }

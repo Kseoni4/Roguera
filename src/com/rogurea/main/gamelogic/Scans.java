@@ -49,7 +49,7 @@ public class Scans {
     }
 
     public static boolean CheckItems(char c){
-        for(char[] items : GameResources.WeaponAtlas)
+        for(char[] items : GameResources.WearableAtlas)
             for(char item : items)
                 if(c == item)
                     return true;
@@ -63,9 +63,9 @@ public class Scans {
 
     public static boolean CheckCreature(char cell){
 
-        for(Mob mob : Dungeon.CurrentRoomCreatures.keySet()){
+        for(Mob mob : Dungeon.CurrentRoomCreatures){
             if(cell == mob.getCreatureSymbol())
-                return true;
+                 return true;
         }
         return false;
     }

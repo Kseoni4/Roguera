@@ -12,6 +12,7 @@ public class Room {
     public int NumberOfRoom;
 
     public int X = 1;
+
     public int Y = 1;
 
     public BaseGenerate.RoomSize roomSize;
@@ -59,5 +60,11 @@ public class Room {
         RoomStructure = new char[y][x];
 
         RoomItems = ItemGenerate.PutItemsIntoRoom();
+    }
+
+    public Mob getMobFromRoom(Position pos){
+        return RoomCreatures.stream().filter(
+                 mob -> (mob.HisPosition.x == pos.x && mob.HisPosition.y == pos.y)
+        ).findAny().orElse(null);
     }
 }

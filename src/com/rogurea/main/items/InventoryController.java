@@ -9,6 +9,16 @@ import com.rogurea.main.view.LogBlock;
 
 public class InventoryController {
 
+    public static String getPlace(Item item){
+        if(item != null){
+            if (item.getClass() == Weapon.class)
+                return "FirstWeapon";
+            if (item.getClass() == Armor.class)
+                return "Armor";
+        }
+        return "";
+    }
+
     public static void DropItem(Item dropingItem){
 
         if (Scans.CheckItems(Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x])) {
@@ -18,8 +28,7 @@ public class InventoryController {
 
         Player.GetFromInventory(item -> dropingItem.id == item.id);
 
-        Dungeon.GetCurrentRoom(room -> Player.CurrentRoom == room.NumberOfRoom)
-                .RoomItems.add(dropingItem);
+        Dungeon.GetCurrentRoom().RoomItems.add(dropingItem);
 
         Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x] = dropingItem._model;
     }
@@ -32,7 +41,7 @@ public class InventoryController {
 
         Player.Inventory.remove(equipingItem);
 
-        Player.Equip.put(place, (Weapon) equipingItem);
+        Player.Equip.put(place, equipingItem);
 
         LogBlock.Action("equip the " + Colors.ORANGE + equipingItem.name);
     }
@@ -45,7 +54,7 @@ public class InventoryController {
 
         Player.Inventory.add(currentItem);
 
-        Player.Equip.put(place, (Weapon) item);
+        Player.Equip.put(place, item);
     }
 
 }

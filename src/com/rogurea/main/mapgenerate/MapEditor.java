@@ -1,17 +1,18 @@
 package com.rogurea.main.mapgenerate;
 
 import com.googlecode.lanterna.Symbols;
-import com.rogurea.main.props.Prop;
+import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.gamelogic.Scans;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class MapEditor {
 
-    static enum DrawDirection{
+    enum DrawDirection{
         UP {
             @Override
             public char getCell() {
@@ -83,6 +84,8 @@ public class MapEditor {
     public static char EmptyCell = GameResources.EmptyCell;
 
     private static char[] LineBuffer;
+
+    private static final Random rnd = new Random();
 
     public static char[] DrawLine(DrawDirection drawDirection, int Length){
 
@@ -204,9 +207,7 @@ public class MapEditor {
                     X_a++;
                 }
             }
-            case SAME -> {
-                InsertShapeLine(CurrentRoom, GenerateRules.previousDirection, Length, X_a, Y_a);
-            }
+            case SAME -> InsertShapeLine(CurrentRoom, GenerateRules.previousDirection, Length, X_a, Y_a);
         }
     }
 
@@ -218,14 +219,8 @@ public class MapEditor {
 
         int i, j;
 
-        /*System.out.println("Y_b: " + Y_b + " X_b: " + X_b);*/
-
         for(i = 0;i < Y_b; i++){
             for(j = 0;j < X_b; j++){
-
-/*                System.out.println(
-                        "Y_a: " + Y_a + " X_a:" + X_a + "\n"
-                        +"\tY_a+i: " + (Y_a+i) + " X_a+j: " + (X_a+j));*/
 
                 if(!Scans.CheckWall(CurrentRoom[Y_a+i][X_a+j]))
                     continue;
@@ -250,20 +245,6 @@ public class MapEditor {
                 CurrentRoom[GenerateRules.ye][GenerateRules.xe+x_shift] = GameResources.NextRoom;
             }
         }
-            /*while(!isPlaced) {
-
-                if ((CurrentRoom[GenerateRules.ye][GenerateRules.xe] == GameResources.HWall)) {
-
-                    isPlaced = true;
-                    break;
-                }
-
-                if(GenerateRules.xe-1 >= 0)
-                    GenerateRules.xe--;
-                else if(GenerateRules.xe+1 < CurrentRoom[0].length)
-                    GenerateRules.xe++;
-            }
-*/
         if(room.NumberOfRoom > 1)
             CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.BackRoom;
     }
@@ -281,6 +262,30 @@ public class MapEditor {
         }
 
         return x_shift;
+    }
+
+    public static void setIntoCell(char cell, int y, int x){
+        Dungeon.CurrentRoom[y][x] = cell;
+    }
+
+    public static void setIntoCell(char cell, Position position){
+        setIntoCell(cell, position.y, position.x);
+    }
+
+    public static char getFromCell(int y, int x){
+        return Dungeon.CurrentRoom[y][x];
+    }
+
+    public static char getFromCell(Position position){
+        return getFromCell(position.y, position.x);
+    }
+
+    public static void clearCell(int y, int x){
+        Dungeon.CurrentRoom[y][x] = MapEditor.EmptyCell;
+    }
+
+    public static void clearCell(Position position){
+        clearCell(position.y, position.x);
     }
 
     static void PlaceProp(char prop, char[][] map, int y, int x){
@@ -367,42 +372,28 @@ public class MapEditor {
     }
 
     static int DoRandomXY(int x, int y, Random random){
-        //System.out.println("min: "+ Math.min(x,y) + " " + "Random: " + r);
-
         return random.nextInt(
                 Math.min(x, y)
         );
     }
 
-}
+    static void PlaceMobs(Room room, char[][] CurrentRoom){
 
+        for(Mob mob : room.RoomCreatures){
+            int y = rnd.nextInt(3)+1;
 
-/*    public static char[][] DrawSubdivideBorders(int sizeA, int sizeB) {
-        char[][] SubdivideBuffer = new char[sizeA][sizeB];
+            int x = rnd.nextInt(9)+1;
 
-        FillSpaceWithEmpty(SubdivideBuffer);
-
-        for(int x = 0; x < sizeB; x++){
-            SubdivideBuffer[0][x] = Symbols.BLOCK_SPARSE;
-            SubdivideBuffer[sizeA-1][x] = Symbols.BLOCK_SPARSE;
-        }
-        for(int y = 0; y < sizeA; y++) {
-            SubdivideBuffer[y][0] = Symbols.BLOCK_SPARSE;
-            SubdivideBuffer[y][sizeB - 1] = Symbols.BLOCK_SPARSE;
-        }
-        return SubdivideBuffer;
-    }*/
-
-/*    static void SubdivideRoom(char[][] CurrentRoom, int X_a, int Y_a){
-        char[][] SubdivideShape = DrawSubdivideBorders(5,7);
-        InsertShapeFlat(CurrentRoom, SubdivideShape, X_a, Y_a);
-
-        for(int i = 0; i < SubdivideShape.length; i++) {
-            for (int j = 0; j < SubdivideShape[0].length; j++) {
-                if (CurrentRoom[Y_a+i][X_a+j] == Symbols.BLOCK_SPARSE)
-                    CurrentRoom[Y_a+i][X_a+j] = Symbols.DOUBLE_LINE_HORIZONTAL;
+            while(!Scans.CheckWall(CurrentRoom[y][x])){
+                y = rnd.nextInt(3)+1;
+                x = rnd.nextInt(9)+1;
             }
-            if (CurrentRoom[Y_a+i][0] == Symbols.BLOCK_SPARSE)
-                CurrentRoom[Y_a+i][0] = Symbols.DOUBLE_LINE_VERTICAL;
+            if(!Scans.CheckCreature(CurrentRoom[y][x])) {
+                CurrentRoom[y][x] = mob.getCreatureSymbol();
+                mob.setMobPosition(y,x);
+                Dungeon.CurrentRoomCreatures.add(mob);
+                System.out.println("MobPosition" + " " + "x:" + x + " " + "y:" + y);
+            }
         }
-    }*/
+    }
+}

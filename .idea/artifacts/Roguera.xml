@@ -7,7 +7,7 @@
       </element>
       <element id="module-output" name="RogueLike" />
       <element id="library" level="project" name="com.googlecode.lanterna:lanterna:3.2.0-alpha1" />
-      <element id="file-copy" path="$PROJECT_DIR$/src/com/rogurea/main/resources/Roguera | CharAtlas.csv" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/com/rogurea/main/resources/csv/Roguera | CharAtlas.csv" />
     </root>
   </artifact>
 </component>

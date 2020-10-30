@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public abstract class Creature {
 
-    public String Name;
+    public String Name = "";
 
     public int id;
 
@@ -31,7 +31,7 @@ public abstract class Creature {
 
     public int Level = 1;
 
-    private ArrayList<Item> Loot = new ArrayList<Item>();
+    public ArrayList<Item> Loot = new ArrayList<Item>();
 
     public void setCreatureType(CreatureType creatureType){
         this.creatureType = creatureType;
@@ -50,7 +50,7 @@ public abstract class Creature {
     }
 
     public Creature(String name){
-        this.Name = name;
+        this.Name += name;
         id = CreatureCount++;
     }
 

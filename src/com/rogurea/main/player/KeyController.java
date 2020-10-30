@@ -11,11 +11,7 @@ public class KeyController {
     public static char GetKey (Character key){
             switch (key){
                 case 'r':
-                    try {
-                        GameLoop.RegenRoom();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    GameLoop.RegenRoom();
                     return 'r';
                 case 'c':
                     LogBlock.Clear();
