@@ -5,7 +5,9 @@ import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 
+
 public class Input {
+
     public static KeyStroke GetKey(){
         try {
             return TerminalView.terminal.readInput();
@@ -14,4 +16,5 @@ public class Input {
         }
         return KeyStroke.fromString("");
     }
+
 }

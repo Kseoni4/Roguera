@@ -1,9 +1,11 @@
 package com.rogurea.main;
 
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
 import com.rogurea.main.gamelogic.Scans;
+import com.rogurea.main.input.Input;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
@@ -18,6 +20,7 @@ import com.rogurea.main.view.TerminalView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.Exchanger;
 
 import static com.rogurea.main.player.Player.CurrentRoom;
 import static com.rogurea.main.player.Player.PlayerModel;
@@ -86,24 +89,27 @@ public class GameLoop {
 
         drawcall.start();
 
-        while (TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
+        while (TerminalView.keyStroke == null || TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
 
             Player.AutoEquip();
+
+            TerminalView.keyStroke = TerminalView.terminal.pollInput();
 
             if(Player.HP <= 0){
                 GameEndByDead();
                 break;
             }
 
-            TerminalView.keyStroke = TerminalView.terminal.readInput();
+            if (TerminalView.keyStroke != null) {
 
-            if (TerminalView.keyStroke.getKeyType() == KeyType.Character) {
-                KeyController.GetKey(TerminalView.keyStroke.getCharacter());
+                if (TerminalView.keyStroke.getKeyType() == KeyType.Character) {
+                    KeyController.GetKey(TerminalView.keyStroke.getCharacter());
+                }
+
+                PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
+
+                Scans.CheckSee(MapEditor.getFromCell(Player.Pos.y + 1, Player.Pos.x));
             }
-
-            PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
-
-            Scans.CheckSee(MapEditor.getFromCell(Player.Pos.y+1, Player.Pos.x));
         }
     }
 
@@ -116,7 +122,6 @@ public class GameLoop {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private static void RestartGame() throws IOException {

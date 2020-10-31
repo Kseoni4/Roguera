@@ -77,7 +77,7 @@ public class TerminalView implements Runnable {
 
   */
     public void run() {
-        while (keyStroke.getKeyType() != KeyType.Escape) {
+        while (keyStroke == null || keyStroke.getKeyType() != KeyType.Escape) {
             try {
                 Drawcall();
                 currentThread().sleep(GameVariables.DCI);

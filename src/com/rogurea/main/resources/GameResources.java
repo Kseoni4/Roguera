@@ -1,7 +1,6 @@
 package com.rogurea.main.resources;
 
 import com.googlecode.lanterna.Symbols;
-import com.rogurea.main.items.Armor;
 import com.rogurea.main.player.Player;
 
 import java.awt.*;
