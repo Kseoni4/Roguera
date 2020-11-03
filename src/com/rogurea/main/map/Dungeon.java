@@ -4,7 +4,6 @@ import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.player.Player;
 
-import java.io.IOException;
 import java.util.*;
 
 public class Dungeon {
@@ -13,13 +12,13 @@ public class Dungeon {
         NEXT,
         BACK,
         FIRST
-    };
+    }
 
-    static int Height = 1;
+    static final int Height = 1;
 
-    static int Widght = 1;
+    static final int Widght = 1;
 
-    static int DungeonLenght = 10;
+    static final int DungeonLenght = 10;
 
     public static ArrayList<Room> Rooms = new ArrayList<>();
 
@@ -27,7 +26,7 @@ public class Dungeon {
 
     public static char[][] CurrentRoom = new char[Height][Widght];
 
-    public static void Generate() throws IOException {
+    public static void Generate() {
 
         BaseGenerate.GenerateDungeon(DungeonLenght);
         BaseGenerate.GenerateRoom(Objects.requireNonNull(BaseGenerate.GetRoom(Direction.FIRST)));

@@ -81,7 +81,7 @@ public class MapEditor {
         public abstract char getCorner(boolean IsReverse);
     }
 
-    public static char EmptyCell = GameResources.EmptyCell;
+    public static final char EmptyCell = GameResources.EmptyCell;
 
     private static char[] LineBuffer;
 
@@ -380,13 +380,15 @@ public class MapEditor {
     static void PlaceMobs(Room room, char[][] CurrentRoom){
 
         for(Mob mob : room.RoomCreatures){
-            int y = rnd.nextInt(3)+1;
+            int y = rnd.nextInt(GenerateRules.ye)+1;
 
-            int x = rnd.nextInt(9)+1;
+            int x = Math.max(rnd.nextInt(GenerateRules.xe) +
+                    (GenerateRules.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
 
             while(!Scans.CheckWall(CurrentRoom[y][x])){
-                y = rnd.nextInt(3)+1;
-                x = rnd.nextInt(9)+1;
+
+                x = Math.max(rnd.nextInt(GenerateRules.xe) +
+                        (GenerateRules.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
             }
             if(!Scans.CheckCreature(CurrentRoom[y][x])) {
                 CurrentRoom[y][x] = mob.getCreatureSymbol();

@@ -53,13 +53,13 @@ public class Room {
         this.Y = y;
 
         if(RoomCounter > 1)
-            RoomCreatures = MobFactory.getMobs();
+            RoomCreatures = MobFactory.getMobs(NumberOfRoom);
         else
             RoomCreatures = new ArrayList<>(0);
 
         RoomStructure = new char[y][x];
 
-        RoomItems = ItemGenerate.PutItemsIntoRoom();
+        RoomItems = ItemGenerate.PutItemsIntoRoom(NumberOfRoom);
     }
 
     public Mob getMobFromRoom(Position pos){

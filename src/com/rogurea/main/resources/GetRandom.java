@@ -1,12 +1,10 @@
 package com.rogurea.main.resources;
 
-import com.rogurea.main.items.Weapon;
-
 import java.util.Random;
 
 public class GetRandom {
 
-    public static Random rnd = new Random();
+    public static final Random rnd = new Random();
 
     public static char WeaponModel(String type){
         if(type.equals("MELEE")){
@@ -18,21 +16,26 @@ public class GetRandom {
         return '?';
     }
 
+    public static String ArmorName(String mat){
+
+        return mat + " " + "chest";
+    }
+
     public static String WeaponName(String type){
 
         StringBuilder name = new StringBuilder();
 
         switch (type){
             case "MELEE" -> {
-                return name.append(GetLenght())
+                return name.append(Lenght())
                         .append(" ")
-                        .append(GetMaterial())
+                        .append("%mat%")
                         .append(" ")
-                        .append("sword").toString();
+                        .append("%name%").toString();
             }
             case "RANGE" -> {
                 return name
-                        .append(GetMaterial())
+                        .append("%mat%")
                         .append(" ")
                         .append("bow").toString();
             }
@@ -41,12 +44,16 @@ public class GetRandom {
         return "";
     }
 
-    private static String GetLenght(){
+    private static String Lenght(){
         return GameResources.SwordLenght[rnd.nextInt(GameResources.SwordLenght.length)];
     }
 
-    private static String GetMaterial(){
+    public static String WeaponMaterial(){
         return GameResources.MaterialName[rnd.nextInt(GameResources.MaterialName.length)];
+    }
+
+    public static String ArmorMaterial(){
+        return GameResources.ArmorMaterialName[rnd.nextInt(GameResources.ArmorMaterialName.length)];
     }
 
     public static String HitLog(int dmg){

@@ -91,6 +91,31 @@ public class GameResources {
 
     public static final String[] MaterialName = {"Wood", "Stone", "Iron", "Copper", "Golden", "Diamond"};
 
+    public static final HashMap<String, String> MaterialColor;
+
+    static {
+        MaterialColor = new HashMap<>();
+        MaterialColor.put("Wood", Colors.BROWN);
+        MaterialColor.put("Stone", Colors.GREY);
+        MaterialColor.put("Iron", Colors.IRON);
+        MaterialColor.put("Copper", Colors.COPPER);
+        MaterialColor.put("Golden", Colors.GOLDEN);
+        MaterialColor.put("Diamond", Colors.DIAMOND);
+    }
+
+    public static final String[] ArmorMaterialName = {"leather", "chain", "iron", "steel", "titan"};
+
+    public static final HashMap<String, String> ArmorMaterialColor;
+
+    static {
+        ArmorMaterialColor = new HashMap<>();
+        ArmorMaterialColor.put("leather", Colors.BROWN);
+        ArmorMaterialColor.put("chain", Colors.GREY);
+        ArmorMaterialColor.put("iron", Colors.IRON);
+        ArmorMaterialColor.put("steel", Colors.MAGENTA);
+        ArmorMaterialColor.put("titan", Colors.VIOLET);
+    }
+
     public static final char chair = '◎';
 
     public static final char RandomChest = '⍰';
@@ -124,17 +149,18 @@ public class GameResources {
             "successfull hit! You get %dmg%"
     };
 
-    public static HashMap<Character, String> ModelNameMap = new HashMap<>();
+    public static final HashMap<Character, String> ModelNameMap = new HashMap<>();
 
-    public static String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
+    public static final String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
 
-    public static String UpdatePlayerInfo() {
-        return  Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
+    public static StringBuffer UpdatePlayerInfo() {
+        return new StringBuffer(Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
                 + Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " "
                 + Colors.R + "Money: " + Colors.ORANGE + Player.Money + " "
                 + Colors.R + "Def: " + Colors.VIOLET + Player.getArmor() + " "
+                + Colors.R + "ATK: " + Colors.PINK + Player.getDamage() + " "
                 + Colors.R + "Level: " + Colors.CYAN + Player.Level + " "
-                + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ";
+                + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ");
     }
 
     public static void MakeMap() {

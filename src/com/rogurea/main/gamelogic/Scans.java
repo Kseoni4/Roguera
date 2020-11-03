@@ -24,27 +24,19 @@ public class Scans {
     }
 
     public static boolean CheckExit(char c){
-        if(CheckWall(c)){
             return c == GameResources.NextRoom;
-        }
-        return false;
     }
 
     public static boolean CheckBack(char c){
-        if(CheckWall(c)){
             return c == GameResources.BackRoom;
-        }
-        return false;
     }
 
     public static boolean CheckProps(char c){
-        if(CheckWall(c)){
             for(char prop : GameResources.FurnitureAtlas){
                 if(prop == c){
                     return true;
                 }
             }
-        }
         return false;
     }
 

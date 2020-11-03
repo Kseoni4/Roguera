@@ -17,7 +17,7 @@ public class Player {
         public static int y = 1;
     }
 
-    public static String nickName = "Player 1";
+    public static final String nickName = "Player 1";
     public static int HP = 100;
     public static int MP = 30;
     public static int Level = 1;
@@ -41,6 +41,7 @@ public class Player {
         if(Inventory.size() < 10) {
             Inventory.add(item);
             LogBlock.Action("get the " + "\u001b[38;5;202m" + item.name + "\u001b[0m" + '!');
+            Player.AutoEquip();
         }
         else{
             LogBlock.Event("Your inventory is full!");

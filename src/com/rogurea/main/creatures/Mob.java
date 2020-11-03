@@ -10,13 +10,15 @@ public class Mob extends Creature {
 
     private final int Damage;
 
+    public int MobLevel = 1;
+
     public final int ScanZone = 5;
 
-    public char MobSymbol;
+    public final char MobSymbol;
 
-    public Position Destination = new Position();
+    public final Position Destination = new Position();
 
-    public Position HisPosition = new Position();
+    public final Position HisPosition = new Position();
 
     public int MobSpeed = GameVariables.Fast;
 
@@ -53,12 +55,13 @@ public class Mob extends Creature {
 
     private Behavior mobBehavior;
 
-    public Mob(String name, char mobSymbol, int HP) {
+    public Mob(String name, char mobSymbol, int HP, String _name, int roomnum) {
         super(name);
         this.MobSymbol = mobSymbol;
         setHP(HP);
         setCreatureType(CreatureType.MOB);
-        this.Damage = MobFactory.GetDamage();
+        this.Level = roomnum;
+        this.Damage = MobFactory.GetDamage(_name, this.Level);
         this.Loot = MobFactory.GetLoot();
         this.mobBehavior = Behavior.IDLE;
         this.mobBehavior.id = super.id;

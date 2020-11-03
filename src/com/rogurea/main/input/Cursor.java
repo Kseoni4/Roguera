@@ -2,7 +2,6 @@ package com.rogurea.main.input;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.MenuContainer;
 import com.rogurea.main.view.TerminalView;
 

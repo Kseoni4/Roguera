@@ -8,7 +8,7 @@ public abstract class Creature {
 
     public String Name = "";
 
-    public int id;
+    public final int id;
 
     public static int CreatureCount = 0;
 
@@ -31,7 +31,7 @@ public abstract class Creature {
 
     public int Level = 1;
 
-    public ArrayList<Item> Loot = new ArrayList<Item>();
+    public ArrayList<Item> Loot = new ArrayList<>();
 
     public void setCreatureType(CreatureType creatureType){
         this.creatureType = creatureType;

@@ -4,7 +4,7 @@ import com.rogurea.main.resources.GameResources;
 
 public class Gold extends Item {
 
-    public int Amount;
+    public final int Amount;
 
     public Gold(int Amount) {
         super("gold", 0, GameResources.Gold);

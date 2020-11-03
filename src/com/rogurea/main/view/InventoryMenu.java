@@ -1,6 +1,8 @@
 package com.rogurea.main.view;
 
+import com.googlecode.lanterna.Symbols;
 import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.rogurea.main.input.*;
@@ -8,6 +10,7 @@ import com.rogurea.main.items.Armor;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
@@ -24,6 +27,8 @@ public class InventoryMenu {
     private static KeyStroke key;
 
     private static TerminalPosition topInventoryLeft;
+
+    private static final TerminalSize InventorySize = new TerminalSize(22,5);
 
     private static TextGraphics InventoryGraphics = null;
 
@@ -55,9 +60,11 @@ public class InventoryMenu {
 
     static int Offset = PosX;
 
-    private static final int XOffset = 35;
+    private static final int XOffset = 5;
 
-    private static final int YOffset = 12;
+    private static final int YOffset = 10;
+
+    private static final TerminalSize InventoryBordersSize = new TerminalSize(23,7);
 
     public static void Init(){
 
@@ -132,7 +139,7 @@ public class InventoryMenu {
 
         SwitchContextVisibility();
 
-        PosY = 5;
+        PosY = 3;
 
         pointer = GameResources.PointerRight;
 
@@ -193,7 +200,9 @@ public class InventoryMenu {
             int offset = 1;
             for(Item item : Player.Inventory){
                 TerminalView.DrawBlockInTerminal(InventoryGraphics,
-                        "\u001b[38;5;202m" + item._model,
+                        (item.getClass() == Weapon.class ?
+                                GameResources.MaterialColor.get(((Weapon) item).Material)
+                                : Colors.MAGENTA) + item._model,
                         topInventoryLeft.withRelative(offset,1));
                 offset++;
             }
@@ -204,8 +213,17 @@ public class InventoryMenu {
     }
 
     private static void DrawInventoryBorders(){
-        InventoryGraphics.putCSIStyledString(topInventoryLeft.getColumn(), topInventoryLeft.getRow()-1,
-                "Inventory");
+
+        InventoryGraphics.setBackgroundColor(Colors.GetTextColor(Colors.B_GREYSCALE_233,"\u001b[48;5;"));
+
+        InventoryGraphics.fillRectangle(topInventoryLeft, InventorySize.withRelative(0,0), MapEditor.EmptyCell);
+
+        InventoryGraphics.drawRectangle(topInventoryLeft.withRelative(-1,-2),
+                InventoryBordersSize
+                , Symbols.BLOCK_MIDDLE);
+
+        InventoryGraphics.putCSIStyledString(topInventoryLeft.getColumn(), topInventoryLeft.getRow()-2,
+                Colors.WHITE_BRIGHT +"Inventory");
         InventoryGraphics.drawLine(
                 topInventoryLeft,
                 new TerminalPosition(topInventoryLeft.getColumn()+10, topInventoryLeft.getRow()),
@@ -256,18 +274,35 @@ public class InventoryMenu {
 
     private static void ShowItemInfo(){
         Item item = GetItem();
-        StringBuilder info = new StringBuilder();
+        StringBuffer info = new StringBuffer();
         if(item != null) {
+
+            if(item.getClass() == Weapon.class)
+                info.append(GameResources.MaterialColor.get(((Weapon) item).Material));
+
             info.append(item._model).append(' ')
-                    .append(item.name).append(' ')
-                    .append(Colors.ORANGE).append('$').append(item.SellPrice).append(' ');
-            if (item.getClass() == Weapon.class)
-                info.append(Colors.RED_BRIGHT).append(((Weapon) item).getDamage());
-            else if (item.getClass() == Armor.class)
-                info.append(Colors.VIOLET).append(((Armor) item).getDefense());
+                    .append(item.name);
 
             TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn(),
-                    topInventoryLeft.getRow()+4);
+                    topInventoryLeft.getRow()-1);
+
+                info.delete(0, info.length());
+
+             info.append(Colors.ORANGE).append('$').append(item.SellPrice).append(' ');
+
+            TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn()+12,
+                    topInventoryLeft.getRow());
+
+            info.delete(0, info.length());
+
+            if (item.getClass() == Weapon.class)
+                info.append("ATK: ").append(Colors.RED_BRIGHT).append(((Weapon) item).getDamage());
+
+            else if (item.getClass() == Armor.class)
+                info.append("DEF: ").append(Colors.VIOLET).append(((Armor) item).getDefense());
+
+            TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn()+12,
+                    topInventoryLeft.getRow()+1);
         }
     }
 

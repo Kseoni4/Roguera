@@ -4,8 +4,6 @@ import com.rogurea.main.GameLoop;
 import com.rogurea.main.view.InventoryMenu;
 import com.rogurea.main.view.LogBlock;
 
-import java.io.IOException;
-
 
 public class KeyController {
     public static char GetKey (Character key){

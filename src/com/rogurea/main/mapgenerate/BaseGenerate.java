@@ -4,6 +4,7 @@ import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.map.Room;
+import com.rogurea.main.view.PlayerInfoBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
 
 public class BaseGenerate {
 
-    public static Random random = new Random();
+    public static final Random random = new Random();
 
     public enum RoomSize {
         SMALL{
@@ -74,19 +75,15 @@ public class BaseGenerate {
         }
     }
 
-    static Predicate<Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == Player.CurrentRoom;
+    static final Predicate<Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == Player.CurrentRoom;
 
-    static Predicate<Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
+    static final Predicate<Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
 
     public static void GenerateDungeon(int DungeonLenght){
-
-        int r = 0;
 
         RoomSize[] roomSizes = RoomSize.values();
 
         for(int i = 0; i < DungeonLenght; i++){
-
-            r = random.nextInt(roomSizes.length);
 
             int Height = roomSizes[2].GetHeightY()[random.nextInt(3)];
             int Widght = roomSizes[2].GetWidghtX()[random.nextInt(3)];
@@ -125,10 +122,7 @@ public class BaseGenerate {
 
     public static Room GetRoom(Dungeon.Direction direction) {
         switch (direction) {
-            case NEXT -> {
-                return GetFromSet(ByPlayerCurrentRoom);
-            }
-            case BACK -> {
+            case NEXT, BACK -> {
                 return GetFromSet(ByPlayerCurrentRoom);
             }
             case FIRST -> {
@@ -193,6 +187,7 @@ public class BaseGenerate {
         CurrentRoom[y][x] = Player.PlayerModel;
         Player.Pos.x = x;
         Player.Pos.y = y;
+        PlayerInfoBlock.roomSize = Dungeon.GetCurrentRoom().roomSize;
     }
 
     public static int GetCenterOfRoom(Room room){

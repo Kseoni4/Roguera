@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class LogBlock {
 
-    public static int LogHistorySize = 11;
+    public static final int LogHistorySize = 11;
 
     static TextGraphics LoggerGraphics = null;
 
@@ -20,11 +20,13 @@ public class LogBlock {
 
     public static int LogHistoryIndex = 0;
 
-    static TerminalSize LogSize = new TerminalSize(256, LogHistory.length);
+    static final TerminalSize LogSize = new TerminalSize(256, LogHistory.length);
 
     static TerminalPosition topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
 
-    private static StringBuilder OutMessage = new StringBuilder();
+    private static StringBuffer OutMessage = new StringBuffer();
+
+    private static final TerminalPosition LogBorderSize = new TerminalPosition(topLoggerLeft.getColumn()+20,topLoggerLeft.getRow()-1);
 
     public static void Init(){
         try {
@@ -61,7 +63,7 @@ public class LogBlock {
     }
 
     public static void LookAt(String message){
-        OutMessage = new StringBuilder();
+        OutMessage = new StringBuffer();
         OutMessage.append('>').append("You").append(' ');
     }
 
@@ -69,7 +71,7 @@ public class LogBlock {
         ClearLog();
     }
 
-    private static void WriteLog(StringBuilder sb){
+    private static void WriteLog(StringBuffer sb){
         if(LogHistoryIndex < LogHistory.length) {
             sb.insert(0,"\u001b[38;5;n" + "m");
             LogHistory[LogHistoryIndex] = sb.toString();
@@ -80,7 +82,7 @@ public class LogBlock {
             sb.insert(0,"\u001b[38;5;255m");
             LogHistory[LogHistoryIndex] = sb.toString();
         }
-        OutMessage = new StringBuilder();
+        OutMessage = new StringBuffer();
     }
 
     static void RedrawLog(){
@@ -89,8 +91,7 @@ public class LogBlock {
             int i = 0;
             for (String s : LogHistory) {
                 if (s != null) {
-
-                    s = s.replaceFirst("(\\[38;5;nm)", "[38;5;" + (245+(LogHistory.length-(LogHistoryIndex*2))+i) + "m");
+                    s = s.replaceFirst("(\\[38;5;nm)", "[38;5;" + Math.min(245+(LogHistory.length-(LogHistoryIndex*2))+i,255) + "m");
                     TerminalView.DrawBlockInTerminal(LoggerGraphics, s, topLoggerLeft.withRelative(0,i));
                     i++;
                 }
@@ -102,8 +103,7 @@ public class LogBlock {
     static void DrawLogBorders(){
         TerminalView.DrawBlockInTerminal(LoggerGraphics, "Log", topLoggerLeft.withRow(10));
         LoggerGraphics.drawLine(
-                topLoggerLeft.withRow(11),
-                new TerminalPosition(topLoggerLeft.getColumn()+20,topLoggerLeft.getRow()-1),
+                topLoggerLeft.withRow(11), LogBorderSize,
                 Symbols.SINGLE_LINE_HORIZONTAL);
     }
 

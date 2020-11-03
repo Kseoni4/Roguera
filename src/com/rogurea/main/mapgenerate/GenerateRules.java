@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class GenerateRules {
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     private static int y0, x0, //Координаты первой точки
             xp, yp, //Координаты второй точки
@@ -86,35 +86,34 @@ public class GenerateRules {
 
     private static void StartPlace(char[][] CurrentRoom){
         CurrentRoom[2][0] = '.';
-        ConnectPoints(CurrentRoom, y0,x0, 2,0, false);
+        ConnectPoints(CurrentRoom, y0,x0, 2,0);
     }
 
     private static void InductionPlace(char[][] CurrentRoom){
-
-           if(PlacePoint(CurrentRoom, 5, 3, false)) {
-               SearchXYPoint(CurrentRoom, y0, x0, yp, xp);
-               ConnectPoints(CurrentRoom, y0, x0, y_, x_, false);
-               ConnectPoints(CurrentRoom, y0, x0, yp, xp, false);
-           }
+        PlaceAndConnectXY(CurrentRoom,5,3,false);
     }
 
     private static void DeductionPlace(char[][] CurrentRoom){
-        if(PlacePoint(CurrentRoom, 3, 1, true)) {
+        PlaceAndConnectXY(CurrentRoom,3,1,true);
+    }
+
+    private static void PlaceAndConnectXY(char[][] CurrentRoom, int Ybound, int Xbound, boolean IsReverse){
+        if(PlacePoint(CurrentRoom, Ybound, Xbound, IsReverse)) {
             SearchXYPoint(CurrentRoom, y0, x0, yp, xp);
-            ConnectPoints(CurrentRoom, y0, x0, y_, x_, true);
-            ConnectPoints(CurrentRoom, y0, x0, yp, xp, true);
+            ConnectPoints(CurrentRoom, y0, x0, y_, x_);
+            ConnectPoints(CurrentRoom, y0, x0, yp, xp);
         }
     }
 
     private static void FinalPlace(char[][] CurrentRoom){
         if (y0 == 0) {
-            ConnectPoints(CurrentRoom, y0, x0, y_, x_, false);
+            ConnectPoints(CurrentRoom, y0, x0, y_, x_);
             PlaceCorner(CurrentRoom, y0, x0);
         }
         else{
             SearchXYPoint(CurrentRoom, y0, x0, 0, 0);
-            ConnectPoints(CurrentRoom, y0, x0, y_, x_, false);
-            ConnectPoints(CurrentRoom, y0, x0, 0, 0, false);
+            ConnectPoints(CurrentRoom, y0, x0, y_, x_);
+            ConnectPoints(CurrentRoom, y0, x0, 0, 0);
             CurrentRoom[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
         }
     }
@@ -183,12 +182,9 @@ public class GenerateRules {
                 System.out.printf("SetPointin[%d;%d]\n", y_, x_);
             }
         }
-/*        if(y0 == 0 && x0 == 0)
-            yp_ = y_;
-            xp_ = x_;*/
     }
 
-    private static void ConnectPoints(char[][] CurrentRoom, int y0, int x0, int y1, int x1, boolean IsReverse){
+    private static void ConnectPoints(char[][] CurrentRoom, int y0, int x0, int y1, int x1){
 
         System.out.printf("Connect points \n\tfrom [%d;%d] to [%d;%d]\n", y0, x0, y1, x1);
 

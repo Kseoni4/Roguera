@@ -3,27 +3,45 @@ package com.rogurea.main.creatures;
 import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
-import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.resources.GetRandom;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class MobFactory {
 
-    static String[] MobNames = {
+    static final String[] MobNames = {
             "Rat",
             "Goblin",
-            "Skelleton"
+            "Skelleton",
+            "Bandit"
     };
 
-    static Random random = new Random();
+    static final HashMap<String, Integer> MobPower;
 
-    public static int GetDamage(){
-        return GameVariables.BaseMobDamageStat + random.nextInt(3+Player.CurrentRoom);
+    static {
+        MobPower = new HashMap<>();
+
+        int Power = (int) Math.floor((GameVariables.MobDamageEmpower * GameVariables.BaseMobDamageStat) * 1.2);
+
+        for(String mob : MobNames) {
+            MobPower.put(mob, Power);
+
+            Power = (int) Math.floor(Power * GameVariables.MobDamageEmpower);
+        }
+    }
+
+    static final Random random = new Random();
+
+    public static int GetDamage(String mob, int moblevel){
+        return (int) Math.ceil(
+                    ((GameVariables.BaseMobDamageStat * MobPower.get(mob))
+                * GameVariables.MobDamageEmpower) * moblevel
+        );
     }
 
     public static ArrayList<Item> GetLoot(){
@@ -40,7 +58,7 @@ public class MobFactory {
         return bufferLoot;
     }
 
-    public static ArrayList<Mob> getMobs(){
+    public static ArrayList<Mob> getMobs(int roomnum){
 
         ArrayList<Mob> OutMobList = new ArrayList<>();
 
@@ -49,7 +67,7 @@ public class MobFactory {
             OutMobList.add(
                     new Mob((Colors.RED_BRIGHT+name+Colors.R),
                             name.charAt(0),
-                            15)
+                            random.nextInt(50)+15, name, roomnum)
             );
             GameResources.ModelNameMap.put(name.charAt(0), Colors.RED_BRIGHT+name);
         }

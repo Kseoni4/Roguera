@@ -1,6 +1,5 @@
 package com.rogurea.main.view;
 
-import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
 import java.io.IOException;
@@ -9,7 +8,7 @@ public class ControlBlock {
 
     static TextGraphics Controls = null;
 
-    static String stringControls = "i\u001b[48;5;57mInv\u001b[0m r\u001b[48;5;57mGenRoom\u001b[0m c\u001b[48;5;57mClrLog\u001b[0m ESC\u001b[48;5;57mQuit";
+    static final String stringControls = "i\u001b[48;5;57mInv\u001b[0m r\u001b[48;5;57mGenRoom\u001b[0m c\u001b[48;5;57mClrLog\u001b[0m ESC\u001b[48;5;57mQuit";
 
     public static void Init(){
         try {

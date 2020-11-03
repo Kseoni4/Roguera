@@ -17,6 +17,8 @@ import java.util.Objects;
 
 public class PlayerMoveController {
 
+    private static final Position pos = new Position();
+
     public static void MovePlayer(KeyType key) {
         switch (key) {
             case ArrowUp -> Move(Player.Pos.y + 1, Player.Pos.x);
@@ -29,14 +31,9 @@ public class PlayerMoveController {
 
         char cell = MapEditor.getFromCell(y,x);
 
-        Position pos = new Position();
-
         pos.setPosition(y,x);
 
         if(!Scans.CheckWall(cell)
-/*
-         || Scans.CheckCreature(cell)
-*/
         || Scans.CheckProps(cell)){
             return;
         }
@@ -105,6 +102,7 @@ public class PlayerMoveController {
 
             rm.RoomItems.remove(gold);
 
+            assert gold != null;
             Player.GetGold(gold);
         }
 

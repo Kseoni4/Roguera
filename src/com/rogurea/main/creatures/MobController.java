@@ -9,6 +9,7 @@ import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameVariables;
+import com.rogurea.main.view.LogBlock;
 
 import java.util.Objects;
 import java.util.Random;
@@ -41,21 +42,17 @@ public class MobController extends Thread {
 
             mob.getMobBehavior().SetBehaviorAction();
 
-            mob.setHP(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
-                    mob1 -> mob1.id == mob.id
-            ).findAny().orElse(null).getHP());
+            mob.setHP(GetCurrentMobFromRoom().getHP());
 
+            if(isInterrupted())
+                break;
             try {
                 sleep(mob.MobSpeed);
             } catch (InterruptedException e) {
                 break;
             }
 
-            if(isInterrupted())
-                break;
-
             if(mob.getHP() <= 0) {
-
                 mob.SetMobBehavior(Mob.Behavior.DEAD);
 
                 mob.getMobBehavior().SetBehaviorAction();
@@ -67,6 +64,12 @@ public class MobController extends Thread {
 
             CheckBehaviorState();
         }
+    }
+
+    private Mob GetCurrentMobFromRoom(){
+        return Objects.requireNonNull(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
+                mob1 -> mob1.id == mob.id
+        ).findAny().orElse(null));
     }
 
     private void CheckBehaviorState() {
@@ -97,7 +100,6 @@ public class MobController extends Thread {
             return ScanZone();
         else{
             System.out.println(Colors.RED_BRIGHT + "Interrupted");
-            interrupt();
             return false;
         }
     }
@@ -110,6 +112,7 @@ public class MobController extends Thread {
 
         for(int Zone = 1; Zone <= mob.ScanZone; Zone++) {
             try{
+
                 if (mob.ScanForPlayer(MapEditor.getFromCell(y+Zone, x))){
                     mob.Destination.setPosition(y+Zone, x);
                     return true;
@@ -128,9 +131,9 @@ public class MobController extends Thread {
                 }
             }
             catch (ArrayIndexOutOfBoundsException e){
-                return false;
+                continue;
             }
-            if(currentThread().isInterrupted()){
+            if(isInterrupted()){
                 System.out.println(Colors.RED_BRIGHT + "Interrupted");
                 break;
             }
@@ -142,20 +145,14 @@ public class MobController extends Thread {
 
         Position NewPos = mob.Destination;
 
-        char cell;
+        int y_s = mob.getMobPosY()+SearchPathShift(mob.getMobPosY(), NewPos.y);
 
-        int y_s;
+        int x_s = mob.getMobPosX()+SearchPathShift(mob.getMobPosX(), NewPos.x);
 
-        int x_s;
-
-        y_s = mob.getMobPosY()+SearchPathShift(mob.getMobPosY(), NewPos.y);
-
-        x_s = mob.getMobPosX()+SearchPathShift(mob.getMobPosX(), NewPos.x);
-
-        cell = MapEditor.getFromCell(y_s, x_s);
+        char cell = MapEditor.getFromCell(y_s, x_s);
 
         if(isInterrupted()){
-            System.out.println(Colors.RED_BRIGHT + "Interrupted");
+            System.out.println(Colors.RED_BRIGHT + getName() + " " + "Interrupted");
             return false;
         }
 
@@ -167,9 +164,7 @@ public class MobController extends Thread {
 
             mob.setMobPosition(y_s, x_s);
 
-            Objects.requireNonNull(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
-                    mob1 -> mob1.id == mob.id
-            ).findAny().orElse(null)).setMobPosition(y_s, x_s);
+            GetCurrentMobFromRoom().setMobPosition(y_s, x_s);
         }
         return false;
     }
@@ -202,23 +197,20 @@ public class MobController extends Thread {
 
         MapEditor.clearCell(mob.HisPosition);
 
+        LogBlock.Action("kill the " + mob.Name);
+
         Dungeon.CurrentRoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
 
-        Objects.requireNonNull(Dungeon.Rooms
-                .stream().filter(
-                        room -> room.NumberOfRoom == Player.CurrentRoom
-                )
-                .findAny()
-                .orElse(null))
-                .RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
+        Dungeon.GetCurrentRoom().RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
     }
 
     void DropLoot(){
 
         Random rnd = new Random();
 
+        Position lootdrop = new Position();
+
         for(Item item : mob.Loot){
-            Position lootdrop = new Position();
             Dungeon.GetCurrentRoom().RoomItems.add(item);
 
             lootdrop.setPosition(
@@ -239,7 +231,6 @@ public class MobController extends Thread {
                 b++;
             }
             MapEditor.setIntoCell(item._model, lootdrop);
-
         }
     }
 }

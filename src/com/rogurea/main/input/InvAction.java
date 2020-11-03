@@ -1,6 +1,5 @@
 package com.rogurea.main.input;
 
-import com.rogurea.main.items.InventoryController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.view.InventoryMenu;
 

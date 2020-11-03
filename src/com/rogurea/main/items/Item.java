@@ -3,13 +3,19 @@ package com.rogurea.main.items;
 public class Item {
     public String name;
 
-    public int id;
+    public final int id;
 
     protected static int counter = 0;
 
-    public int SellPrice;
+    public final int SellPrice;
 
     public char _model;
+
+    public String Material;
+
+    public String getMaterialColor(){
+        return "";
+    }
 
     public Item(String name, int SellPrice){
         this.name = name;
