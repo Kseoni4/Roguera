@@ -1,7 +1,8 @@
 package com.rogurea.main.input;
 
 import com.rogurea.main.player.Player;
-import com.rogurea.main.view.InventoryMenu;
+
+import static com.rogurea.main.resources.ViewObject.inventoryMenu;
 
 public class InvAction extends Action {
 
@@ -9,7 +10,7 @@ public class InvAction extends Action {
         OPENCONTEXTMENU {
             public void select(){
                 if(Player.Inventory.size() > 0)
-                    InventoryMenu.OpenContextItemMenu();
+                    inventoryMenu.OpenContextItemMenu();
             }
         };
         public abstract void select();

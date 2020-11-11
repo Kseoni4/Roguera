@@ -3,7 +3,7 @@ package com.rogurea.main.gamelogic;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.LogBlock;
+import static com.rogurea.main.resources.ViewObject.logBlock;
 
 public class Scans {
 
@@ -50,7 +50,7 @@ public class Scans {
 
     public static void CheckSee(char c){
         if(GameResources.ModelNameMap.get(c) != null)
-            LogBlock.Action("see the " + GameResources.ModelNameMap.get(c));
+            logBlock.Action("see the " + GameResources.ModelNameMap.get(c));
     }
 
     public static boolean CheckCreature(char cell){

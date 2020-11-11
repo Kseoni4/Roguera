@@ -1,21 +1,21 @@
 package com.rogurea.main.player;
+import com.rogurea.main.map.Dungeon;
 
-import com.rogurea.main.GameLoop;
-import com.rogurea.main.view.InventoryMenu;
-import com.rogurea.main.view.LogBlock;
+import static com.rogurea.main.resources.ViewObject.inventoryMenu;
+import static com.rogurea.main.resources.ViewObject.logBlock;
 
 
 public class KeyController {
     public static char GetKey (Character key){
             switch (key){
                 case 'r':
-                    GameLoop.RegenRoom();
+                    Dungeon.RegenRoom();
                     return 'r';
                 case 'c':
-                    LogBlock.Clear();
+                    logBlock.Clear();
                     return 'c';
                 case 'i':
-                    InventoryMenu.show();
+                    inventoryMenu.show();
                     return 'i';
                 default:
                     break;

@@ -1,36 +1,30 @@
 package com.rogurea.main;
 
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
 import com.rogurea.main.gamelogic.Scans;
+import com.rogurea.main.gamelogic.rgs.Events;
 import com.rogurea.main.map.Dungeon;
-import com.rogurea.main.map.Room;
-import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.KeyController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.player.PlayerMoveController;
 import com.rogurea.main.resources.Colors;
-import com.rogurea.main.view.LogBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
-
-import static com.rogurea.main.player.Player.CurrentRoom;
-import static com.rogurea.main.player.Player.PlayerModel;
+import static com.rogurea.main.resources.ViewObject.*;
 import static java.lang.Thread.sleep;
 
 public class GameLoop {
 
-    public static final Thread drawcall = new Thread(new TerminalView(), "drawcall");
+    public final ArrayList<Thread> ActiveThreads = new ArrayList<>();
 
-    public static final ArrayList<Thread> ActiveThreads = new ArrayList<>();
+    private boolean isGameOver = false;
 
-    private static void RestartThread(){
+    public void RestartThread(){
 
         if(ActiveThreads.size() > 0) {
             for (Thread t : ActiveThreads) {
@@ -50,14 +44,11 @@ public class GameLoop {
             ActiveThreads.removeIf(
                     thread -> !thread.isAlive()
             );
-            StartThreads();
         }
-        else{
-            StartThreads();
-        }
+        StartThreads();
     }
 
-    private static void StartThreads(){
+    private void StartThreads(){
         for (Mob mob : Dungeon.CurrentRoomCreatures) {
             ActiveThreads.add(new Thread(new MobController(mob), "mobcontroller for mob " + mob.Name));
         }
@@ -65,11 +56,9 @@ public class GameLoop {
         ActiveThreads.forEach(Thread::start);
     }
 
-    public static void Start(){
+    public void Start(){
         try{
-            TerminalView.InitTerminal();
             InLoop();
-
         } catch (IOException e) {
 
             e.printStackTrace();
@@ -81,8 +70,7 @@ public class GameLoop {
                         t.interrupt();
                         t.join();
                     }
-                    /*drawcall.interrupt();
-*/                    TerminalView.terminal.close();
+                    TerminalView.terminal.close();
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -90,16 +78,16 @@ public class GameLoop {
         }
     }
 
-    private static void InLoop() throws IOException {
-
-        drawcall.start();
+    private void InLoop() throws IOException {
 
         while (TerminalView.keyStroke == null || TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
+
+            if(Player.XP >= Player.XPForNextLevel)
+                Events.getNewLevel();
 
             TerminalView.keyStroke = TerminalView.terminal.readInput();
 
             if(Player.HP <= 0) {
-                GameEndByDead();
                 break;
             }
 
@@ -116,20 +104,16 @@ public class GameLoop {
         }
     }
 
-    private static void GameEndByDead(){
-        LogBlock.Action(Colors.RED_BRIGHT + "are dead. GameOver.");
+    public void GameEndByDead(){
+        if(!isGameOver){
+            logBlock.Action(Colors.RED_BRIGHT + "are dead. GameOver.");
 
-        LogBlock.Event("Press any key to exit");
-
-        try {
-            TerminalView.terminal.readInput();
-            /*RestartGame();*/
-        } catch (IOException e) {
-            e.printStackTrace();
+            logBlock.Event("Press any key to exit");
+            isGameOver = !isGameOver;
         }
     }
 
-    private static void RestartGame() throws IOException {
+    private void RestartGame() throws IOException {
         TerminalView.terminal.flush();
 
         Dungeon.Rooms = new ArrayList<>();
@@ -141,49 +125,5 @@ public class GameLoop {
         RestartThread();
 
         Dungeon.Generate();
-
-    }
-
-    public static void RegenRoom() {
-
-        RestartThread();
-
-        System.out.flush();
-        BaseGenerate.GenerateRoom(Objects.requireNonNull(Dungeon.Rooms.stream().filter(
-                room -> room.NumberOfRoom == CurrentRoom
-        ).findAny().orElse(null)));
-        BaseGenerate.PutPlayerInDungeon(Dungeon.CurrentRoom[0].length/2,1, Dungeon.CurrentRoom);
-
-    }
-
-    public static void ChangeRoom(Room room){
-
-        if(!room.IsRoomStructureGenerate){
-            try {
-                BaseGenerate.GenerateRoom(
-                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
-            }
-            catch (NullPointerException e){
-                e.getStackTrace();
-                MapEditor.setIntoCell(PlayerModel, 1,1);
-            }
-            finally {
-                BaseGenerate.PutPlayerInDungeon(
-                        BaseGenerate.GetCenterOfRoom(room), 1,
-                        Dungeon.CurrentRoom);
-            }
-        }
-        else{
-
-            Player.CurrentRoom = room.NumberOfRoom;
-            Dungeon.CurrentRoom = room.RoomStructure;
-            Dungeon.CurrentRoomCreatures = room.RoomCreatures;
-            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), 1,
-                    room.RoomStructure);
-        }
-
-        RestartThread();
-
-        TerminalView.ResetPositions();
     }
 }

@@ -100,8 +100,6 @@ public class Cursor {
 
         CursorPos = menu.getPosition().withRelative(col, row);
 
-        System.out.println("CursorPos: " + CursorPos.getRow() + ";" + CursorPos.getColumn());
-
         TerminalView.SetPointerIntoPosition(menu.getTextGUI(), menu.getPointer(), CursorPos);
 
         menu.setOffset(offset);

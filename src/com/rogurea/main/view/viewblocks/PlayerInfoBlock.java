@@ -1,4 +1,4 @@
-package com.rogurea.main.view;
+package com.rogurea.main.view.viewblocks;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -8,22 +8,22 @@ import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.view.IViewBlock;
+import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
-import java.util.Objects;
 
-public class PlayerInfoBlock {
+public class PlayerInfoBlock implements IViewBlock {
 
-    static TextGraphics PlayerInfoGraphics = null;
+    private TextGraphics PlayerInfoGraphics = null;
 
-    static TerminalPosition topPlayerInfoLeft;
+    private TerminalPosition topPlayerInfoLeft;
 
-    static final TerminalSize PlayerInfoSize = new TerminalSize(GameResources.getPlayerPositionInfo().length() + 2, 5);
+    private final TerminalSize PlayerInfoSize = new TerminalSize(GameResources.getPlayerPositionInfo().length() + 2, 5);
 
     public static BaseGenerate.RoomSize roomSize;
 
-
-    public static void Init(){
+    public void Init(){
 
         try {
             PlayerInfoGraphics = TerminalView.terminal.newTextGraphics();
@@ -36,30 +36,52 @@ public class PlayerInfoBlock {
         TerminalView.InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
     }
 
-    public static void GetInfo(){
+    public void Draw() {
 
-        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics, GameResources.getPlayerPositionInfo(),
-                topPlayerInfoLeft.withRelative(2,1));
+        TerminalSize terminalSize = null;
+
+        try {
+            terminalSize = TerminalView.terminal.getTerminalSize();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        TerminalView.InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
+
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics, GameResources.getPlayerPositionInfo().toString(),
+                        30, terminalSize.getRows()-1);
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
                 "Room size: " + Dungeon.CurrentRoom.length + "x" + Dungeon.CurrentRoom[0].length
                         + " (" + roomSize + ")",
-                topPlayerInfoLeft.withRelative(2,2));
+                55, terminalSize.getRows()-1);
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
                 GameResources.PlayerName,
+                topPlayerInfoLeft.withRelative(2,1));
+
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
+                GameResources.UpdatePlayerHPMP().toString(),
+                topPlayerInfoLeft.withRelative(2,2));
+
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
+                GameResources.UpdatePlayerATKDEFDEX().toString(),
                 topPlayerInfoLeft.withRelative(2,3));
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
-                GameResources.UpdatePlayerInfo().toString(),
+                GameResources.UpdatePlayerMoneyXP().toString(),
                 topPlayerInfoLeft.withRelative(2,4));
 
-        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,getEquipmentInfo().toString(),
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
+                GameResources.UpdatePlayerLvlRoom().toString(),
                 topPlayerInfoLeft.withRelative(2,5));
+
+        TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,getEquipmentInfo().toString(),
+                topPlayerInfoLeft.withRelative(2,6));
 
     }
 
-    public static StringBuilder getEquipmentInfo(){
+    private StringBuilder getEquipmentInfo(){
 
         StringBuilder sb = new StringBuilder();
 
@@ -80,7 +102,8 @@ public class PlayerInfoBlock {
         return sb;
     }
 
-    public static void Reset(){
+    public void Reset(){
         topPlayerInfoLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 1,1);
+        TerminalView.InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
     }
 }

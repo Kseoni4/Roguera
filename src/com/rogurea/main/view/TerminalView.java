@@ -3,24 +3,18 @@ package com.rogurea.main.view;
 import com.googlecode.lanterna.*;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.resources.GameVariables;
-
 import java.io.IOException;
-import java.util.Random;
 
-import static java.lang.Thread.sleep;
+import static com.rogurea.main.resources.ViewObject.*;
 
-public class TerminalView implements Runnable {
+public class TerminalView {
 
     public static TerminalPosition CurrentPointerPosition;
-
-    private static final Random random = new Random();
 
     private static final DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 
@@ -30,15 +24,11 @@ public class TerminalView implements Runnable {
 
     private static void SetGameScreen() throws IOException {
 
-        GameMapBlock.Init();
-
-        PlayerInfoBlock.Init();
-
-        LogBlock.Init();
-
-        InventoryMenu.Init();
-
-        ControlBlock.Init();
+        Draw.init(gameMapBlock);
+        Draw.init(playerInfoBlock);
+        Draw.init(logBlock);
+        Draw.init(inventoryMenu);
+        Draw.init(controlBlock);
 
         terminal.resetColorAndSGR();
     }
@@ -76,56 +66,44 @@ public class TerminalView implements Runnable {
       Игровое поле - это эдакая таблица, где строки и столбцы - (y,x), а 0,0 начинается в левом верхнем углу
 
   */
-    public void run() {
-        while (keyStroke == null || keyStroke.getKeyType() != KeyType.Escape) {
-            try {
-                Drawcall();
-                sleep(GameVariables.DCI);
-            } catch (IOException | InterruptedException e) {
-                break;
-            }
+    public static void ReDrawAll(){
+
+        try {
+            terminal.clearScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println("Drawcall ended");
+
+        ResetPositions();
+
+        Draw.call(playerInfoBlock);
+        Draw.call(gameMapBlock);
+        Draw.call(controlBlock);
+        Draw.call(inventoryMenu);
+        Draw.call(logBlock);
     }
 
-    public static void ResetPositions(){
-        PlayerInfoBlock.Reset();
-
-        InventoryMenu.Reset();
-
-        LogBlock.Reset();
+    private static void ResetPositions(){
+        Draw.reset(playerInfoBlock);
+        Draw.reset(inventoryMenu);
+        Draw.reset(logBlock);
+        Draw.reset(controlBlock);
     }
 
-    private static void Drawcall() throws IOException {
 
-        terminal.clearScreen();
-
-        PlayerInfoBlock.GetInfo();
-
-        GameMapBlock.DrawDungeon();
-
-        LogBlock.RedrawLog();
-
-        InventoryMenu.DrawInventory();
-
-        ControlBlock.DrawControls();
-
-        terminal.flush();
-    }
-
-    static void InitGraphics(TextGraphics textGraphics, TerminalPosition terminalPosition, TerminalSize terminalSize) {
+    public static void InitGraphics(TextGraphics textGraphics, TerminalPosition terminalPosition, TerminalSize terminalSize) {
         textGraphics.fillRectangle(terminalPosition, terminalSize, MapEditor.EmptyCell);
     }
 
-    static void DrawBlockInTerminal(TextGraphics textgui, String data, TerminalPosition position) {
+    public static void DrawBlockInTerminal(TextGraphics textgui, String data, TerminalPosition position) {
         textgui.putCSIStyledString(position, data);
     }
 
-    static void DrawBlockInTerminal(TextGraphics textgui, String data, int x, int y) {
+    public static void DrawBlockInTerminal(TextGraphics textgui, String data, int x, int y) {
         textgui.putCSIStyledString(x, y, data);
     }
 
-    static void PutCharInTerminal(TextGraphics textgui, TextCharacter data, int x, int y){
+    public static void PutCharInTerminal(TextGraphics textgui, TextCharacter data, int x, int y){
         textgui.setCharacter(x,y,data);
     }
 
@@ -133,7 +111,7 @@ public class TerminalView implements Runnable {
         textgui.setCharacter(position, pointer);
     }
 
-    static void PutRandomCharacter(TextGraphics textGraphics, int i, int j) throws InterruptedException, IOException {
+    /*static void PutRandomCharacter(TextGraphics textGraphics, int i, int j) throws InterruptedException, IOException {
         TextColor rgb = new TextColor.RGB(
                 random.nextInt(255),
                 random.nextInt(255),
@@ -145,5 +123,5 @@ public class TerminalView implements Runnable {
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
         sleep(30);
         terminal.flush();
-    }
+    }*/
 }

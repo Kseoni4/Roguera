@@ -1,10 +1,13 @@
 package com.rogurea.main.map;
-
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.mapgenerate.BaseGenerate;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 
 import java.util.*;
+
+import static com.rogurea.Main.gameLoop;
+import static com.rogurea.main.player.Player.PlayerModel;
 
 public class Dungeon {
 
@@ -14,11 +17,11 @@ public class Dungeon {
         FIRST
     }
 
-    static final int Height = 1;
+    static final byte Height = 1;
 
-    static final int Widght = 1;
+    static final byte Widght = 1;
 
-    static final int DungeonLenght = 10;
+    static final byte DungeonLenght = 10;
 
     public static ArrayList<Room> Rooms = new ArrayList<>();
 
@@ -30,7 +33,42 @@ public class Dungeon {
 
         BaseGenerate.GenerateDungeon(DungeonLenght);
         BaseGenerate.GenerateRoom(Objects.requireNonNull(BaseGenerate.GetRoom(Direction.FIRST)));
-        BaseGenerate.PutPlayerInDungeon(CurrentRoom[0].length/2,1, Dungeon.CurrentRoom);
+        BaseGenerate.PutPlayerInDungeon((byte) (CurrentRoom[0].length/2), (byte) 1, Dungeon.CurrentRoom);
+    }
+    public static void ChangeRoom(Room room) {
+
+        if (!room.IsRoomStructureGenerate) {
+            try {
+                BaseGenerate.GenerateRoom(
+                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+                MapEditor.setIntoCell(PlayerModel, 1, 1);
+            } finally {
+                BaseGenerate.PutPlayerInDungeon(
+                        BaseGenerate.GetCenterOfRoom(room), (byte) 1,
+                        Dungeon.CurrentRoom);
+            }
+        } else {
+
+            Player.CurrentRoom = room.NumberOfRoom;
+            Dungeon.CurrentRoom = room.RoomStructure;
+            Dungeon.CurrentRoomCreatures = room.RoomCreatures;
+            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), (byte) 1,
+                    room.RoomStructure);
+        }
+        gameLoop.RestartThread();
+    }
+
+    public static void RegenRoom() {
+
+        System.out.flush();
+        BaseGenerate.GenerateRoom(Objects.requireNonNull(Dungeon.Rooms.stream().filter(
+                room -> room.NumberOfRoom == Player.CurrentRoom
+        ).findAny().orElse(null)));
+        BaseGenerate.PutPlayerInDungeon(((byte)(Dungeon.CurrentRoom[0].length/2)), (byte) 1, Dungeon.CurrentRoom);
+
+        gameLoop.RestartThread();
     }
 
     public static Room GetCurrentRoom(){
@@ -38,9 +76,4 @@ public class Dungeon {
                 room -> room.NumberOfRoom == Player.CurrentRoom
         ).findAny().orElse(null);
     }
-
-    public static String ShowDungeon(int i, int j){
-        return Objects.toString(Dungeon.CurrentRoom[i][j]);
-    }
-
 }

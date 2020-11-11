@@ -1,10 +1,14 @@
 package com.rogurea.main.resources;
 
-import java.util.Random;
+import com.rogurea.main.items.Armor;
+import com.rogurea.main.items.Equipment;
+import com.rogurea.main.items.Weapon;
+
+import java.security.SecureRandom;
 
 public class GetRandom {
 
-    public static final Random rnd = new Random();
+    public static final SecureRandom rnd = new SecureRandom();
 
     public static char WeaponModel(String type){
         if(type.equals("MELEE")){
@@ -46,6 +50,16 @@ public class GetRandom {
 
     private static String Lenght(){
         return GameResources.SwordLenght[rnd.nextInt(GameResources.SwordLenght.length)];
+    }
+
+    public static String Material(Equipment equipment){
+        if(equipment.getClass().equals(Weapon.class)){
+            return WeaponMaterial();
+        }
+        else if(equipment.getClass().equals(Armor.class)){
+            return ArmorMaterial();
+        }
+        return "";
     }
 
     public static String WeaponMaterial(){

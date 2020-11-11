@@ -4,7 +4,7 @@ import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.map.Room;
-import com.rogurea.main.view.PlayerInfoBlock;
+import com.rogurea.main.view.viewblocks.PlayerInfoBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
@@ -20,15 +20,15 @@ public class BaseGenerate {
     public enum RoomSize {
         SMALL{
             @Override
-            public int[] GetWidghtX() {
-                return new int[]{
+            public byte[] GetWidghtX() {
+                return new byte[]{
                         3, 5, 10
                 };
             }
 
             @Override
-            public int[] GetHeightY() {
-                return new int[] {
+            public byte[] GetHeightY() {
+                return new byte[] {
                         3, 5, 10
                 };
             }
@@ -37,41 +37,41 @@ public class BaseGenerate {
         MIDDLE{
 
             @Override
-            public int[] GetWidghtX() {
-                return new int[]{
+            public byte[] GetWidghtX() {
+                return new byte[]{
                         12, 15, 16
                 };
             }
 
             @Override
-            public int[] GetHeightY() {
-                return new int[] {
+            public byte[] GetHeightY() {
+                return new byte[] {
                         10, 12, 15
                 };
             }
         },
         BIG{
             @Override
-            public int[] GetWidghtX() {
-                return new int[]{
+            public byte[] GetWidghtX() {
+                return new byte[]{
                         18, 20, 23,
                 };
             }
 
             @Override
-            public int[] GetHeightY() {
-                return new int[] {
+            public byte[] GetHeightY() {
+                return new byte[] {
                         19, 22, 23
                 };
             }
         };
 
-        public int[] GetWidghtX() {
-            return new int[0];
+        public byte[] GetWidghtX() {
+            return new byte[0];
         }
 
-        public int[] GetHeightY() {
-            return new int[0];
+        public byte[] GetHeightY() {
+            return new byte[0];
         }
     }
 
@@ -83,16 +83,16 @@ public class BaseGenerate {
 
         RoomSize[] roomSizes = RoomSize.values();
 
-        for(int i = 0; i < DungeonLenght; i++){
+        for(byte i = 0; i < DungeonLenght; i++){
 
-            int Height = roomSizes[2].GetHeightY()[random.nextInt(3)];
-            int Widght = roomSizes[2].GetWidghtX()[random.nextInt(3)];
+            byte Height = roomSizes[2].GetHeightY()[random.nextInt(3)];
+            byte Widght = roomSizes[2].GetWidghtX()[random.nextInt(3)];
 
             if(i == DungeonLenght-1){
-                Dungeon.Rooms.add(new Room(i+1, true, Widght, Height));
+                Dungeon.Rooms.add(new Room((byte) (i+1), true, Widght, Height));
             }
             else
-                Dungeon.Rooms.add(new Room(i+1, Widght, Height));
+                Dungeon.Rooms.add(new Room((byte) (i+1), Widght, Height));
 
             Dungeon.Rooms.get(i).roomSize = roomSizes[2];
 
@@ -146,15 +146,10 @@ public class BaseGenerate {
 
         Player.CurrentRoom = room.NumberOfRoom;
 
-        System.out.println("CurrentRoom " + room.NumberOfRoom);
-
-        System.out.println("Room dimensions = " + CurrentRoom.length + " " + CurrentRoom[0].length);
-
         try {
             if(TerminalView.terminal != null) {
                 TerminalView.terminal.clearScreen();
                 TerminalView.terminal.flush();
-                System.out.println("Screen cleaned");
             }
         }
         catch (IOException e){
@@ -164,12 +159,10 @@ public class BaseGenerate {
         room.IsRoomStructureGenerate = true;
 
         if(room.roomSize == RoomSize.BIG) {
-            GenerateRules.GenerationShapeByPoints(CurrentRoom);
+            PointGenerateProcedure.GenerationShapeByPoints(CurrentRoom);
         }
 
         MapEditor.PlaceDoors(room, CurrentRoom);
-
-        System.out.println("Door placed");
 
         int r = 3;
 
@@ -183,11 +176,13 @@ public class BaseGenerate {
         room.RoomStructure = CurrentRoom;
     }
 
-    public static void PutPlayerInDungeon(int x, int y, char[][] CurrentRoom){
+    public static void PutPlayerInDungeon(int x, byte y, char[][] CurrentRoom){
         CurrentRoom[y][x] = Player.PlayerModel;
-        Player.Pos.x = x;
+        Player.Pos.x = (byte) x;
         Player.Pos.y = y;
         PlayerInfoBlock.roomSize = Dungeon.GetCurrentRoom().roomSize;
+
+        TerminalView.ReDrawAll();
     }
 
     public static int GetCenterOfRoom(Room room){

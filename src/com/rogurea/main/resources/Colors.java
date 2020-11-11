@@ -1,6 +1,4 @@
 package com.rogurea.main.resources;
-
-import com.googlecode.lanterna.Symbols;
 import com.googlecode.lanterna.TextColor;
 
 public class Colors {

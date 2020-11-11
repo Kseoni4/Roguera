@@ -11,14 +11,24 @@ public class ItemGenerate {
 
     private static final Random rng = new Random();
 
-    public static int WeaponForge(int _minLevel, String mat){
+    public static int MoveToForge(Equipment equipment){
+        if (equipment instanceof Armor) {
+            return ArmorForge(equipment.level, equipment.Material);
+        }
+        else if (equipment instanceof Weapon){
+            return WeaponForge(equipment.level, equipment.Material);
+        }
+        return 0;
+    }
+
+    private static int WeaponForge(int level, String mat){
         return (int) Math.ceil(
                     ((GameVariables.WeaponBaseDmg * GameVariables.WeaponMaterialPower.get(mat))
-                    * GameVariables.EmpowerVar) * _minLevel
+                    * GameVariables.EmpowerVar) * level
         );
     }
 
-    public static int ArmorForge(int lvl, String mat){
+    private static int ArmorForge(int lvl, String mat){
         return (int) ((GameVariables.ArmorBaseStat * GameVariables.ArmorMaterialPower.get(mat))
                 * GameVariables.ArmorEmpowerConst) * lvl;
     }
@@ -32,10 +42,11 @@ public class ItemGenerate {
 
         for(int i = 0; i < 3; i++) {
 
-            tempItemsList.add(new Weapon(GetRandom.WeaponName("MELEE"), (rng.nextInt(100)+1), Weapon._weapontype.MELLE));
+            tempItemsList.add(new Weapon(GetRandom.WeaponName("MELEE"),
+                    (rng.nextInt(100)+1), Weapon._weapontype.MELLE,roomnum));
 
         }
-        tempItemsList.add(new Weapon(GetRandom.WeaponName("RANGE"), 10, Weapon._weapontype.RANGE));
+        tempItemsList.add(new Weapon(GetRandom.WeaponName("RANGE"), 10, Weapon._weapontype.RANGE,roomnum));
         tempItemsList.add(new Armor("armor", 10, GameResources.ArmorChest, roomnum));
         return tempItemsList;
     }

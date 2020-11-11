@@ -1,21 +1,24 @@
 package com.rogurea.main.input;
 
+import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.InventoryController;
-import com.rogurea.main.view.InventoryMenu;
+import com.rogurea.main.view.viewblocks.InventoryMenu;
+
+import static com.rogurea.main.resources.ViewObject.inventoryMenu;
 
 public class InvContextActions extends Action{
 
     public enum Options {
         EQUIP{
             public void select(){
-                InventoryController.EquipItem(InventoryMenu.GetItem(),
+                InventoryController.EquipItem((Equipment) inventoryMenu.GetItem(),
                         InventoryController.getPlace(
-                        InventoryMenu.GetItem()));
+                                inventoryMenu.GetItem()));
             }
         },
         DROP{
             public void select(){
-                InventoryController.DropItem(InventoryMenu.GetItem());
+                InventoryController.DropItem(inventoryMenu.GetItem());
             }
         },
         BACK{

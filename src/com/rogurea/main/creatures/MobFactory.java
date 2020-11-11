@@ -1,5 +1,6 @@
 package com.rogurea.main.creatures;
 
+import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Weapon;
@@ -8,9 +9,9 @@ import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.resources.GetRandom;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class MobFactory {
 
@@ -35,10 +36,10 @@ public class MobFactory {
         }
     }
 
-    static final Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
 
-    public static int GetDamage(String mob, int moblevel){
-        return (int) Math.ceil(
+    public static short GetDamage(String mob, int moblevel){
+        return (short) Math.ceil(
                     ((GameVariables.BaseMobDamageStat * MobPower.get(mob))
                 * GameVariables.MobDamageEmpower) * moblevel
         );
@@ -50,7 +51,7 @@ public class MobFactory {
         for(int i = 0; i < random.nextInt(3); i++) {
             bufferLoot.add(new Weapon(GetRandom.WeaponName("MELEE"),
                     random.nextInt(90) + 10,
-                    Weapon._weapontype.MELLE));
+                    Weapon._weapontype.MELLE, 1));
         }
 
         bufferLoot.add(new Gold(random.nextInt(99)+1));
@@ -67,7 +68,7 @@ public class MobFactory {
             OutMobList.add(
                     new Mob((Colors.RED_BRIGHT+name+Colors.R),
                             name.charAt(0),
-                            random.nextInt(50)+15, name, roomnum)
+                            (short) (random.nextInt(50)+15), name, roomnum)
             );
             GameResources.ModelNameMap.put(name.charAt(0), Colors.RED_BRIGHT+name);
         }

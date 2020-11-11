@@ -1,6 +1,7 @@
 package com.rogurea.main.items;
 
 public class Item {
+
     public String name;
 
     public final int id;
@@ -10,8 +11,6 @@ public class Item {
     public final int SellPrice;
 
     public char _model;
-
-    public String Material;
 
     public String getMaterialColor(){
         return "";

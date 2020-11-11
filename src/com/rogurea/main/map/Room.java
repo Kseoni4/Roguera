@@ -9,11 +9,11 @@ import com.rogurea.main.mapgenerate.BaseGenerate;
 import java.util.ArrayList;
 
 public class Room {
-    public int NumberOfRoom;
+    public byte NumberOfRoom;
 
-    public int X = 1;
+    public byte X = 1;
 
-    public int Y = 1;
+    public byte Y = 1;
 
     public BaseGenerate.RoomSize roomSize;
 
@@ -31,7 +31,7 @@ public class Room {
 
 //    public DungeonShop dungeonShop;
 
-    public Room(int RoomCounter, int x, int y){
+    public Room(byte RoomCounter, byte x, byte y){
         MakeRoom(RoomCounter, x, y);
     }
 
@@ -40,12 +40,12 @@ public class Room {
 //        this.dungeonShop = DS;
 //    }
 
-    public Room(int RoomCounter, boolean IsEndRoom, int x, int y){
+    public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y){
         this.IsEndRoom = IsEndRoom;
         MakeRoom(RoomCounter, x, y);
     }
 
-    private void MakeRoom(int RoomCounter, int x, int y){
+    private void MakeRoom(byte RoomCounter, byte x, byte y){
         this.NumberOfRoom = RoomCounter;
 
         this.X = x;

@@ -69,12 +69,12 @@ public class MapEditor {
         SAME{
             @Override
             public char getCell() {
-                return GenerateRules.previousDirection.getCell();
+                return PointGenerateProcedure.previousDirection.getCell();
             }
 
             @Override
             public char getCorner(boolean IsReverse) {
-                return GenerateRules.previousDirection.getCorner(IsReverse);
+                return PointGenerateProcedure.previousDirection.getCorner(IsReverse);
             }
         };
         public abstract char getCell();
@@ -207,7 +207,7 @@ public class MapEditor {
                     X_a++;
                 }
             }
-            case SAME -> InsertShapeLine(CurrentRoom, GenerateRules.previousDirection, Length, X_a, Y_a);
+            case SAME -> InsertShapeLine(CurrentRoom, PointGenerateProcedure.previousDirection, Length, X_a, Y_a);
         }
     }
 
@@ -235,14 +235,14 @@ public class MapEditor {
 
     static void PlaceDoors(Room room, char[][] CurrentRoom){
 
-        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
+        char cell = CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe];
 
         if(!room.IsEndRoom) {
             if (Scans.CheckCorner(cell))
-                CurrentRoom[GenerateRules.ye][GenerateRules.xe] = GameResources.NextRoom;
+                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe] = GameResources.NextRoom;
             else{
                 int x_shift = FindWall(CurrentRoom);
-                CurrentRoom[GenerateRules.ye][GenerateRules.xe+x_shift] = GameResources.NextRoom;
+                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe+x_shift] = GameResources.NextRoom;
             }
         }
         if(room.NumberOfRoom > 1)
@@ -250,7 +250,7 @@ public class MapEditor {
     }
 
     private static int FindWall(char[][] CurrentRoom){
-        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
+        char cell = CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe];
 
         int l = (cell == GameResources.RBCorner || cell == GameResources.RTCorner ? -1 : 1);
 
@@ -258,7 +258,7 @@ public class MapEditor {
 
         while(!Scans.CheckWall(cell) && !Scans.CheckCorner(cell)){
             x_shift++;
-            cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe+(x_shift*=l)];
+            cell = CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe+(x_shift*=l)];
         }
 
         return x_shift;
@@ -380,21 +380,20 @@ public class MapEditor {
     static void PlaceMobs(Room room, char[][] CurrentRoom){
 
         for(Mob mob : room.RoomCreatures){
-            int y = rnd.nextInt(GenerateRules.ye)+1;
+            int y = rnd.nextInt(PointGenerateProcedure.ye)+1;
 
-            int x = Math.max(rnd.nextInt(GenerateRules.xe) +
-                    (GenerateRules.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
+            int x = Math.max(rnd.nextInt(PointGenerateProcedure.xe) +
+                    (PointGenerateProcedure.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
 
             while(!Scans.CheckWall(CurrentRoom[y][x])){
 
-                x = Math.max(rnd.nextInt(GenerateRules.xe) +
-                        (GenerateRules.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
+                x = Math.max(rnd.nextInt(PointGenerateProcedure.xe) +
+                        (PointGenerateProcedure.xe/2 * (rnd.nextInt(2) == 1 ? 1 : -1)),1);
             }
             if(!Scans.CheckCreature(CurrentRoom[y][x])) {
                 CurrentRoom[y][x] = mob.getCreatureSymbol();
                 mob.setMobPosition(y,x);
                 Dungeon.CurrentRoomCreatures.add(mob);
-                System.out.println("MobPosition" + " " + "x:" + x + " " + "y:" + y);
             }
         }
     }

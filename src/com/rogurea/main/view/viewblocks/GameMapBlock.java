@@ -1,4 +1,4 @@
-package com.rogurea.main.view;
+package com.rogurea.main.view.viewblocks;
 
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
@@ -8,14 +8,16 @@ import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
+import com.rogurea.main.view.IViewBlock;
+import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 
-public class GameMapBlock {
+public class GameMapBlock implements IViewBlock {
 
     private static TextGraphics MapDrawGraphics = null;
 
-    public static void Init(){
+    public void Init(){
 
         try {
             MapDrawGraphics = TerminalView.terminal.newTextGraphics();
@@ -25,7 +27,7 @@ public class GameMapBlock {
 
     }
 
-    public static void DrawDungeon(){
+    public void Draw(){
         int yLenght = Dungeon.CurrentRoom.length;
         int xLenght = Dungeon.CurrentRoom[0].length;
 
@@ -62,7 +64,7 @@ public class GameMapBlock {
         }
     }
 
-    private static String getItemColor(char cell){
+    private String getItemColor(char cell){
 
         Item item_ = Dungeon.GetCurrentRoom().RoomItems.stream().filter(
                 item -> item._model == cell
@@ -70,5 +72,9 @@ public class GameMapBlock {
         if(item_ != null)
             return (item_.getMaterialColor());
         return "?Color?";
+    }
+
+    public void Reset(){
+
     }
 }

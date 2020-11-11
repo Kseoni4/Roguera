@@ -1,72 +1,72 @@
-package com.rogurea.main.view;
+package com.rogurea.main.view.viewblocks;
 
 import com.googlecode.lanterna.Symbols;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.rogurea.main.input.*;
-import com.rogurea.main.items.Armor;
-import com.rogurea.main.items.Item;
-import com.rogurea.main.items.Weapon;
+import com.rogurea.main.items.*;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.MenuContainer;
+import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.IViewBlock;
+import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 
-public class InventoryMenu {
+import static com.rogurea.main.resources.ViewObject.logBlock;
 
-    private static boolean HideInv = true;
+public class InventoryMenu implements IViewBlock {
 
-    private static boolean ContextMenuHide = true;
+    private boolean HideInv = true;
 
-    private static KeyStroke key;
+    private boolean ContextMenuHide = true;
 
-    private static TerminalPosition topInventoryLeft;
+    private KeyStroke key;
 
-    private static final TerminalSize InventorySize = new TerminalSize(22,5);
+    private TerminalPosition topInventoryLeft;
 
-    private static TextGraphics InventoryGraphics = null;
+    private final TerminalSize InventorySize = new TerminalSize(22,5);
 
-    private static final String[] Options = {
+    private TextGraphics InventoryGraphics = null;
+
+    private final String[] Options = {
             "Equip",
             "Drop",
             "Back",
     };
 
-    private static final InvAction invAction = new InvAction();
+    private final InvAction invAction = new InvAction();
 
-    private static final InvContextActions invContextActions = new InvContextActions();
+    private final InvContextActions invContextActions = new InvContextActions();
 
     public static String Selected = " ";
 
-    private static char pointer = GameResources.PointerUp;
+    private char pointer = GameResources.PointerUp;
 
-    private static int IndexOffset = 0;
+    private int IndexOffset = 0;
 
-    private static int PosY = 3;
+    private int PosY = 3;
 
-    private static final int PosX = 1;
+    private final int PosX = 1;
 
-    private static final int ShiftPlusOne = 0;
+    private MenuContainer InventoryContainer;
 
-    private static final int ShiftPlusN = 1;
+    private int Offset = PosX;
 
-    private static MenuContainer InventoryContainer;
+    private final int XOffset = 5;
 
-    static int Offset = PosX;
+    private final int YOffset = 10;
 
-    private static final int XOffset = 5;
+    private final TerminalSize InventoryBordersSize = new TerminalSize(23,7);
 
-    private static final int YOffset = 10;
-
-    private static final TerminalSize InventoryBordersSize = new TerminalSize(23,7);
-
-    public static void Init(){
+    public void Init(){
 
         try {
             InventoryGraphics = TerminalView.terminal.newTextGraphics();
@@ -78,21 +78,21 @@ public class InventoryMenu {
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
     }
 
-    public static void show(){
+    public void show(){
         SwitchVisibility();
         TerminalView.CurrentPointerPosition = Cursor.CursorPos;
         ControlContext();
     }
 
-    private static void SwitchVisibility(){
+    private void SwitchVisibility(){
         HideInv = !HideInv;
     }
 
-    private static void SwitchContextVisibility(){
+    private void SwitchContextVisibility(){
         ContextMenuHide = !ContextMenuHide;
     }
 
-    private static void ControlContext(){
+    private void ControlContext(){
 
         InventoryContainer = new MenuContainer(
                 topInventoryLeft,
@@ -105,6 +105,8 @@ public class InventoryMenu {
         while(!HideInv){
             pointer = GameResources.PointerUp;
 
+            Draw.call(this);
+
             key = Input.GetKey();
 
             try{
@@ -115,12 +117,13 @@ public class InventoryMenu {
             }
             catch (NullPointerException ignored){ }
 
+            int shiftPlusOne = 0;
             IndexOffset = Cursor.Moving(key.getKeyType(),
                     InventoryContainer,
                     1,
                     Player.Inventory.size(),
                     PosY,
-                    ShiftPlusOne,
+                    shiftPlusOne,
                     invAction);
 
             InventoryContainer.setIndexoffset(IndexOffset);
@@ -133,9 +136,13 @@ public class InventoryMenu {
         InventoryContainer.setIndexoffset(IndexOffset);
 
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
+
+        Draw.reset(this);
+
+        Draw.call(logBlock);
     }
 
-    public static void OpenContextItemMenu(){
+    public void OpenContextItemMenu(){
 
         SwitchContextVisibility();
 
@@ -159,7 +166,10 @@ public class InventoryMenu {
 
         TerminalView.CurrentPointerPosition = Cursor.CursorPos;
 
+        Draw.call(this);
+
         while(!Selected.equals("Back")){
+
             key = Input.GetKey();
 
             try{
@@ -168,13 +178,14 @@ public class InventoryMenu {
             }
             catch (NullPointerException ignored){
             }
-            contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, ShiftPlusN, invContextActions);
-
-            System.out.println("CO: " + contextOffset);
+            int shiftPlusN = 1;
+            contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, shiftPlusN, invContextActions);
 
             InventoryContainer.setIndexcontext(contextOffset);
 
             IndexOffset = InventoryContainer.UpdateCursor(IndexOffset);
+
+            Draw.call(this);
         }
 
         Selected = "";
@@ -194,8 +205,9 @@ public class InventoryMenu {
         SwitchContextVisibility();
     }
 
-    public static void DrawInventory(){
+    public void Draw(){
         if(!HideInv){
+            TerminalView.InitGraphics(InventoryGraphics, topInventoryLeft, InventorySize);
             DrawInventoryBorders();
             int offset = 1;
             for(Item item : Player.Inventory){
@@ -209,10 +221,12 @@ public class InventoryMenu {
             PutCursorOnPos(TerminalView.CurrentPointerPosition);
             ShowItemInfo();
             ShowContextMenu();
+        } else{
+            Draw.reset(this);
         }
     }
 
-    private static void DrawInventoryBorders(){
+    private void DrawInventoryBorders(){
 
         InventoryGraphics.setBackgroundColor(Colors.GetTextColor(Colors.B_GREYSCALE_233,"\u001b[48;5;"));
 
@@ -268,48 +282,52 @@ public class InventoryMenu {
 
     }
 
-    private static void PutCursorOnPos(TerminalPosition position){
+    private void PutCursorOnPos(TerminalPosition position){
         TerminalView.SetPointerIntoPosition(InventoryGraphics, pointer, position);
     }
 
-    private static void ShowItemInfo(){
+    private void ShowItemInfo(){
         Item item = GetItem();
-        StringBuffer info = new StringBuffer();
+        StringBuilder info = new StringBuilder();
+
         if(item != null) {
 
-            if(item.getClass() == Weapon.class)
-                info.append(GameResources.MaterialColor.get(((Weapon) item).Material));
+            if(item.getClass() == Equipment.class)
+                info.append(GameResources.MaterialColor.get(((Equipment) item).Material));
 
             info.append(item._model).append(' ')
                     .append(item.name);
 
+            InventoryGraphics.drawLine(topInventoryLeft.withRelative(0,-1),
+                    topInventoryLeft.withRelative(item.name.length(),-1), ' ');
+
             TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn(),
                     topInventoryLeft.getRow()-1);
 
-                info.delete(0, info.length());
+            info.delete(0, info.length());
 
-             info.append(Colors.ORANGE).append('$').append(item.SellPrice).append(' ');
+            info.append(Colors.ORANGE).append('$').append(item.SellPrice).append(' ');
 
             TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn()+12,
                     topInventoryLeft.getRow());
 
             info.delete(0, info.length());
 
-            if (item.getClass() == Weapon.class)
-                info.append("ATK: ").append(Colors.RED_BRIGHT).append(((Weapon) item).getDamage());
+            if (item instanceof Weapon)
+                info.append("ATK: ").append(Colors.RED_BRIGHT).append(((Weapon) item).GetStats());
 
-            else if (item.getClass() == Armor.class)
-                info.append("DEF: ").append(Colors.VIOLET).append(((Armor) item).getDefense());
+            else if (item instanceof Armor)
+                info.append("DEF: ").append(Colors.VIOLET).append(((Armor) item).GetStats());
 
             TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn()+12,
                     topInventoryLeft.getRow()+1);
         }
     }
 
-    private static void ShowContextMenu() {
+    private void ShowContextMenu() {
         int offset = 1;
         if (!ContextMenuHide) {
-            for (String opt : InventoryMenu.Options) {
+            for (String opt : Options) {
                 InventoryGraphics.putCSIStyledString(topInventoryLeft.withRelative(offset, PosY),
                         opt);
                 offset += opt.length() + 2;
@@ -317,19 +335,21 @@ public class InventoryMenu {
         }
     }
 
-    public static Item GetItem(){
+    public Item GetItem(){
         if(Player.Inventory.size() > 0){
-           return Player.Inventory.get(IndexOffset);
+            return Player.Inventory.get(IndexOffset);
         }
         return null;
     }
 
-    public static void ResetIndex(){
+    public void ResetIndex(){
         IndexOffset = 0;
         Offset = PosX;
     }
 
-    public static void Reset(){
+    public void Reset(){
+        InventoryGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
+        TerminalView.InitGraphics(InventoryGraphics, topInventoryLeft.withRelative(-1,-2), InventoryBordersSize);
         topInventoryLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length+XOffset, YOffset);
         Cursor.CursorPos = topInventoryLeft.withRelative(PosX,PosY);
         ResetIndex();

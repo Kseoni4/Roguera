@@ -4,7 +4,9 @@ import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.view.Draw;
+
+import static com.rogurea.main.resources.ViewObject.*;
 
 public class InventoryController {
 
@@ -21,7 +23,7 @@ public class InventoryController {
     public static void DropItem(Item dropingItem){
 
         if (Scans.CheckItems(Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x])) {
-            LogBlock.Event("There already lying something ");
+            logBlock.Event("There already lying something ");
             return;
         }
 
@@ -30,9 +32,11 @@ public class InventoryController {
         Dungeon.GetCurrentRoom().RoomItems.add(dropingItem);
 
         Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x] = dropingItem._model;
+
+        Draw.call(gameMapBlock);
     }
 
-    public static void EquipItem(Item equipingItem, String place){
+    public static void EquipItem(Equipment equipingItem, String place){
 
         if(Player.Equip.get(place) != null){
             SwitchItems(equipingItem, place);
@@ -42,18 +46,19 @@ public class InventoryController {
 
         Player.Equip.put(place, equipingItem);
 
-        LogBlock.Action("equip the " + Colors.ORANGE + equipingItem.name);
+        logBlock.Action("equip the " + Colors.ORANGE + equipingItem.name);
+
+        Draw.call(playerInfoBlock);
     }
 
-    private static void SwitchItems(Item item, String place){
+    private static void SwitchItems(Equipment item , String place){
 
-        Item currentItem = Player.Equip.get(place);
+        Equipment currentEquip = Player.Equip.get(place);
 
         Player.Equip.remove(place);
 
-        Player.Inventory.add(currentItem);
+        Player.Inventory.add(currentEquip);
 
         Player.Equip.put(place, item);
     }
-
 }

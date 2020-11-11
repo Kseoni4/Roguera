@@ -1,16 +1,18 @@
-package com.rogurea.main.view;
+package com.rogurea.main.view.viewblocks;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.rogurea.main.view.IViewBlock;
+import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 
-public class ControlBlock {
+public class ControlBlock implements IViewBlock {
 
     static TextGraphics Controls = null;
 
     static final String stringControls = "i\u001b[48;5;57mInv\u001b[0m r\u001b[48;5;57mGenRoom\u001b[0m c\u001b[48;5;57mClrLog\u001b[0m ESC\u001b[48;5;57mQuit";
 
-    public static void Init(){
+    public void Init(){
         try {
             Controls = TerminalView.terminal.newTextGraphics();
         } catch (IOException e) {
@@ -18,11 +20,15 @@ public class ControlBlock {
         }
     }
 
-    public static void DrawControls(){
+    public void Draw(){
         try {
             TerminalView.DrawBlockInTerminal(Controls, stringControls, 0, TerminalView.terminal.getTerminalSize().getRows()-1);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void Reset() {
+
     }
 }

@@ -9,27 +9,32 @@ import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameVariables;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.view.Draw;
 
 import java.util.Objects;
 import java.util.Random;
+
+import static com.rogurea.Main.gameLoop;
+import static com.rogurea.main.resources.ViewObject.gameMapBlock;
+import static com.rogurea.main.resources.ViewObject.logBlock;
 
 public class MobController extends Thread {
 
     public MobController(Mob mob){
         this.mob = mob;
     }
+
     public final Mob mob;
 
-    private static final int DropRight = 1;
+    private final byte DropRight = 1;
 
-    private static final int DropLeft = -1;
+    private final byte DropLeft = -1;
 
-    private static final int DropUp = -1;
+    private final byte DropUp = -1;
 
-    private static final int DropDown = 1;
+    private final byte DropDown = 1;
 
-    private static final int[] DropPos = {DropLeft, DropRight, DropUp, DropDown};
+    private final byte[] DropPos = {DropLeft, DropRight, DropUp, DropDown};
 
     public void run(){
         BehaviorLoop();
@@ -41,8 +46,6 @@ public class MobController extends Thread {
         while(!mob.getMobBehavior().currentState.equals("DEAD") && !isInterrupted()){
 
             mob.getMobBehavior().SetBehaviorAction();
-
-            mob.setHP(GetCurrentMobFromRoom().getHP());
 
             if(isInterrupted())
                 break;
@@ -59,6 +62,9 @@ public class MobController extends Thread {
             }
 
             if(Player.HP <= 0) {
+                synchronized (gameLoop){
+                    gameLoop.GameEndByDead();
+                }
                 break;
             }
 
@@ -90,6 +96,7 @@ public class MobController extends Thread {
             }
             case "DEAD" -> {
                 DropLoot();
+                GiveXPToPlayer();
                 RemoveMob();
             }
         }
@@ -165,6 +172,8 @@ public class MobController extends Thread {
             mob.setMobPosition(y_s, x_s);
 
             GetCurrentMobFromRoom().setMobPosition(y_s, x_s);
+
+            Draw.call(gameMapBlock);
         }
         return false;
     }
@@ -186,6 +195,8 @@ public class MobController extends Thread {
 
             Fight.HitPlayer(mob);
 
+            mob.setHP(GetCurrentMobFromRoom().getHP());
+
             return false;
         }
         mob.MobSpeed = GameVariables.Fast;
@@ -193,15 +204,22 @@ public class MobController extends Thread {
         return true;
     }
 
+    void GiveXPToPlayer(){
+        Player.XP += mob.GainXP;
+        logBlock.Action("get " + Colors.ORANGE + mob.GainXP + Colors.R + " XP!");
+    }
+
     void RemoveMob(){
 
         MapEditor.clearCell(mob.HisPosition);
 
-        LogBlock.Action("kill the " + mob.Name);
+        logBlock.Action("kill the " + mob.Name);
 
         Dungeon.CurrentRoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
 
         Dungeon.GetCurrentRoom().RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
+
+        Draw.call(gameMapBlock);
     }
 
     void DropLoot(){

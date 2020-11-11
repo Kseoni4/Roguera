@@ -1,26 +1,29 @@
 package com.rogurea.main.creatures;
 
+import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameVariables;
 
 public class Mob extends Creature {
 
-    private int Armor;
+    private short Armor;
 
-    private final int Damage;
+    private final short Damage;
 
-    public int MobLevel = 1;
+    public short MobLevel = Level;
 
-    public final int ScanZone = 5;
+    public final byte ScanZone = 5;
 
     public final char MobSymbol;
+
+    public final short GainXP;
 
     public final Position Destination = new Position();
 
     public final Position HisPosition = new Position();
 
-    public int MobSpeed = GameVariables.Fast;
+    public short MobSpeed = GameVariables.Fast;
 
     public enum Behavior {
         IDLE {
@@ -30,53 +33,51 @@ public class Mob extends Creature {
         },
         CHASE {
             public void SetBehaviorAction(){
-                System.out.println("CHASE");
                 currentState = "CHASE";
             }
         },
         FIGHT {
             public void SetBehaviorAction(){
-                System.out.println("FIGHT");
                 currentState = "FIGHT";
             }
         },
         DEAD {
             public void SetBehaviorAction(){
-                System.out.println("DEAD");
                 currentState = "DEAD";
             }
         };
         public String currentState = "IDLE";
 
-        public int id = 0;
+        public short id = 0;
 
         public abstract void SetBehaviorAction();
     }
 
     private Behavior mobBehavior;
 
-    public Mob(String name, char mobSymbol, int HP, String _name, int roomnum) {
+    public Mob(String name, char mobSymbol, short HP, String _name, int roomnum) {
         super(name);
         this.MobSymbol = mobSymbol;
-        setHP(HP);
-        setCreatureType(CreatureType.MOB);
-        this.Level = roomnum;
-        this.Damage = MobFactory.GetDamage(_name, this.Level);
+        this.MobLevel = Formula.GetLvlForMob(roomnum);
+        this.GainXP = Formula.GetXPForMob(this.MobLevel);
+        this.Damage = MobFactory.GetDamage(_name, this.MobLevel);
         this.Loot = MobFactory.GetLoot();
         this.mobBehavior = Behavior.IDLE;
         this.mobBehavior.id = super.id;
+        setHP(HP);
+        setCreatureType(CreatureType.MOB);
     }
 
     public void setMobPosition(int y, int x){
         this.HisPosition.setPosition(y,x);
     }
 
-    public int getMobPosX() {
-        return HisPosition.x;
+    public byte getMobPosX() {
+        return (byte) HisPosition.x;
     }
 
-    public int getMobPosY() {
-        return HisPosition.y;
+    public byte getMobPosY() {
+        return (byte) HisPosition.y;
     }
 
     public boolean ScanForPlayer(char c){
@@ -91,22 +92,18 @@ public class Mob extends Creature {
        this.mobBehavior = mb;
     }
 
-    public void SetBehaviorId(int id){
-        this.mobBehavior.id = id;
-    }
-
     @Override
     public char getCreatureSymbol() {
         return this.MobSymbol;
     }
 
     @Override
-    public int getDamage() {
+    public short getDamage() {
         return this.Damage;
     }
 
     @Override
-    public int getArmor() {
+    public short getArmor() {
         return this.Armor;
     }
 }

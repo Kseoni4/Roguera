@@ -1,7 +1,6 @@
 package com.rogurea.main.player;
 
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.main.GameLoop;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Gold;
@@ -11,9 +10,11 @@ import com.rogurea.main.map.Position;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.view.Draw;
 
 import java.util.Objects;
+
+import static com.rogurea.main.resources.ViewObject.*;
 
 public class PlayerMoveController {
 
@@ -42,11 +43,11 @@ public class PlayerMoveController {
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
-            GameLoop.ChangeRoom(
+            Dungeon.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
             );
 
-            LogBlock.Action("enter the room");
+            logBlock.Action("enter the room");
             return;
         }
 
@@ -56,7 +57,7 @@ public class PlayerMoveController {
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
-            GameLoop.ChangeRoom(
+            Dungeon.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.BACK))
             );
             return;
@@ -64,7 +65,7 @@ public class PlayerMoveController {
 
         if(Scans.CheckItems(cell)){
             if(Player.Inventory.size() >= 10){
-                LogBlock.Event("Your inventory is full!");
+                logBlock.Event("Your inventory is full!");
                 return;
             }
 
@@ -107,13 +108,14 @@ public class PlayerMoveController {
         }
 
         if(Scans.CheckCreature(cell)){
-            System.out.println(pos.y + " " + pos.x);
             Fight.HitMob(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
             return;
         }
         MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
         MapEditor.setIntoCell(Player.PlayerModel, y, x);
-        Player.Pos.x = x;
-        Player.Pos.y = y;
+        Player.Pos.x = (byte) x;
+        Player.Pos.y = (byte) y;
+        Draw.call(gameMapBlock);
+        Draw.call(playerInfoBlock);
     }
 }

@@ -1,44 +1,26 @@
 package com.rogurea.main.resources;
 
 import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.player.Player;
 
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GameResources {
 
     public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
-    public static final String version = "0.0.5:3110:0047";
+    public static final String version = "0.0.5:1111:1416dev";
 
     public static final char EmptyCell = ' ';
 
     public static final char PlayerModel = '@';
 
     public static final char Gold = '$';
-
-    public static final char[] rsymbls = {
-            '$', '/', '\\',
-            '#', '!', '&',
-            '^', '(', '*', ')',
-            Symbols.BLOCK_SPARSE,
-            Symbols.DOUBLE_LINE_VERTICAL,
-            Symbols.DOUBLE_LINE_HORIZONTAL,
-            Symbols.BULLET,
-            Symbols.BLOCK_DENSE,
-            Symbols.BLOCK_MIDDLE,
-            Symbols.BLOCK_SOLID,
-            Symbols.OUTLINED_SQUARE
-    };
-    public static String getPlayerPositionInfo(){
-        return  "Player position "
-                + "x:" + com.rogurea.main.player.Player.Pos.x
-                + " "
-                + "y:" + com.rogurea.main.player.Player.Pos.y + ' ';
-    }
 
     public static final char HWall = '━';
 
@@ -142,7 +124,6 @@ public class GameResources {
 
     public static final char[][][] EverythingAtlas = {WearableAtlas, PropAtlas, EntityAtlas};
 
-
     public static final String[] HitsMessages = {
             "take a small byte of you for %dmg%",
             "smash you by his sword for %dmg%",
@@ -153,14 +134,53 @@ public class GameResources {
 
     public static final String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
 
-    public static StringBuffer UpdatePlayerInfo() {
-        return new StringBuffer(Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
-                + Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " "
-                + Colors.R + "Money: " + Colors.ORANGE + Player.Money + " "
-                + Colors.R + "Def: " + Colors.VIOLET + Player.getArmor() + " "
-                + Colors.R + "ATK: " + Colors.PINK + Player.getDamage() + " "
-                + Colors.R + "Level: " + Colors.CYAN + Player.Level + " "
+    public static StringBuilder getPlayerPositionInfo(){
+        return  new StringBuilder("Player position "
+                + "x:" + com.rogurea.main.player.Player.Pos.x
+                + " "
+                + "y:" + com.rogurea.main.player.Player.Pos.y + ' ');
+    }
+
+    public static StringBuilder UpdatePlayerHPMP() {
+        return new StringBuilder(Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
+                + Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " ");
+    }
+
+    public static StringBuilder UpdatePlayerMoneyXP(){
+        return new StringBuilder(Colors.R + "Money: " + Colors.ORANGE + Player.Money + " "
+                + Colors.R + "XP: " + Colors.ORANGE + Player.XP + "/" + Player.XPForNextLevel);
+    }
+
+    public static StringBuilder UpdatePlayerATKDEFDEX(){
+        return new StringBuilder(Colors.R + "DEF: " + Colors.VIOLET + Formula.GetPlayerDEF() + " "
+                + Colors.R + "ATK: " + Colors.PINK + Formula.GetPlayerATK() + " "
+        + Colors.R + "DEX: " + Colors.DIAMOND + Player.DEX);
+    }
+
+    public static StringBuilder UpdatePlayerLvlRoom(){
+        return new StringBuilder(Colors.R + "Level: " + Colors.CYAN + Player.Level + " "
                 + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ");
+    }
+
+    public static HashMap<String, Character> ResourcesMap = new HashMap<>();
+
+    public static String[] resources = {
+            "MapStructure",
+            "Equipment",
+            "InventoryStructure",
+            "Entity"
+    };
+
+    public static void LoadResources() {
+        for(String file : resources){
+            InputStream atlas_csv = GameResources.class.getResourceAsStream("csv/"+file+".csv");
+            try {
+                String[] map = new String(atlas_csv.readAllBytes()).split(",|\r\n|\n");
+                PutStringsIntoMap(ResourcesMap, map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void MakeMap() {
@@ -181,6 +201,14 @@ public class GameResources {
             char s = CharName[i-1].charAt(0);
             String n = CharName[i];
             ModelNameMap.put(s, n);
+        }
+    }
+
+    private static void PutStringsIntoMap(Map<String, Character> map, String[] array){
+        for(int i = 1; i < (array != null ? array.length : 0); i+=2){
+            char s = array[i].charAt(0);
+            String n = array[i-1];
+            map.put(n,s);
         }
     }
 }

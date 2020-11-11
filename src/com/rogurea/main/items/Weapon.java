@@ -1,14 +1,8 @@
 package com.rogurea.main.items;
-
-import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
 
-public class Weapon extends Item {
-
-    private final int _damage;
-
-    public int _minLevel = 1;
+public class Weapon extends Equipment {
 
     public enum _weapontype {
         MELLE{
@@ -24,17 +18,10 @@ public class Weapon extends Item {
         public abstract char getModel();
     }
 
-    public boolean IsWearable = true;
-
-    public final String Material;
-
-    public Weapon(String name, int SellPrice, _weapontype weapontype) {
-        super(name, SellPrice, weapontype.getModel());
-        this._minLevel += Player.Level;
-        this.Material = GetRandom.WeaponMaterial();
-        this._damage = ItemGenerate.WeaponForge(this._minLevel, this.Material);
-        super.name = PutMaterialInName(this.Material);
+    public Weapon(String name, int SellPrice, _weapontype weapontype, int level) {
+        super(name, SellPrice, weapontype.getModel(), level);
         super.name = PutName();
+        super.name = PutMaterialInName(this.Material);
     }
 
     public String getMaterialColor(){
@@ -49,11 +36,7 @@ public class Weapon extends Item {
         return super.name.replace("%mat%", material);
     }
 
-    public int getDamage(){
-        return this._damage;
-    }
-
     public boolean checkLevel(int plevel){
-        return plevel >= this._minLevel;
+        return plevel >= this.level;
     }
 }
