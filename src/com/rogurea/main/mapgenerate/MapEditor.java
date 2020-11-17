@@ -237,16 +237,19 @@ public class MapEditor {
 
         char cell = CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe];
 
+        char NextDoor = GameResources.GetModel("NextDoor");
+        char BackDoor = GameResources.GetModel("BackDoor");
+
         if(!room.IsEndRoom) {
             if (Scans.CheckCorner(cell))
-                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe] = GameResources.NextRoom;
+                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe] = NextDoor;
             else{
                 int x_shift = FindWall(CurrentRoom);
-                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe+x_shift] = GameResources.NextRoom;
+                CurrentRoom[PointGenerateProcedure.ye][PointGenerateProcedure.xe+x_shift] = NextDoor;
             }
         }
         if(room.NumberOfRoom > 1)
-            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.BackRoom;
+            CurrentRoom[0][CurrentRoom[0].length/2] = BackDoor;
     }
 
     private static int FindWall(char[][] CurrentRoom){

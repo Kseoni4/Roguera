@@ -35,26 +35,6 @@ public class GameResources {
 
     public static final char[] CornersAtlas = {LBCorner, RTCorner, LTCorner, RBCorner};
 
-    public static final char InvHWallDown = '┬';
-    public static final char InvHWallUp = '┴';
-
-    public static final char InvVWallRight = '├';
-    public static final char InvVWallLeft = '┤';
-
-    public static final char InvLPCorner = '┌';
-    public static final char InvLDorner = '└';
-    public static final char InvRPorner = '┐';
-    public static final char InvRDorner = '┘';
-
-    public static final char PointerUp = '▲';
-    public static final char PointerRight = '»';
-
-    public static final char NextRoom = Symbols.ARROW_DOWN;
-
-    public static final char BackRoom = Symbols.ARROW_UP;
-
-    public static final char[] RoomEntityAtlas = {NextRoom, BackRoom};
-
     public static final char LongSword = '╁';
 
     public static final char ShortSword = '╈';
@@ -97,32 +77,9 @@ public class GameResources {
         ArmorMaterialColor.put("steel", Colors.MAGENTA);
         ArmorMaterialColor.put("titan", Colors.VIOLET);
     }
-
-    public static final char chair = '◎';
-
-    public static final char RandomChest = '⍰';
-
-    public static final char table_hex = '⎔';
-
-    public static final char table = '⎕';
-
-    public static final char table_rect = '⌷';
-
-    public static final char Snake = '⟆';
-
-    public static final char[] FurnitureAtlas = {chair, table_rect, table, table_hex};
-
-    public static final char[][] EntityAtlas = {RoomEntityAtlas};
-
-    public static final char[][] PropAtlas = {FurnitureAtlas};
-
-    public static final char[][] WeaponAtlas = {MeleeAtlas, RangeAtlas};
-
     public static final char[] ArmorAtlas = {ArmorChest};
 
     public static final char[][] WearableAtlas = {ArmorAtlas, MeleeAtlas, RangeAtlas};
-
-    public static final char[][][] EverythingAtlas = {WearableAtlas, PropAtlas, EntityAtlas};
 
     public static final String[] HitsMessages = {
             "take a small byte of you for %dmg%",
@@ -162,9 +119,9 @@ public class GameResources {
                 + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ");
     }
 
-    public static HashMap<String, Character> ResourcesMap = new HashMap<>();
+    private static HashMap<String, Character> ResourcesMap = new HashMap<>();
 
-    public static String[] resources = {
+    private static final String[] resources = {
             "MapStructure",
             "Equipment",
             "InventoryStructure",
@@ -180,6 +137,16 @@ public class GameResources {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static char GetModel(String modelname){
+        try{
+            return ResourcesMap.get(modelname);
+        }
+        catch (NullPointerException e){
+            System.out.printf("Get model error: no such symbol for name \"%s\"\n",modelname);
+            return '?';
         }
     }
 

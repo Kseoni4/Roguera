@@ -35,7 +35,7 @@ public class PlayerMoveController {
         pos.setPosition(y,x);
 
         if(!Scans.CheckWall(cell)
-        || Scans.CheckProps(cell)){
+        /*|| Scans.CheckProps(cell)*/){
             return;
         }
 

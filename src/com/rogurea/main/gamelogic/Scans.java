@@ -24,27 +24,29 @@ public class Scans {
     }
 
     public static boolean CheckExit(char c){
-            return c == GameResources.NextRoom;
+            return c == GameResources.GetModel("NextDoor");
     }
 
     public static boolean CheckBack(char c){
-            return c == GameResources.BackRoom;
+            return c == GameResources.GetModel("BackDoor");
     }
 
-    public static boolean CheckProps(char c){
+    /*public static boolean CheckProps(char c){
             for(char prop : GameResources.FurnitureAtlas){
                 if(prop == c){
                     return true;
                 }
             }
         return false;
-    }
+    }*/
 
     public static boolean CheckItems(char c){
         for(char[] items : GameResources.WearableAtlas)
             for(char item : items)
                 if(c == item)
                     return true;
+                else if(c == GameResources.EmptyCell)
+                    return false;
         return false;
     }
 

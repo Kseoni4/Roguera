@@ -48,7 +48,11 @@ public class InventoryMenu implements IViewBlock {
 
     public static String Selected = " ";
 
-    private char pointer = GameResources.PointerUp;
+    private char up = GameResources.GetModel("PointerUp");
+
+    private char right = GameResources.GetModel("PointerRight");
+
+    private char pointer = up;
 
     private int IndexOffset = 0;
 
@@ -103,7 +107,7 @@ public class InventoryMenu implements IViewBlock {
         );
 
         while(!HideInv){
-            pointer = GameResources.PointerUp;
+            pointer = up;
 
             Draw.call(this);
 
@@ -148,7 +152,7 @@ public class InventoryMenu implements IViewBlock {
 
         PosY = 3;
 
-        pointer = GameResources.PointerRight;
+        pointer = right;
 
         int contextOffset = 0;
 
@@ -228,6 +232,17 @@ public class InventoryMenu implements IViewBlock {
 
     private void DrawInventoryBorders(){
 
+        char InvHWallDown = GameResources.GetModel("InvHWallDown");
+        char InvHWallUp = GameResources.GetModel("InvHWallUp");
+        char InvVWallRight = GameResources.GetModel("InvVWallRight");
+        char InvVWallLeft = GameResources.GetModel("InvVWallLeft");
+        char InvLPCorner = GameResources.GetModel("InvLPCorner");
+        char InvRPorner = GameResources.GetModel("InvRPorner");
+        char InvLDorner = GameResources.GetModel("InvLDorner");
+        char InvRDorner = GameResources.GetModel("InvRDorner");
+
+
+
         InventoryGraphics.setBackgroundColor(Colors.GetTextColor(Colors.B_GREYSCALE_233,"\u001b[48;5;"));
 
         InventoryGraphics.fillRectangle(topInventoryLeft, InventorySize.withRelative(0,0), MapEditor.EmptyCell);
@@ -241,43 +256,43 @@ public class InventoryMenu implements IViewBlock {
         InventoryGraphics.drawLine(
                 topInventoryLeft,
                 new TerminalPosition(topInventoryLeft.getColumn()+10, topInventoryLeft.getRow()),
-                GameResources.InvHWallDown
+                InvHWallDown
         );
         InventoryGraphics.drawLine(
                 new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+2),
                 new TerminalPosition(topInventoryLeft.getColumn()+10, topInventoryLeft.getRow()+2),
-                GameResources.InvHWallUp
+                InvHWallUp
         );
 
         InventoryGraphics.drawLine(
                 new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+1),
                 new TerminalPosition(topInventoryLeft.getColumn(), topInventoryLeft.getRow()+1),
-                GameResources.InvVWallRight
+                InvVWallRight
         );
         InventoryGraphics.drawLine(
                 new TerminalPosition(topInventoryLeft.getColumn()+11, topInventoryLeft.getRow()+1),
                 new TerminalPosition(topInventoryLeft.getColumn()+11, topInventoryLeft.getRow()+1),
-                GameResources.InvVWallLeft
+                InvVWallLeft
         );
         InventoryGraphics.setCharacter(
                 topInventoryLeft.getColumn(),
                 topInventoryLeft.getRow(),
-                GameResources.InvLPCorner
+                InvLPCorner
         );
         InventoryGraphics.setCharacter(
                 topInventoryLeft.getColumn()+11,
                 topInventoryLeft.getRow(),
-                GameResources.InvRPorner
+                InvRPorner
         );
         InventoryGraphics.setCharacter(
                 topInventoryLeft.getColumn(),
                 topInventoryLeft.getRow()+2,
-                GameResources.InvLDorner
+                InvLDorner
         );
         InventoryGraphics.setCharacter(
                 topInventoryLeft.getColumn()+11,
                 topInventoryLeft.getRow()+2,
-                GameResources.InvRDorner
+                InvRDorner
         );
 
     }
