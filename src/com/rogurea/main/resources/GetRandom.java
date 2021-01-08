@@ -8,14 +8,19 @@ import java.security.SecureRandom;
 
 public class GetRandom {
 
-    public static final SecureRandom rnd = new SecureRandom();
+    public static SecureRandom RNGenerator = new SecureRandom();
+
+    public static void SetRNGSeed(byte[] seed){
+        RNGenerator.setSeed(seed);
+    }
 
     public static char WeaponModel(String type){
+
         if(type.equals("MELEE")){
-            return GameResources.MeleeAtlas[rnd.nextInt(GameResources.MeleeAtlas.length)];
+            return GameResources.MeleeAtlas[RNGenerator.nextInt(GameResources.MeleeAtlas.length)];
         }
         else if (type.equals("RANGE")){
-            return GameResources.RangeAtlas[rnd.nextInt(GameResources.RangeAtlas.length)];
+            return GameResources.RangeAtlas[RNGenerator.nextInt(GameResources.RangeAtlas.length)];
         }
         return '?';
     }
@@ -49,7 +54,7 @@ public class GetRandom {
     }
 
     private static String Lenght(){
-        return GameResources.SwordLenght[rnd.nextInt(GameResources.SwordLenght.length)];
+        return GameResources.SwordLenght[RNGenerator.nextInt(GameResources.SwordLenght.length)];
     }
 
     public static String Material(Equipment equipment){
@@ -63,15 +68,15 @@ public class GetRandom {
     }
 
     public static String WeaponMaterial(){
-        return GameResources.MaterialName[rnd.nextInt(GameResources.MaterialName.length)];
+        return GameResources.MaterialName[RNGenerator.nextInt(GameResources.MaterialName.length)];
     }
 
     public static String ArmorMaterial(){
-        return GameResources.ArmorMaterialName[rnd.nextInt(GameResources.ArmorMaterialName.length)];
+        return GameResources.ArmorMaterialName[RNGenerator.nextInt(GameResources.ArmorMaterialName.length)];
     }
 
     public static String HitLog(int dmg){
-        String s = GameResources.HitsMessages[rnd.nextInt(GameResources.HitsMessages.length)];
+        String s = GameResources.HitsMessages[RNGenerator.nextInt(GameResources.HitsMessages.length)];
         s = s.replace("%dmg%", Colors.RED_BRIGHT+dmg+" damage!");
         return s;
     }

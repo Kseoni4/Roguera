@@ -1,9 +1,16 @@
 package com.rogurea.main.gamelogic;
 
 import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Position;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
-import static com.rogurea.main.resources.ViewObject.logBlock;
+
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
+import static com.rogurea.main.view.ViewObjects.logBlock;
 
 public class Scans {
 
@@ -40,24 +47,44 @@ public class Scans {
         return false;
     }*/
 
-    public static boolean CheckItems(char c){
-        for(char[] items : GameResources.WearableAtlas)
-            for(char item : items)
-                if(c == item)
-                    return true;
-                else if(c == GameResources.EmptyCell)
-                    return false;
+    /**
+     * Return true if current symbol on cell position is an item;
+     * Return false if it is not;
+     * @param c cell
+     * @return boolean
+     */
+    public static boolean CheckItems(char c) {
+        return CheckInResourceMap(c);
+    }
+
+    private static boolean CheckInResourceMap(char c){
+        for (char item : GameResources.ResourcesMap.values()) {
+            if(c == item){
+                return true;
+            } else{
+                continue;
+            }
+        }
         return false;
     }
 
-    public static void CheckSee(char c){
-        if(GameResources.ModelNameMap.get(c) != null)
-            logBlock.Action("see the " + GameResources.ModelNameMap.get(c));
+    public static void CheckSee(Position LookPosition){
+        if(Scans.CheckWall(MapEditor.getFromCell(LookPosition)) && Scans.CheckCorner(MapEditor.getFromCell(LookPosition)))
+            if(Scans.CheckItems(MapEditor.getFromCell(LookPosition))) {
+                try {
+                    Item ThisItem = Dungeon.GetCurrentRoom().RoomItems.stream().filter(item -> item.ItemPosition.equals(LookPosition)).findAny().get();
+                    logBlock.Action("see the " + ThisItem.getMaterialColor() + ThisItem.name);
+                }catch (NoSuchElementException e){
+                    Debug.log("ITEM ERROR: no such item in the looking position " + LookPosition.toString());
+                }
+            }
+        else if(Scans.CheckExit(MapEditor.getFromCell(LookPosition)))
+            logBlock.Action("see the door");
     }
 
     public static boolean CheckCreature(char cell){
 
-        for(Mob mob : Dungeon.CurrentRoomCreatures){
+        for(Mob mob : Dungeon.GetCurrentRoom().RoomCreatures){
             if(cell == mob.getCreatureSymbol())
                  return true;
         }

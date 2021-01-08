@@ -69,6 +69,6 @@ public class GameVariables {
 
     /* Variables for mob */
 
-    public static final int BaseMobDamageStat = 2;
-    public static final double MobDamageEmpower = 1.5;
+    public static final int BaseMobDamageStat = 1;
+    public static final double MobDamageEmpower = 1.6;
 }

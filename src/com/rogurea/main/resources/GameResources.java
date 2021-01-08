@@ -1,7 +1,7 @@
 package com.rogurea.main.resources;
-
-import com.googlecode.lanterna.Symbols;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.rgs.Formula;
+import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 
 import java.awt.*;
@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.rogurea.main.view.ViewObjects.*;
 
 public class GameResources {
 
@@ -24,14 +26,18 @@ public class GameResources {
 
     public static final char HWall = '━';
 
-    public static final char VWall = '┃';
+    public static final char Vwall = '┃';
 
-    public static final char LBCorner = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
-    public static final char RTCorner = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-    public static final char LTCorner = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
-    public static final char RBCorner = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
+    public static final char LBCorner = '┗';
+    public static final char RTCorner = '┓';
+    public static final char LTCorner = '┏';
+    public static final char RBCorner = '┛';
+    public static final char LRCenter = '┣';
+    public static final char RLCenter = '┫';
+    public static final char TCenter  = '┳';
+    public static final char BCenter  = '┻';
 
-    public static final char[] MapStructureAtlas = {HWall, VWall, LBCorner, RTCorner, LTCorner, RBCorner};
+    public static final char[] MapStructureAtlas = {HWall, Vwall, LBCorner, RTCorner, LTCorner, RBCorner, LRCenter, RLCenter, TCenter, BCenter};
 
     public static final char[] CornersAtlas = {LBCorner, RTCorner, LTCorner, RBCorner};
 
@@ -49,6 +55,10 @@ public class GameResources {
 
     public static final char[] RangeAtlas = {Bow};
 
+    public static final char Potion = '℗';
+
+    public static final char[] UsableAtlas = {Potion};
+
     public static final String[] SwordLenght = {"Long", "Short", "Medium"};
 
     public static final String[] MaterialName = {"Wood", "Stone", "Iron", "Copper", "Golden", "Diamond"};
@@ -63,6 +73,9 @@ public class GameResources {
         MaterialColor.put("Copper", Colors.COPPER);
         MaterialColor.put("Golden", Colors.GOLDEN);
         MaterialColor.put("Diamond", Colors.DIAMOND);
+        MaterialColor.put("HEAL", Colors.GREEN_BRIGHT);
+        MaterialColor.put("BUF_ATK", Colors.RED_BRIGHT);
+        MaterialColor.put("BUF_DEF", Colors.BLUE_BRIGHT);
     }
 
     public static final String[] ArmorMaterialName = {"leather", "chain", "iron", "steel", "titan"};
@@ -79,7 +92,7 @@ public class GameResources {
     }
     public static final char[] ArmorAtlas = {ArmorChest};
 
-    public static final char[][] WearableAtlas = {ArmorAtlas, MeleeAtlas, RangeAtlas};
+    public static final char[][] WearableAtlas = {ArmorAtlas, MeleeAtlas, RangeAtlas, UsableAtlas};
 
     public static final String[] HitsMessages = {
             "take a small byte of you for %dmg%",
@@ -89,7 +102,11 @@ public class GameResources {
 
     public static final HashMap<Character, String> ModelNameMap = new HashMap<>();
 
-    public static final String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
+    public static String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
+
+    public static void UpdatePlayerName(){
+        PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
+    }
 
     public static StringBuilder getPlayerPositionInfo(){
         return  new StringBuilder("Player position "
@@ -119,7 +136,19 @@ public class GameResources {
                 + Colors.R + "Room: " + Colors.MAGENTA + Player.CurrentRoom + " ");
     }
 
-    private static HashMap<String, Character> ResourcesMap = new HashMap<>();
+    public static final HashMap<String, Character> ResourcesMap = new HashMap<>();
+
+    public static String Logo = " /$$$$$$$                                                            \n" +
+            "| $$__  $$                                                           \n" +
+            "| $$  \\ $$  /$$$$$$   /$$$$$$  /$$   /$$  /$$$$$$   /$$$$$$  /$$$$$$ \n" +
+            "| $$$$$$$/ /$$__  $$ /$$__  $$| $$  | $$ /$$__  $$ /$$__  $$|____  $$\n" +
+            "| $$__  $$| $$  \\ $$| $$  \\ $$| $$  | $$| $$$$$$$$| $$  \\__/ /$$$$$$$\n" +
+            "| $$  \\ $$| $$  | $$| $$  | $$| $$  | $$| $$_____/| $$      /$$__  $$\n" +
+            "| $$  | $$|  $$$$$$/|  $$$$$$$|  $$$$$$/|  $$$$$$$| $$     |  $$$$$$$\n" +
+            "|__/  |__/ \\______/  \\____  $$ \\______/  \\_______/|__/      \\_______/\n" +
+            "                     /$$  \\ $$                                       \n" +
+            "                    |  $$$$$$/                                       \n" +
+            "                     \\______/                                        \n";
 
     private static final String[] resources = {
             "MapStructure",
@@ -129,15 +158,20 @@ public class GameResources {
     };
 
     public static void LoadResources() {
+        int i = 0;
         for(String file : resources){
+            String showload = "= Loading resources from " + file + ".csv =";
+            Debug.log(showload);
             InputStream atlas_csv = GameResources.class.getResourceAsStream("csv/"+file+".csv");
             try {
                 String[] map = new String(atlas_csv.readAllBytes()).split(",|\r\n|\n");
-                PutStringsIntoMap(ResourcesMap, map);
+                PutStringsIntoMap(map);
             } catch (IOException e) {
-                e.printStackTrace();
+                Debug.log(e.getMessage());
             }
+            i++;
         }
+        Debug.log("= Loading resources is ended =");
     }
 
     public static char GetModel(String modelname){
@@ -145,12 +179,15 @@ public class GameResources {
             return ResourcesMap.get(modelname);
         }
         catch (NullPointerException e){
+            Debug.log("RESOURCE: Get model error: no such symbol for name " + modelname);
             System.out.printf("Get model error: no such symbol for name \"%s\"\n",modelname);
             return '?';
         }
     }
 
     public static void MakeMap() {
+
+        Debug.log("RESOURCE: Make char map from CharAtlas.csv");
 
         InputStream csvfile = GameResources.class.getResourceAsStream("csv/Roguera | CharAtlas.csv");
 
@@ -161,21 +198,33 @@ public class GameResources {
             CharName = maps.split(",|\r\n");
         }
         catch (IOException e) {
-            e.printStackTrace();
+            Debug.log(e.getMessage());
         }
 
         for(int i = 1; i < (CharName != null ? CharName.length : 0); i+=2){
             char s = CharName[i-1].charAt(0);
             String n = CharName[i];
+            Debug.log("RESOURCE: Char Map ["+n+"-"+s+"]");
             ModelNameMap.put(s, n);
         }
     }
 
-    private static void PutStringsIntoMap(Map<String, Character> map, String[] array){
+    private static void PutStringsIntoMap(String[] array){
         for(int i = 1; i < (array != null ? array.length : 0); i+=2){
             char s = array[i].charAt(0);
             String n = array[i-1];
-            map.put(n,s);
+            Debug.log("RESOURCE: Map ["+n+"-"+s+"]");
+            ((Map<String, Character>) GameResources.ResourcesMap).put(n,s);
         }
+    }
+
+    public static HashMap<Character, Runnable> GetKeyMap(){
+        HashMap<Character, Runnable> _keymap = new HashMap<>();
+        _keymap.put('r', Dungeon::RegenRoom);
+        _keymap.put('c', logBlock::Clear);
+        _keymap.put('i', inventoryBlock::show);
+        //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;
+
+        return _keymap;
     }
 }

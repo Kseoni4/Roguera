@@ -3,41 +3,56 @@ package com.rogurea.main;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
+import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.gamelogic.rgs.Events;
 import com.rogurea.main.map.Dungeon;
-import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.KeyController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.player.PlayerMoveController;
 import com.rogurea.main.resources.Colors;
+import com.rogurea.main.resources.GetRandom;
 import com.rogurea.main.view.TerminalView;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import static com.rogurea.main.resources.ViewObject.*;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static com.rogurea.main.view.ViewObjects.*;
 import static java.lang.Thread.sleep;
 
 public class GameLoop {
 
+    private ReentrantLock lock = new ReentrantLock();
+
     public final ArrayList<Thread> ActiveThreads = new ArrayList<>();
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     private boolean isGameOver = false;
 
     public void RestartThread(){
 
         if(ActiveThreads.size() > 0) {
-            for (Thread t : ActiveThreads) {
-                t.interrupt();
-                try {
-                    t.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            executorService.shutdown();
+            try{
+                executorService.awaitTermination(5, TimeUnit.SECONDS);
+            }catch (InterruptedException e){
+                Debug.log(e.getMessage());
+                e.getStackTrace();
             }
+
             try {
                 sleep(300);
             } catch (InterruptedException e) {
+                Debug.log(e.getMessage());
                 e.printStackTrace();
             }
 
@@ -49,25 +64,27 @@ public class GameLoop {
     }
 
     private void StartThreads(){
-        for (Mob mob : Dungeon.CurrentRoomCreatures) {
+        executorService = Executors.newCachedThreadPool();
+        int i = 0;
+        for (Mob mob : Dungeon.GetCurrentRoom().RoomCreatures) {
             ActiveThreads.add(new Thread(new MobController(mob), "mobcontroller for mob " + mob.Name));
+            executorService.submit(ActiveThreads.get(i));
+            i++;
         }
-
-        ActiveThreads.forEach(Thread::start);
     }
 
     public void Start(){
         try{
             InLoop();
         } catch (IOException e) {
-
+            Debug.log(e.getMessage());
             e.printStackTrace();
 
         } finally {
             if (TerminalView.terminal != null) {
                 try {
+                    executorService.shutdownNow();
                     for(Thread t : ActiveThreads){
-                        t.interrupt();
                         t.join();
                     }
                     TerminalView.terminal.close();
@@ -79,6 +96,10 @@ public class GameLoop {
     }
 
     private void InLoop() throws IOException {
+
+        Debug.log("SYSTEM: Starting game loop");
+
+        Debug.log("RANDOM SEED: " + new BigInteger(Player.RandomSeed));
 
         while (TerminalView.keyStroke == null || TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
 
@@ -99,17 +120,28 @@ public class GameLoop {
 
                 PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
 
-                Scans.CheckSee(MapEditor.getFromCell(Player.Pos.y + 1, Player.Pos.x));
+                Scans.CheckSee((Player.GetPlayerPosition().getRelative(0,1)));
             }
         }
+
+        SavingSystem.saveGame();
+
+        Debug.log("Ending game loop");
     }
 
     public void GameEndByDead(){
-        if(!isGameOver){
+        if(!lock.isLocked() && !isGameOver){
+            lock.lock();
+
             logBlock.Action(Colors.RED_BRIGHT + "are dead. GameOver.");
 
             logBlock.Event("Press any key to exit");
+
             isGameOver = !isGameOver;
+
+            Player.playerStatistics.PlayerDead += 1;
+
+            lock.unlock();
         }
     }
 
@@ -117,8 +149,6 @@ public class GameLoop {
         TerminalView.terminal.flush();
 
         Dungeon.Rooms = new ArrayList<>();
-
-        Dungeon.CurrentRoomCreatures = new ArrayList<>();
 
         Player.PlayerReset();
 

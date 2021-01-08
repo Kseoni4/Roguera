@@ -3,8 +3,8 @@ package com.rogurea.main.gamelogic.rgs;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.view.Draw;
 
-import static com.rogurea.main.resources.ViewObject.logBlock;
-import static com.rogurea.main.resources.ViewObject.playerInfoBlock;
+import static com.rogurea.main.view.ViewObjects.logBlock;
+import static com.rogurea.main.view.ViewObjects.playerInfoBlock;
 
 public class Events {
 

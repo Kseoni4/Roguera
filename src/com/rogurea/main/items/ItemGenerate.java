@@ -7,6 +7,8 @@ import com.rogurea.main.resources.GetRandom;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static com.rogurea.main.items.Potion.PotionType.*;
+
 public class ItemGenerate {
 
     private static final Random rng = new Random();
@@ -48,6 +50,9 @@ public class ItemGenerate {
         }
         tempItemsList.add(new Weapon(GetRandom.WeaponName("RANGE"), 10, Weapon._weapontype.RANGE,roomnum));
         tempItemsList.add(new Armor("armor", 10, GameResources.ArmorChest, roomnum));
+        tempItemsList.add(new Potion(10, GameResources.GetModel("Potion"), HEAL));
+        tempItemsList.add(new Potion(12, GameResources.GetModel("Potion"), BUF_ATK));
+        tempItemsList.add(new Potion( 15, GameResources.GetModel("Potion"), BUF_DEF));
         return tempItemsList;
     }
 

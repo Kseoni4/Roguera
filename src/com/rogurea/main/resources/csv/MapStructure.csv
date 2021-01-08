@@ -1,8 +1,10 @@
 Hwall,━
 Vwall,┃
-LBCorner,╚
-RTCorner,╗
-LTCorner,╔
-RBCorner,╝
-NextDoor,↓
-BackDoor,↑
+LBCorner,┗
+RTCorner,┓
+LTCorner,┏
+RBCorner,┛
+LRCenter,┣
+RLCenter,┫
+TCenter,┳
+BCenter,┻

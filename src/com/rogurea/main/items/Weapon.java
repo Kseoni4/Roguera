@@ -1,6 +1,9 @@
 package com.rogurea.main.items;
+import com.rogurea.main.input.Cursor;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
+
+import java.lang.reflect.Field;
 
 public class Weapon extends Equipment {
 

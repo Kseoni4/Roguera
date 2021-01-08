@@ -6,11 +6,13 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
+
 import java.io.IOException;
 
-import static com.rogurea.main.resources.ViewObject.*;
+import static com.rogurea.main.view.ViewObjects.*;
 
 public class TerminalView {
 
@@ -22,13 +24,13 @@ public class TerminalView {
 
     public static KeyStroke keyStroke = KeyStroke.fromString(" ");
 
-    private static void SetGameScreen() throws IOException {
+    public static void SetGameScreen() throws IOException {
 
-        Draw.init(gameMapBlock);
-        Draw.init(playerInfoBlock);
-        Draw.init(logBlock);
-        Draw.init(inventoryMenu);
-        Draw.init(controlBlock);
+        Debug.log("RENDERING: Setting view blocks");
+
+        ViewBlocks.forEach(IViewBlock::Init);
+
+        Effects.Init();
 
         terminal.resetColorAndSGR();
     }
@@ -51,43 +53,46 @@ public class TerminalView {
 
             terminal.setCursorVisible(false);
 
-            SetGameScreen();
+            Debug.log("RENDERING: Terminal init");
 
         } catch (IOException e) {
+            Debug.log(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /*
-    Хочу кратко рассказать, как устроен рендеринг в игре. Мы нажали на стрелочку - тут же активируется функция drawcall(), которая очищает экран, заново рисует блок информации и рисует карту.
-      На примере показан процесс отрисовки (я специально немного замедлил для наглядности)
+    public static void ReDrawAll(IViewBlock except){
 
-      На самом деле между нажатием на стрелочку и отрисовкой карты, в памяти игры позиция нашей собачки меняется в соответствующую сторону и мы выводим новое состояние игрового поля.
-      Игровое поле - это эдакая таблица, где строки и столбцы - (y,x), а 0,0 начинается в левом верхнем углу
-
-  */
-    public static void ReDrawAll(){
+        Debug.log("RENDERING: Redraw blocks");
 
         try {
             terminal.clearScreen();
         } catch (IOException e) {
+            Debug.log("ERROR: Clear screen was failed");
+            Debug.log(e.getMessage());
             e.printStackTrace();
         }
 
-        ResetPositions();
+        ResetPositions(except);
 
-        Draw.call(playerInfoBlock);
-        Draw.call(gameMapBlock);
-        Draw.call(controlBlock);
-        Draw.call(inventoryMenu);
-        Draw.call(logBlock);
+        ViewBlocks.forEach(
+                viewBlock -> {
+                    if (viewBlock != except){
+                        Debug.log("RENDERING: draw call block " + viewBlock.getClass().getSimpleName());
+                        viewBlock.Draw();
+                    }
+                });
     }
 
-    private static void ResetPositions(){
-        Draw.reset(playerInfoBlock);
-        Draw.reset(inventoryMenu);
-        Draw.reset(logBlock);
-        Draw.reset(controlBlock);
+    private static void ResetPositions(IViewBlock except){
+
+        Debug.log("RENDERING: reset view blocks position");
+
+        ViewBlocks.forEach(viewBlock -> {
+                if(viewBlock != except)
+                    Debug.log("RENDERING: reset block " + viewBlock.getClass().getSimpleName());
+                    viewBlock.Reset();
+            });
     }
 
 
@@ -110,18 +115,4 @@ public class TerminalView {
     public static void SetPointerIntoPosition(TextGraphics textgui, char pointer, TerminalPosition position) {
         textgui.setCharacter(position, pointer);
     }
-
-    /*static void PutRandomCharacter(TextGraphics textGraphics, int i, int j) throws InterruptedException, IOException {
-        TextColor rgb = new TextColor.RGB(
-                random.nextInt(255),
-                random.nextInt(255),
-                random.nextInt(255)
-        );
-        textGraphics.setForegroundColor(rgb);
-        textGraphics.putString(j, i, String.valueOf(GameResources.rsymbls[random.nextInt(GameResources.rsymbls.length - 1)]),
-                SGR.ITALIC);
-        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
-        sleep(30);
-        terminal.flush();
-    }*/
 }

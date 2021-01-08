@@ -35,11 +35,6 @@ public class Room {
         MakeRoom(RoomCounter, x, y);
     }
 
-//    public R_Room(int RoomCounter, DungeonShop DS){
-//        NumberOfRoom = RoomCounter;
-//        this.dungeonShop = DS;
-//    }
-
     public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y){
         this.IsEndRoom = IsEndRoom;
         MakeRoom(RoomCounter, x, y);
@@ -59,7 +54,7 @@ public class Room {
 
         RoomStructure = new char[y][x];
 
-        RoomItems = ItemGenerate.PutItemsIntoRoom(NumberOfRoom);
+        RoomItems = new ArrayList<>();
     }
 
     public Mob getMobFromRoom(Position pos){

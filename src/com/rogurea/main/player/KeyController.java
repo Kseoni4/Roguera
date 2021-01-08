@@ -1,25 +1,19 @@
 package com.rogurea.main.player;
-import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.resources.GameResources;
 
-import static com.rogurea.main.resources.ViewObject.inventoryMenu;
-import static com.rogurea.main.resources.ViewObject.logBlock;
-
+import java.util.HashMap;
 
 public class KeyController {
-    public static char GetKey (Character key){
-            switch (key){
-                case 'r':
-                    Dungeon.RegenRoom();
-                    return 'r';
-                case 'c':
-                    logBlock.Clear();
-                    return 'c';
-                case 'i':
-                    inventoryMenu.show();
-                    return 'i';
-                default:
-                    break;
+
+    private static final HashMap<Character, Runnable> KeyMap = GameResources.GetKeyMap();
+
+    public static void GetKey (Character key){
+            try {
+                KeyMap.get(key).run();
+            }catch (NullPointerException e){
+                System.out.printf("Binding for '%s' key has not found\n", key);
+                Debug.log("Binding for " + key + " has not found");
             }
-            return ' ';
     }
 }

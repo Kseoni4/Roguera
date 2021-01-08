@@ -1,12 +1,14 @@
-package com.rogurea.main.view.viewblocks;
+package com.rogurea.main.view.UI;
 
 import com.googlecode.lanterna.Symbols;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.resources.Colors;
+import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.Draw;
 import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;
@@ -31,6 +33,10 @@ public class LogBlock implements IViewBlock {
 
     private final TerminalPosition LogBorderSize = new TerminalPosition(topLoggerLeft.getColumn()+30,topLoggerLeft.getRow()-1);
 
+    public LogBlock() {
+        ViewObjects.ViewBlocks.add(this);
+    }
+
     public void Init(){
         try {
             LoggerGraphics = TerminalView.terminal.newTextGraphics();
@@ -46,6 +52,8 @@ public class LogBlock implements IViewBlock {
 
         OutMessage.append(message);
 
+        Debug.log("GAME: Player " + message);
+
         WriteLog(OutMessage);
     }
 
@@ -54,6 +62,8 @@ public class LogBlock implements IViewBlock {
         OutMessage.append('>').append("Mob ").append(mob.Name).append(' ');
 
         OutMessage.append(message);
+
+        Debug.log("GAME: Mob " + message.replace(Colors.R,""));
 
         WriteLog(OutMessage);
     }
@@ -86,6 +96,7 @@ public class LogBlock implements IViewBlock {
             LogHistory[LogHistoryIndex] = sb.toString();
         }
         Draw.call(this);
+
         OutMessage = new StringBuilder();
     }
 

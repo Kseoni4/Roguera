@@ -1,18 +1,23 @@
 package com.rogurea.main.player;
 
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.items.*;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.view.Draw;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.function.Predicate;
 
-import static com.rogurea.main.resources.ViewObject.logBlock;
-import static com.rogurea.main.resources.ViewObject.playerInfoBlock;
+import static com.rogurea.main.view.ViewObjects.logBlock;
+import static com.rogurea.main.view.ViewObjects.playerInfoBlock;
 
-public class Player {
+public class Player implements Serializable {
     public final static char PlayerModel = GameResources.PlayerModel;
 
     public static class Pos{
@@ -20,13 +25,15 @@ public class Player {
         public static byte y = 1;
     }
 
-    public static final String nickName = "Player 1";
+    public static String nickName = "Player" + Calendar.getInstance().getTimeInMillis();
     public static short HP = 100;
     public static short MP = 30;
     public static byte Level = 0;
     public static byte CurrentRoom = 1;
     public static short Money = 0;
     public static byte attempt = 0;
+    public static byte[] RandomSeed;
+
 
     public static short XP = 0; //Experience Points
     public static byte ATK = 1; //Attack
@@ -37,6 +44,8 @@ public class Player {
     public static ArrayList<Item> Inventory = new ArrayList<>();
 
     public static HashMap<String, Equipment> Equip;
+
+    public static PlayerStatistics playerStatistics = new PlayerStatistics();
 
     static{
         Equip = new HashMap<>();
@@ -58,8 +67,15 @@ public class Player {
     }
 
     public static void GetGold(Gold gold){
-        logBlock.Action("get the " + Colors.ORANGE + gold.Amount + " gold!");
-        Money += Math.max(gold.Amount,0);
+        try {
+            logBlock.Action("get the " + Colors.ORANGE + gold.Amount + " gold!");
+            Money += Math.max(gold.Amount, 0);
+            playerStatistics.GoldCollected += Math.max(gold.Amount,0);
+        } catch (NullPointerException e){
+            Debug.log("ERROR: Player did not get a gold, cause NP exception");
+            Debug.log("ERROR: Position of problem " + GetPlayerPosition().toString());
+            Debug.log(Arrays.toString(e.getStackTrace()));
+        }
         Draw.call(playerInfoBlock);
     }
 
@@ -70,7 +86,7 @@ public class Player {
         return 0;
     }
 
-    public static int getDamage(){
+    public static int getDamageByWeapon(){
         Weapon wp = (Weapon) Equip.get("FirstWeapon");
         if(wp != null)
             return wp.GetStats();
@@ -86,19 +102,31 @@ public class Player {
     public static void AutoEquip() {
         if (Equip.get("FirstWeapon") == null)
             for (Item i : Inventory) {
-                if (i != null && i.getClass() == Weapon.class)
-                    InventoryController.EquipItem((Equipment)
-                            GetFromInventory(item -> item.equals(i)), "FirstWeapon");
-                break;
+                if (i instanceof Weapon) {
+                    InventoryController.EquipItem((Equipment) GetFromInventory(item -> item.equals(i)), "FirstWeapon");
+                    break;
+                }
             }
         if (Equip.get("Armor") == null){
             for (Item i : Inventory){
-                if(i != null && i.getClass() == Armor.class)
+                if(i instanceof Armor) {
                     InventoryController.EquipItem((Equipment)
                             GetFromInventory(item -> item.equals(i)), "Armor");
-                break;
+                    break;
+                }
             }
         }
+    }
+
+    public static String getPlayerWeaponInHands(){
+        if(Equip.get("FirstWeapon") != null)
+            return Equip.get("FirstWeapon").name;
+        else
+            return "fists";
+    }
+
+    public static Position GetPlayerPosition(){
+        return new Position(Pos.x, Pos.y);
     }
     public static void PlayerReset(){
         HP = 100;
@@ -108,5 +136,26 @@ public class Player {
         Money = 0;
         CurrentRoom = 1;
         Level = 1;
+    }
+
+    public static void LoadPlayerDataFromFile(PlayerContainer SavedPlayerData){
+        nickName = SavedPlayerData.nickName;
+        HP = SavedPlayerData.HP;
+        MP = SavedPlayerData.MP;
+        Level = SavedPlayerData.Level;
+        CurrentRoom = SavedPlayerData.CurrentRoom;
+        Money = SavedPlayerData.Money;
+        attempt = SavedPlayerData.attempt;
+        RandomSeed = SavedPlayerData.RandomSeed;
+        XP = SavedPlayerData.XP;
+        ATK = SavedPlayerData.ATK;
+        DEF = SavedPlayerData.DEF;
+        DEX = SavedPlayerData.DEX;
+        XPForNextLevel = SavedPlayerData.XPForNextLevel;
+        Inventory = SavedPlayerData.Inventory;
+        Equip = SavedPlayerData.Equip;
+        playerStatistics = SavedPlayerData.playerStatistics;
+        Pos.x = (byte) SavedPlayerData.PlayerPosition.x;
+        Pos.y = (byte) SavedPlayerData.PlayerPosition.y;
     }
 }

@@ -14,7 +14,7 @@ import com.rogurea.main.view.Draw;
 
 import java.util.Objects;
 
-import static com.rogurea.main.resources.ViewObject.*;
+import static com.rogurea.main.view.ViewObjects.*;
 
 public class PlayerMoveController {
 
@@ -28,11 +28,11 @@ public class PlayerMoveController {
             case ArrowRight -> Move(Player.Pos.y, Player.Pos.x + 1);
         }
     }
-    public static void Move(int y, int x){
+    public static void Move(int NewY, int NewX){
 
-        char cell = MapEditor.getFromCell(y,x);
+        char cell = MapEditor.getFromCell(NewY,NewX);
 
-        pos.setPosition(y,x);
+        pos.setPosition(NewY,NewX);
 
         if(!Scans.CheckWall(cell)
         /*|| Scans.CheckProps(cell)*/){
@@ -69,52 +69,31 @@ public class PlayerMoveController {
                 return;
             }
 
-            Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
-                    .filter(
-                            room -> room.NumberOfRoom == Player.CurrentRoom
-                    )
-                    .findAny()
-                    .orElse(null));
+            Room rm = Dungeon.GetCurrentRoom();
 
-            Item wp = rm.RoomItems.stream()
+            Item ItemForTake = rm.RoomItems.stream()
                     .filter(
-                            item -> item._model == cell
+                            item -> item.ItemPosition.equals(pos)
                     )
                     .findFirst().orElse(null);
 
-            rm.RoomItems.remove(wp);
+            Dungeon.GetCurrentRoom().RoomItems.remove(ItemForTake);
 
-            Player.PutInInventory(wp);
-        }
-
-        if(cell == '$'){
-
-            Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
-                    .filter(
-                            room -> room.NumberOfRoom == Player.CurrentRoom
-                    )
-                    .findAny()
-                    .orElse(null));
-
-            Gold gold = ((Gold) rm.RoomItems.stream()
-                    .filter(
-                            item -> item._model == cell
-                    ).findFirst().orElse(null));
-
-            rm.RoomItems.remove(gold);
-
-            assert gold != null;
-            Player.GetGold(gold);
+            if(ItemForTake instanceof Gold){
+                Player.GetGold((Gold) ItemForTake);
+            }else{
+                Player.PutInInventory(ItemForTake);
+            }
         }
 
         if(Scans.CheckCreature(cell)){
-            Fight.HitMob(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
+            Fight.HitMobByPlayer(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
             return;
         }
         MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
-        MapEditor.setIntoCell(Player.PlayerModel, y, x);
-        Player.Pos.x = (byte) x;
-        Player.Pos.y = (byte) y;
+        MapEditor.setIntoCell(Player.PlayerModel, NewY, NewX);
+        Player.Pos.x = (byte) NewX;
+        Player.Pos.y = (byte) NewY;
         Draw.call(gameMapBlock);
         Draw.call(playerInfoBlock);
     }

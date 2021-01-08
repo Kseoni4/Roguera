@@ -1,5 +1,6 @@
 package com.rogurea.main.creatures;
 
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Item;
@@ -15,8 +16,8 @@ import java.util.Objects;
 import java.util.Random;
 
 import static com.rogurea.Main.gameLoop;
-import static com.rogurea.main.resources.ViewObject.gameMapBlock;
-import static com.rogurea.main.resources.ViewObject.logBlock;
+import static com.rogurea.main.view.ViewObjects.gameMapBlock;
+import static com.rogurea.main.view.ViewObjects.logBlock;
 
 public class MobController extends Thread {
 
@@ -38,6 +39,7 @@ public class MobController extends Thread {
 
     public void run(){
         BehaviorLoop();
+        Debug.log("THREAD: Ending thread for " + mob.Name + "(" + mob.id + ")");
         System.out.println("Ending thread for " + mob.Name + "(" + mob.id + ")");
     }
 
@@ -62,9 +64,7 @@ public class MobController extends Thread {
             }
 
             if(Player.HP <= 0) {
-                synchronized (gameLoop){
-                    gameLoop.GameEndByDead();
-                }
+                gameLoop.GameEndByDead();
                 break;
             }
 
@@ -183,7 +183,7 @@ public class MobController extends Thread {
     }
 
     private void MoveMobInPosition(Position mobpos, int y_s, int x_s){
-        MapEditor.setIntoCell('.', mobpos.y, mobpos.x);
+        MapEditor.clearCell(mobpos);
 
         MapEditor.setIntoCell(mob.MobSymbol, y_s, x_s);
     }
@@ -193,7 +193,7 @@ public class MobController extends Thread {
 
             mob.MobSpeed = GameVariables.FightSpeed;
 
-            Fight.HitPlayer(mob);
+            Fight.HitPlayerByMob(mob);
 
             mob.setHP(GetCurrentMobFromRoom().getHP());
 
@@ -211,11 +211,11 @@ public class MobController extends Thread {
 
     void RemoveMob(){
 
+        Player.playerStatistics.MobKilled += 1;
+
         MapEditor.clearCell(mob.HisPosition);
 
         logBlock.Action("kill the " + mob.Name);
-
-        Dungeon.CurrentRoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
 
         Dungeon.GetCurrentRoom().RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
 
@@ -226,29 +226,35 @@ public class MobController extends Thread {
 
         Random rnd = new Random();
 
-        Position lootdrop = new Position();
+        Position LootDropPosition = new Position();
 
         for(Item item : mob.Loot){
-            Dungeon.GetCurrentRoom().RoomItems.add(item);
 
-            lootdrop.setPosition(
+            LootDropPosition.setPosition(
                     mob.HisPosition.y+(DropPos[rnd.nextInt(4)]),
                     mob.HisPosition.x+(DropPos[rnd.nextInt(4)])
             );
 
             int b = 0;
 
-            while(MapEditor.getFromCell(lootdrop) != ' '){
-                lootdrop.setPosition(
+            while(MapEditor.getFromCell(LootDropPosition) != ' '){
+                LootDropPosition.setPosition(
                         Math.max(mob.HisPosition.y+(DropPos[rnd.nextInt(4)]),0),
                         Math.max(mob.HisPosition.x+(DropPos[rnd.nextInt(4)]),0)
                 );
-                if(b > 10){
+                if(b > 15){
                     break;
                 }
                 b++;
             }
-            MapEditor.setIntoCell(item._model, lootdrop);
+
+            item.ItemPosition = new Position(LootDropPosition);
+
+            Dungeon.GetCurrentRoom().RoomItems.add(item);
+
+            Debug.log("FIGHT: Mob" + mob.Name + " drop " + item.name + " Pos: " + LootDropPosition.toString());
+
+            MapEditor.setIntoCell(item._model, LootDropPosition);
         }
     }
 }

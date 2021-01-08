@@ -1,6 +1,9 @@
 package com.rogurea.main.view;
 
+import com.rogurea.main.gamelogic.Debug;
+
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Draw {
 
@@ -23,7 +26,7 @@ public class Draw {
         try {
             TerminalView.terminal.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            Debug.log(Arrays.toString(e.getStackTrace()));
         }
     }
 

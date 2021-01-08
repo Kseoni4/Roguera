@@ -1,12 +1,13 @@
 package com.rogurea.main.gamelogic.rgs;
 
+import com.rogurea.main.items.Potion;
 import com.rogurea.main.player.Player;
 
 import java.security.SecureRandom;
 
 public class Formula {
 
-    private static final SecureRandom rnd = new SecureRandom();
+    private static final SecureRandom RNGFormula = new SecureRandom();
 
     private static short RequirementXP = 0;
 
@@ -28,23 +29,40 @@ public class Formula {
     }
 
     public static boolean IsMiss(int dex){
-        return rnd.nextInt(100) >= 100 - dex;
+        return RNGFormula.nextInt(100) >= 100 - dex;
     }
 
     public static short GetXPForMob(short moblvl){
-        return (short) (moblvl * (rnd.nextInt(90) + 10));
+        return (short) (moblvl * (RNGFormula.nextInt(90) + 10));
     }
 
     public static byte GetLvlForMob(int currentRoomNumber){
-        return (byte) ((currentRoomNumber * 2) % levelDecade);
+        return (byte) ((currentRoomNumber) % levelDecade);
     }
 
     public static int GetPlayerATK(){
-        return Player.ATK + Player.getDamage();
+        return Player.ATK + Player.getDamageByWeapon();
     }
 
     public static int GetPlayerDEF(){
         return Player.DEF + Player.getArmor();
+    }
+
+    public static int GetPotionPointsByType(Potion.PotionType potionType, int potionLevel){
+        switch (potionType){
+            case HEAL -> {
+                return GetHealingPoints(potionLevel);
+            }
+            case BUF_ATK -> {}
+
+            case BUF_DEF -> {}
+        }
+        return 1;
+    }
+
+    private static int GetHealingPoints(int potionLevel){
+        int points = (potionLevel + Player.Level) * (RNGFormula.nextInt(9)+1);
+        return Math.min(points, 100);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.rogurea.main.view.viewblocks;
+package com.rogurea.main.view.UI;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -8,6 +8,7 @@ import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;
 
@@ -22,6 +23,10 @@ public class PlayerInfoBlock implements IViewBlock {
     private final TerminalSize PlayerInfoSize = new TerminalSize(GameResources.getPlayerPositionInfo().length() + 2, 5);
 
     public static BaseGenerate.RoomSize roomSize;
+
+    public PlayerInfoBlock(){
+        ViewObjects.ViewBlocks.add(this);
+    }
 
     public void Init(){
 
@@ -49,12 +54,12 @@ public class PlayerInfoBlock implements IViewBlock {
         TerminalView.InitGraphics(PlayerInfoGraphics, topPlayerInfoLeft, PlayerInfoSize);
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics, GameResources.getPlayerPositionInfo().toString(),
-                        30, terminalSize.getRows()-1);
+                        30, terminalSize.getRows()-2);
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
                 "Room size: " + Dungeon.CurrentRoom.length + "x" + Dungeon.CurrentRoom[0].length
                         + " (" + roomSize + ")",
-                55, terminalSize.getRows()-1);
+                55, terminalSize.getRows()-2);
 
         TerminalView.DrawBlockInTerminal(PlayerInfoGraphics,
                 GameResources.PlayerName,

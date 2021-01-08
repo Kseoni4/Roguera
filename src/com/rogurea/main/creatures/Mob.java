@@ -1,6 +1,7 @@
 package com.rogurea.main.creatures;
 
 import com.rogurea.main.gamelogic.rgs.Formula;
+import com.rogurea.main.items.Gold;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameVariables;
@@ -105,6 +106,23 @@ public class Mob extends Creature {
     @Override
     public short getArmor() {
         return this.Armor;
+    }
+
+    public void GetAllInfo(){
+
+        StringBuilder MobInfo = new StringBuilder();
+        MobInfo.append("Mob name: ").append(this.Name).append('\n')
+                .append("HP: ").append(getHP()).append('\n')
+                .append("ATK: ").append(this.Damage).append('\n')
+                .append("DEF: ").append(this.Armor).append('\n')
+                .append("Mob level: ").append(this.MobLevel).append('\n')
+                .append("Have gold: ").append(
+                        ((Gold) this.Loot.stream()
+                                .filter(item -> item instanceof Gold)
+                                .findAny().get())
+                                .Amount)
+                .append('\n');
+        System.out.println(MobInfo);
     }
 }
 

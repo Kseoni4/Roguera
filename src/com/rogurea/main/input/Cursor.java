@@ -3,6 +3,7 @@ package com.rogurea.main.input;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.resources.MenuContainer;
+import com.rogurea.main.view.IMenuAction;
 import com.rogurea.main.view.TerminalView;
 
 public class Cursor {
@@ -27,6 +28,10 @@ public class Cursor {
 
     private static final int Right = 1;
 
+    private static final int Up = -1;
+
+    private static final int Down = -1;
+
     public static int Moving(
             KeyType key, MenuContainer container, int shift, int size, int y, int shifttype, IMenuAction action){
 
@@ -48,7 +53,8 @@ public class Cursor {
         ShiftType = shifttype;
 
         switch (key) {
-            case ArrowUp -> {}
+            //case ArrowUp -> Move(Up);
+            //case ArrowDown -> Move(Down);
             case ArrowLeft -> Move(Left);
             case ArrowRight -> Move(Right);
             case Enter -> action.Do(Index);
@@ -70,7 +76,7 @@ public class Cursor {
 
         if(Index >= 0 && Index <= Length -1){
 
-            int b = (n == Left ? 0 : -1);
+            int b = ((n == Left) ? 0 : -1);
 
             if(menu.getOptionNames() != null){
                element = menu.getOptionNames()[Index+b].length();

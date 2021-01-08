@@ -3,6 +3,7 @@ package com.rogurea.main.creatures;
 import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
+import com.rogurea.main.items.Potion;
 import com.rogurea.main.items.Weapon;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
@@ -54,6 +55,10 @@ public class MobFactory {
                     Weapon._weapontype.MELLE, 1));
         }
 
+        for(int i = 0; i < random.nextInt(2); i++){
+            bufferLoot.add(new Potion(10, GameResources.Potion, Potion.PotionType.HEAL));
+        }
+
         bufferLoot.add(new Gold(random.nextInt(99)+1));
 
         return bufferLoot;
@@ -68,7 +73,7 @@ public class MobFactory {
             OutMobList.add(
                     new Mob((Colors.RED_BRIGHT+name+Colors.R),
                             name.charAt(0),
-                            (short) (random.nextInt(50)+15), name, roomnum)
+                            (short) (random.nextInt(5*roomnum)+5), name, roomnum)
             );
             GameResources.ModelNameMap.put(name.charAt(0), Colors.RED_BRIGHT+name);
         }

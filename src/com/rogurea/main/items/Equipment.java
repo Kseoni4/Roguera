@@ -2,7 +2,7 @@ package com.rogurea.main.items;
 
 import com.rogurea.main.resources.GetRandom;
 
-public class Equipment extends Item implements Wearable{
+public class Equipment extends Item implements Wearable, Usable{
 
     private final int EquipStats;
 
@@ -19,5 +19,10 @@ public class Equipment extends Item implements Wearable{
 
     public int GetStats(){
         return this.EquipStats;
+    }
+
+    @Override
+    public void use() {
+
     }
 }

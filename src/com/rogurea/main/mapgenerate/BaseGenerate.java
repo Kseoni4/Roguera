@@ -1,10 +1,15 @@
 package com.rogurea.main.mapgenerate;
 
-import com.rogurea.main.items.Item;
+import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.map.Room;
-import com.rogurea.main.view.viewblocks.PlayerInfoBlock;
+import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GetRandom;
+import com.rogurea.main.view.UI.PlayerInfoBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
@@ -15,7 +20,7 @@ import java.util.function.Predicate;
 
 public class BaseGenerate {
 
-    public static final Random random = new Random();
+    public static Random random = null;
 
     public enum RoomSize {
         SMALL{
@@ -81,6 +86,8 @@ public class BaseGenerate {
 
     public static void GenerateDungeon(int DungeonLenght){
 
+        random = GetRandom.RNGenerator;
+
         RoomSize[] roomSizes = RoomSize.values();
 
         for(byte i = 0; i < DungeonLenght; i++){
@@ -97,6 +104,9 @@ public class BaseGenerate {
             Dungeon.Rooms.get(i).roomSize = roomSizes[2];
 
             MapEditor.FillSpaceWithEmpty(Dungeon.Rooms.get(i).RoomStructure);
+
+            String message = "Create Room " + i + " Height: " + Height + " Width: " + Widght;
+            Debug.log("GENERATE: Make Dungeon: " + message);
         }
         ConnectRooms();
     }
@@ -106,6 +116,8 @@ public class BaseGenerate {
         int i = 2;
 
         Dungeon.Rooms.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
+
+        Debug.log("GENERATE: Connecting rooms");
 
         for(Room room : Dungeon.Rooms){
             if(!room.IsEndRoom) {
@@ -138,13 +150,15 @@ public class BaseGenerate {
 
     public static void GenerateRoom(Room room) {
 
-        char[][] CurrentRoom = room.RoomStructure;
+        PGP pgp = new PGP();
 
-        Dungeon.CurrentRoomCreatures = new ArrayList<>();
+        char[][] CurrentRoom = room.RoomStructure;
 
         MapEditor.FillAllSpaceWithEmpty(CurrentRoom);
 
         Player.CurrentRoom = room.NumberOfRoom;
+
+        Debug.log("GENERATE: " + "Room " + room.NumberOfRoom + " is not generate, processing...");
 
         try {
             if(TerminalView.terminal != null) {
@@ -153,27 +167,34 @@ public class BaseGenerate {
             }
         }
         catch (IOException e){
+            Debug.log(e.getMessage());
             e.printStackTrace();
         }
 
         room.IsRoomStructureGenerate = true;
 
         if(room.roomSize == RoomSize.BIG) {
-            PointGenerateProcedure.GenerationShapeByPoints(CurrentRoom);
+            CurrentRoom = pgp.GenerateRoom(CurrentRoom);
         }
 
-        MapEditor.PlaceDoors(room, CurrentRoom);
+        ArrayList<Position> positions = getPositionsList(CurrentRoom, pgp.ExitPoint);
 
-        int r = 3;
+        MapEditor.PlaceDoors(room, CurrentRoom, pgp.ExitPoint);
 
-        for(Item i : room.RoomItems)
-            CurrentRoom[2][(r++)] = i._model;
+        BuildSubRooms(CurrentRoom, (byte) (pgp.ExitPoint.y/2));
 
-        MapEditor.PlaceMobs(room, CurrentRoom);
+        MapEditor.PlaceMobs(room, CurrentRoom, positions);
 
         Dungeon.CurrentRoom = CurrentRoom;
 
         room.RoomStructure = CurrentRoom;
+
+        for(Mob mob : room.RoomCreatures){
+            mob.GetAllInfo();
+        }
+
+        Debug.log("GENERATE: " + " Room " + room.NumberOfRoom + " generate has completed");
+
     }
 
     public static void PutPlayerInDungeon(int x, byte y, char[][] CurrentRoom){
@@ -182,10 +203,129 @@ public class BaseGenerate {
         Player.Pos.y = y;
         PlayerInfoBlock.roomSize = Dungeon.GetCurrentRoom().roomSize;
 
-        TerminalView.ReDrawAll();
+        int HighestRoomNum = Player.playerStatistics.HighestRoomNumber;
+
+        Player.playerStatistics.HighestRoomNumber = Math.max(HighestRoomNum, Dungeon.GetCurrentRoom().NumberOfRoom);
+
+        Debug.log("GENERATE: Place player into position " + Player.GetPlayerPosition().toString());
+
+        TerminalView.ReDrawAll(null);
     }
 
     public static int GetCenterOfRoom(Room room){
         return Math.floorDiv(room.RoomStructure[0].length, 2);
+    }
+
+    private static ArrayList<Position> getPositionsList(char[][] CurrentRoom, Position ExitPoint) {
+
+        ArrayList<Position> PositionsList = new ArrayList<>();
+
+        if(CurrentRoom == null){
+            System.out.println("You need to generate room first!");
+            return null;
+        }
+
+        Position StartPosition = new Position(1,1);
+
+        int y = StartPosition.y, x = StartPosition.x;
+
+        for(int i = y; i < CurrentRoom.length;) {
+            for (int j = x; j < CurrentRoom[0].length;) {
+                if (Scans.CheckWall(CurrentRoom[i][j])) {
+                    PositionsList.add(new Position(j, i));
+
+                    j++;
+                } else if(i == ExitPoint.y-1) {
+                    break;
+
+                } else if (!Scans.CheckWall(CurrentRoom[i + 1][StartPosition.x])) {
+
+                    j = StartPosition.x;
+
+                    while (!Scans.CheckWall(CurrentRoom[i + 1][j]))
+                        j++;
+
+                    StartPosition.y = i;
+
+                    StartPosition.x = j;
+                } else {
+                    i++;
+
+                    j = StartPosition.x;
+                }
+            }
+            break;
+        }
+        return PositionsList;
+    }
+
+    private static void BuildSubRooms(char[][] CurrentRoom, byte y){
+        byte x = FindLeftBorder(CurrentRoom, y);
+
+        SubdivideZone(CurrentRoom, new Position(x,y), 2);
+    }
+
+    private static byte FindLeftBorder(char[][] CurrentRoom, byte y){
+        byte x = (byte) (CurrentRoom[0].length/2);
+        while(Scans.CheckWall(CurrentRoom[y][x])){
+            x--;
+        }
+        return x;
+    }
+
+    private static void SubdivideZone(char[][] CurrentRoom, Position startposition, int depth){
+
+        MapEditor.DrawDirection drawDirection = depth % 2 == 0 ? MapEditor.DrawDirection.RIGHT : MapEditor.DrawDirection.UP;
+
+        int xshift = drawDirection == MapEditor.DrawDirection.RIGHT ? 1 : 0;
+
+        int yshift = drawDirection == MapEditor.DrawDirection.UP ? 1 : 0;
+
+        int lenght = FindLenght(CurrentRoom, drawDirection, new Position(startposition.x+xshift, startposition.y-yshift));
+
+        MapEditor.InsertShapeLine(CurrentRoom, drawDirection, lenght, startposition);
+
+        depth--;
+        if(depth > 0)
+            SubdivideZone(CurrentRoom, new Position(lenght, startposition.y), depth);
+
+        if(drawDirection == MapEditor.DrawDirection.RIGHT){
+            xshift = lenght;
+            MapEditor.setIntoCell(CurrentRoom, MapEditor.EmptyCell, new Position(lenght-3,startposition.y));
+        }
+        else{
+            yshift = lenght;
+            MapEditor.setIntoCell(CurrentRoom, MapEditor.EmptyCell, new Position(startposition.x,lenght-3));
+        }
+
+        PlaceCorners(CurrentRoom, drawDirection, startposition, new Position(startposition.x+xshift, startposition.y-yshift));
+
+    }
+
+    private static int FindLenght(char[][] CurrentRoom, MapEditor.DrawDirection direction, Position startpos){
+        int l = 0;
+        while(Scans.CheckWall(CurrentRoom[startpos.y][startpos.x])){
+            if(direction == MapEditor.DrawDirection.RIGHT)
+                startpos.x++;
+            else if (startpos.y > 0){
+                startpos.y--;
+            }
+            else{
+                break;
+            }
+            l++;
+        }
+        return l+1;
+    }
+
+    private static void PlaceCorners(char[][] CurrentRoom, MapEditor.DrawDirection drawDirection, Position startposition, Position endposition){
+        if (drawDirection == MapEditor.DrawDirection.RIGHT) {
+            MapEditor.setIntoCell(CurrentRoom, GameResources.GetModel("LRCenter"), startposition);
+            MapEditor.setIntoCell(CurrentRoom, GameResources.GetModel("RLCenter"), endposition);
+        }
+        else{
+            MapEditor.setIntoCell(CurrentRoom, GameResources.GetModel("BCenter"), startposition);
+            MapEditor.setIntoCell(CurrentRoom, GameResources.GetModel("TCenter"), endposition);
+        }
     }
 }

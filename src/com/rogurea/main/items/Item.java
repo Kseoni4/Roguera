@@ -1,6 +1,10 @@
 package com.rogurea.main.items;
 
-public class Item {
+import com.rogurea.main.map.Position;
+
+import java.io.Serializable;
+
+public class Item implements Serializable {
 
     public String name;
 
@@ -8,12 +12,22 @@ public class Item {
 
     protected static int counter = 0;
 
-    public final int SellPrice;
+    public int SellPrice;
 
     public char _model;
 
+    public Position ItemPosition = new Position();
+
     public String getMaterialColor(){
-        return "";
+        return "GREY";
+    }
+
+    public Integer getID(){
+        return this.id;
+    }
+
+    public Item(){
+        id = -1;
     }
 
     public Item(String name, int SellPrice){

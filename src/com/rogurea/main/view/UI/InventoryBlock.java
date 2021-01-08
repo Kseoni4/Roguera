@@ -1,6 +1,5 @@
-package com.rogurea.main.view.viewblocks;
+package com.rogurea.main.view.UI;
 
-import com.googlecode.lanterna.Symbols;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -14,15 +13,18 @@ import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.MenuContainer;
+import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.IMenuAction;
 import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
+import java.util.Arrays;
 
-import static com.rogurea.main.resources.ViewObject.logBlock;
+import static com.rogurea.main.view.ViewObjects.*;
 
-public class InventoryMenu implements IViewBlock {
+public class InventoryBlock implements IViewBlock {
 
     private boolean HideInv = true;
 
@@ -42,15 +44,11 @@ public class InventoryMenu implements IViewBlock {
             "Back",
     };
 
-    private final InvAction invAction = new InvAction();
-
-    private final InvContextActions invContextActions = new InvContextActions();
-
     public static String Selected = " ";
 
-    private char up = GameResources.GetModel("PointerUp");
+    private final char up = GameResources.GetModel("PointerUp");
 
-    private char right = GameResources.GetModel("PointerRight");
+    private final char right = GameResources.GetModel("PointerRight");
 
     private char pointer = up;
 
@@ -69,6 +67,10 @@ public class InventoryMenu implements IViewBlock {
     private final int YOffset = 10;
 
     private final TerminalSize InventoryBordersSize = new TerminalSize(23,7);
+
+    public InventoryBlock(){
+        ViewObjects.ViewBlocks.add(this);
+    }
 
     public void Init(){
 
@@ -106,6 +108,11 @@ public class InventoryMenu implements IViewBlock {
                 Offset
         );
 
+        IMenuAction action = (int index) -> {
+            if(Player.Inventory.size() > 0)
+                inventoryBlock.OpenContextItemMenu();
+        };
+
         while(!HideInv){
             pointer = up;
 
@@ -128,8 +135,7 @@ public class InventoryMenu implements IViewBlock {
                     Player.Inventory.size(),
                     PosY,
                     shiftPlusOne,
-                    invAction);
-
+                    action);
             InventoryContainer.setIndexoffset(IndexOffset);
         }
 
@@ -170,6 +176,24 @@ public class InventoryMenu implements IViewBlock {
 
         TerminalView.CurrentPointerPosition = Cursor.CursorPos;
 
+        IMenuAction action = (int index) -> {
+            switch (index) {
+                case 0 -> {
+                            if(CheckUsable()){
+                                InventoryController.UseItem((Usable) inventoryBlock.GetItem());
+                                logBlock.Action("are drink the " + GetItem().getMaterialColor() + GetItem().name);
+                                Player.GetFromInventory(item -> inventoryBlock.GetItem().id == item.id);
+                                Draw.call(playerInfoBlock);
+                            } else {
+                                InventoryController.EquipItem((Equipment) inventoryBlock.GetItem(),
+                                InventoryController.getPlace(inventoryBlock.GetItem()));
+                            }
+                }
+                case 1 -> InventoryController.DropItem(inventoryBlock.GetItem());
+                case 2 -> InventoryBlock.Selected = "Back";
+            }
+        };
+
         Draw.call(this);
 
         while(!Selected.equals("Back")){
@@ -183,7 +207,7 @@ public class InventoryMenu implements IViewBlock {
             catch (NullPointerException ignored){
             }
             int shiftPlusN = 1;
-            contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, shiftPlusN, invContextActions);
+            contextOffset = Cursor.Moving(key.getKeyType(), InventoryContainer, 2, Options.length, PosY, shiftPlusN, action);
 
             InventoryContainer.setIndexcontext(contextOffset);
 
@@ -241,15 +265,13 @@ public class InventoryMenu implements IViewBlock {
         char InvLDorner = GameResources.GetModel("InvLDorner");
         char InvRDorner = GameResources.GetModel("InvRDorner");
 
-
-
         InventoryGraphics.setBackgroundColor(Colors.GetTextColor(Colors.B_GREYSCALE_233,"\u001b[48;5;"));
 
         InventoryGraphics.fillRectangle(topInventoryLeft, InventorySize.withRelative(0,0), MapEditor.EmptyCell);
 
         InventoryGraphics.drawRectangle(topInventoryLeft.withRelative(-1,-2),
                 InventoryBordersSize
-                , Symbols.BLOCK_MIDDLE);
+                , '█');
 
         InventoryGraphics.putCSIStyledString(topInventoryLeft.getColumn(), topInventoryLeft.getRow()-2,
                 Colors.WHITE_BRIGHT +"Inventory");
@@ -306,9 +328,7 @@ public class InventoryMenu implements IViewBlock {
         StringBuilder info = new StringBuilder();
 
         if(item != null) {
-
-            if(item.getClass() == Equipment.class)
-                info.append(GameResources.MaterialColor.get(((Equipment) item).Material));
+            info.append(item.getMaterialColor());
 
             info.append(item._model).append(' ')
                     .append(item.name);
@@ -333,6 +353,8 @@ public class InventoryMenu implements IViewBlock {
 
             else if (item instanceof Armor)
                 info.append("DEF: ").append(Colors.VIOLET).append(((Armor) item).GetStats());
+            else if (item instanceof Potion)
+                info.append("PTS:+").append(item.getMaterialColor()).append((((Potion) item).GetPotionPointsEffect()));
 
             TerminalView.DrawBlockInTerminal(InventoryGraphics, info.toString(), topInventoryLeft.getColumn()+12,
                     topInventoryLeft.getRow()+1);
@@ -343,6 +365,9 @@ public class InventoryMenu implements IViewBlock {
         int offset = 1;
         if (!ContextMenuHide) {
             for (String opt : Options) {
+                if(CheckUsable()) {
+                    opt = opt.replace("Equip", "Use");
+                }
                 InventoryGraphics.putCSIStyledString(topInventoryLeft.withRelative(offset, PosY),
                         opt);
                 offset += opt.length() + 2;
@@ -357,7 +382,11 @@ public class InventoryMenu implements IViewBlock {
         return null;
     }
 
-    public void ResetIndex(){
+    private boolean CheckUsable(){
+       return Arrays.stream(GetItem().getClass().getInterfaces()).anyMatch(aClass -> aClass == Usable.class);
+    }
+
+    private void ResetIndex(){
         IndexOffset = 0;
         Offset = PosX;
     }

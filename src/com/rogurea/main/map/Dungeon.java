@@ -1,11 +1,12 @@
 package com.rogurea.main.map;
-import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 
 import java.util.*;
 
+import static com.rogurea.Main.NewGame;
 import static com.rogurea.Main.gameLoop;
 import static com.rogurea.main.player.Player.PlayerModel;
 
@@ -25,15 +26,15 @@ public class Dungeon {
 
     public static ArrayList<Room> Rooms = new ArrayList<>();
 
-    public static ArrayList<Mob> CurrentRoomCreatures = new ArrayList<>();
-
     public static char[][] CurrentRoom = new char[Height][Widght];
 
     public static void Generate() {
 
         BaseGenerate.GenerateDungeon(DungeonLenght);
-        BaseGenerate.GenerateRoom(Objects.requireNonNull(BaseGenerate.GetRoom(Direction.FIRST)));
-        BaseGenerate.PutPlayerInDungeon((byte) (CurrentRoom[0].length/2), (byte) 1, Dungeon.CurrentRoom);
+        if(NewGame) {
+            BaseGenerate.GenerateRoom(Objects.requireNonNull(BaseGenerate.GetRoom(Direction.FIRST)));
+            BaseGenerate.PutPlayerInDungeon((byte) (CurrentRoom[0].length / 2), (byte) 1, Dungeon.CurrentRoom);
+        }
     }
     public static void ChangeRoom(Room room) {
 
@@ -42,6 +43,7 @@ public class Dungeon {
                 BaseGenerate.GenerateRoom(
                         Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
             } catch (NullPointerException e) {
+                Debug.log(e.getMessage());
                 e.getStackTrace();
                 MapEditor.setIntoCell(PlayerModel, 1, 1);
             } finally {
@@ -53,7 +55,6 @@ public class Dungeon {
 
             Player.CurrentRoom = room.NumberOfRoom;
             Dungeon.CurrentRoom = room.RoomStructure;
-            Dungeon.CurrentRoomCreatures = room.RoomCreatures;
             BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), (byte) 1,
                     room.RoomStructure);
         }
