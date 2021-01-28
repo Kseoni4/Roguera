@@ -3,77 +3,95 @@ package com.rogurea.main;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
+import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
+import com.rogurea.main.gamelogic.rgs.Events;
 import com.rogurea.main.map.Dungeon;
-import com.rogurea.main.map.Room;
-import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.KeyController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.player.PlayerMoveController;
 import com.rogurea.main.resources.Colors;
-import com.rogurea.main.view.LogBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
-import static com.rogurea.main.player.Player.CurrentRoom;
-import static com.rogurea.main.player.Player.PlayerModel;
+import static com.rogurea.main.view.ViewObjects.*;
 import static java.lang.Thread.sleep;
 
 public class GameLoop {
 
-    public static Thread drawcall = new Thread(new TerminalView(), "drawcall");
+    private ReentrantLock lock = new ReentrantLock();
 
-    public static ArrayList<Thread> ActiveThreads = new ArrayList<>();
+    public final ArrayList<Thread> ActiveThreads = new ArrayList<>();
 
-    private static void RestartThread(){
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
-        for (Thread t : ActiveThreads){
-                t.interrupt();
-                try {
-                    t.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    public boolean isGameOver = false;
+
+    public void RestartThread(){
+
+        if(ActiveThreads.size() > 0) {
+            Debug.log("THREADS: " + ActiveThreads.size() + " Active threads, shutting down");
+            executorService.shutdownNow();
+            try{
+                Debug.log("THREADS: Awaiting Termination...");
+                executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
+            }catch (InterruptedException e){
+                Debug.log(e.getMessage());
+                e.getStackTrace();
+            }
+
+            try {
+                sleep(300);
+            } catch (InterruptedException e) {
+                Debug.log(e.getMessage());
+                e.printStackTrace();
+            }
+
+            ActiveThreads.removeIf(
+                    thread -> !thread.isAlive()
+            );
+            if(!ActiveThreads.isEmpty()) {
+                ActiveThreads.removeAll(ActiveThreads);
+            }
         }
-
-        try {
-            sleep(300);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        ActiveThreads.removeIf(
-                thread -> !thread.isAlive()
-        );
-
-        for(Mob mob : Dungeon.CurrentRoomCreatures){
-            ActiveThreads.add(new Thread(new MobController(mob), "mobcontroller for mob " + mob.Name));
-        }
-
-        ActiveThreads.forEach(Thread::start);
+        StartThreads();
     }
 
-    public static void Start(){
+    private void StartThreads(){
+        Debug.log("THREADS: Starting mob threads");
+        executorService = Executors.newCachedThreadPool();
+        int i = 0;
+        for (Mob mob : Dungeon.GetCurrentRoom().RoomCreatures) {
+            Debug.log("THREADS: Starting mob controller thread for mob " + mob.Name);
+            ActiveThreads.add(new Thread(new MobController(mob), "mobcontroller for mob " + mob.Name));
+            executorService.submit(ActiveThreads.get(i));
+            i++;
+        }
+    }
+
+    public void Start(){
         try{
-            TerminalView.InitTerminal();
             InLoop();
-
         } catch (IOException e) {
-
+            Debug.log(e.getMessage());
             e.printStackTrace();
 
         } finally {
             if (TerminalView.terminal != null) {
                 try {
+                    executorService.shutdownNow();
                     for(Thread t : ActiveThreads){
-                        t.interrupt();
                         t.join();
                     }
-                    drawcall.interrupt();
                     TerminalView.terminal.close();
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
@@ -82,96 +100,67 @@ public class GameLoop {
         }
     }
 
-    private static void InLoop() throws IOException {
+    private void InLoop() throws IOException {
 
-        drawcall.start();
+        Debug.log("SYSTEM: Starting game loop");
 
-        while (TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
+        Debug.log("RANDOM SEED: " + new BigInteger(Player.RandomSeed));
 
-            Player.AutoEquip();
+        while (TerminalView.keyStroke == null || (TerminalView.keyStroke.getKeyType() != KeyType.Escape && !isGameOver)) {
 
-            if(Player.HP <= 0){
-                GameEndByDead();
-                break;
-            }
+            if(Player.XP >= Player.ReqXPForNextLevel)
+                Events.getNewLevel();
 
             TerminalView.keyStroke = TerminalView.terminal.readInput();
 
-            if (TerminalView.keyStroke.getKeyType() == KeyType.Character) {
-                KeyController.GetKey(TerminalView.keyStroke.getCharacter());
+            if(Player.HP <= 0) {
+                break;
             }
 
-            PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
+            if (TerminalView.keyStroke != null) {
 
-            Scans.CheckSee(MapEditor.getFromCell(Player.Pos.y+1, Player.Pos.x));
+                if (TerminalView.keyStroke.getKeyType() == KeyType.Character) {
+                    KeyController.GetKey(TerminalView.keyStroke.getCharacter());
+                }
+
+                PlayerMoveController.MovePlayer(TerminalView.keyStroke.getKeyType());
+
+                Scans.CheckSee((Player.GetPlayerPosition().getRelative(0,1)));
+            }
+        }
+
+        MapEditor.clearCell(Player.GetPlayerPosition());
+
+        SavingSystem.saveGame();
+
+        Debug.log("Ending game loop");
+    }
+
+    public void GameEndByDead(){
+        if(!lock.isLocked() && !isGameOver){
+            lock.lock();
+
+            logBlock.Action(Colors.RED_BRIGHT + "are dead. GameOver.");
+
+            logBlock.Event("Press any key to exit");
+
+            isGameOver = !isGameOver;
+
+            Player.playerStatistics.PlayerDead += 1;
+
+            lock.unlock();
         }
     }
 
-    private static void GameEndByDead(){
-        LogBlock.Action(Colors.RED_BRIGHT + "are dead. GameOver.");
-        LogBlock.Event("Press any key to exit");
-        try {
-            TerminalView.terminal.readInput();
-            /*RestartGame();*/
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private static void RestartGame() throws IOException {
+    private void RestartGame() throws IOException {
         TerminalView.terminal.flush();
+
         Dungeon.Rooms = new ArrayList<>();
-        Dungeon.CurrentRoomCreatures = new ArrayList<>();
+
         Player.PlayerReset();
-        RestartThread();
-        try {
-            Dungeon.Generate();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void RegenRoom() {
 
         RestartThread();
 
-        System.out.flush();
-        BaseGenerate.GenerateRoom(Objects.requireNonNull(Dungeon.Rooms.stream().filter(
-                room -> room.NumberOfRoom == CurrentRoom
-        ).findAny().orElse(null)));
-        BaseGenerate.PutPlayerInDungeon(Dungeon.CurrentRoom[0].length/2,1, Dungeon.CurrentRoom);
-
-    }
-
-    public static void ChangeRoom(Room room){
-
-        if(!room.IsRoomStructureGenerate){
-            try {
-                BaseGenerate.GenerateRoom(
-                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
-            }
-            catch (NullPointerException e){
-                e.getStackTrace();
-                MapEditor.setIntoCell(PlayerModel, 1,1);
-            }
-            finally {
-                BaseGenerate.PutPlayerInDungeon(
-                        BaseGenerate.GetCenterOfRoom(room), 1,
-                        Dungeon.CurrentRoom);
-            }
-        }
-        else{
-            Player.CurrentRoom = room.NumberOfRoom;
-            Dungeon.CurrentRoom = room.RoomStructure;
-            Dungeon.CurrentRoomCreatures = room.RoomCreatures;
-            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), 1,
-                    room.RoomStructure);
-        }
-
-        RestartThread();
-
-        TerminalView.ResetPositions();
+        Dungeon.Generate();
     }
 }

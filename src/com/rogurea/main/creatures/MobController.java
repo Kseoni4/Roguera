@@ -1,5 +1,6 @@
 package com.rogurea.main.creatures;
 
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Item;
@@ -9,29 +10,36 @@ import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameVariables;
+import com.rogurea.main.view.Draw;
 
 import java.util.Objects;
 import java.util.Random;
+
+import static com.rogurea.Main.gameLoop;
+import static com.rogurea.main.view.ViewObjects.gameMapBlock;
+import static com.rogurea.main.view.ViewObjects.logBlock;
 
 public class MobController extends Thread {
 
     public MobController(Mob mob){
         this.mob = mob;
     }
+
     public final Mob mob;
 
-    private static final int DropRight = 1;
+    private final byte DropRight = 1;
 
-    private static final int DropLeft = -1;
+    private final byte DropLeft = -1;
 
-    private static final int DropUp = -1;
+    private final byte DropUp = -1;
 
-    private static final int DropDown = 1;
+    private final byte DropDown = 1;
 
-    private static final int[] DropPos = {DropLeft, DropRight, DropUp, DropDown};
+    private final byte[] DropPos = {DropLeft, DropRight, DropUp, DropDown};
 
     public void run(){
         BehaviorLoop();
+        Debug.log("THREAD: Ending thread for " + mob.Name + "(" + mob.id + ")");
         System.out.println("Ending thread for " + mob.Name + "(" + mob.id + ")");
     }
 
@@ -41,32 +49,37 @@ public class MobController extends Thread {
 
             mob.getMobBehavior().SetBehaviorAction();
 
-            mob.setHP(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
-                    mob1 -> mob1.id == mob.id
-            ).findAny().orElse(null).getHP());
-
+            if(isInterrupted()) {
+                Debug.log("MOB: " + mob.Name + " controller is interrupted");
+                break;
+            }
             try {
                 sleep(mob.MobSpeed);
             } catch (InterruptedException e) {
+                Debug.log("MOB: " + mob.Name + " controller is interrupted from sleep");
                 break;
             }
 
-            if(isInterrupted())
-                break;
-
             if(mob.getHP() <= 0) {
-
                 mob.SetMobBehavior(Mob.Behavior.DEAD);
 
                 mob.getMobBehavior().SetBehaviorAction();
+                Debug.log("MOB: " + mob.Name + " is dead");
             }
 
             if(Player.HP <= 0) {
+                gameLoop.GameEndByDead();
                 break;
             }
 
             CheckBehaviorState();
         }
+    }
+
+    private Mob GetCurrentMobFromRoom(){
+        return Objects.requireNonNull(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
+                mob1 -> mob1.id == mob.id
+        ).findAny().orElse(null));
     }
 
     private void CheckBehaviorState() {
@@ -87,6 +100,7 @@ public class MobController extends Thread {
             }
             case "DEAD" -> {
                 DropLoot();
+                GiveXPToPlayer();
                 RemoveMob();
             }
         }
@@ -96,8 +110,8 @@ public class MobController extends Thread {
         if(!isInterrupted())
             return ScanZone();
         else{
+            Debug.log("MOB: " + mob.Name + " controller is interrupted from scan");
             System.out.println(Colors.RED_BRIGHT + "Interrupted");
-            interrupt();
             return false;
         }
     }
@@ -110,6 +124,7 @@ public class MobController extends Thread {
 
         for(int Zone = 1; Zone <= mob.ScanZone; Zone++) {
             try{
+
                 if (mob.ScanForPlayer(MapEditor.getFromCell(y+Zone, x))){
                     mob.Destination.setPosition(y+Zone, x);
                     return true;
@@ -128,9 +143,10 @@ public class MobController extends Thread {
                 }
             }
             catch (ArrayIndexOutOfBoundsException e){
-                return false;
+                continue;
             }
-            if(currentThread().isInterrupted()){
+            if(isInterrupted()){
+                Debug.log("MOB: " + mob.Name + " controller is interrupted from scan zone");
                 System.out.println(Colors.RED_BRIGHT + "Interrupted");
                 break;
             }
@@ -142,20 +158,15 @@ public class MobController extends Thread {
 
         Position NewPos = mob.Destination;
 
-        char cell;
+        int y_s = mob.getMobPosY()+SearchPathShift(mob.getMobPosY(), NewPos.y);
 
-        int y_s;
+        int x_s = mob.getMobPosX()+SearchPathShift(mob.getMobPosX(), NewPos.x);
 
-        int x_s;
-
-        y_s = mob.getMobPosY()+SearchPathShift(mob.getMobPosY(), NewPos.y);
-
-        x_s = mob.getMobPosX()+SearchPathShift(mob.getMobPosX(), NewPos.x);
-
-        cell = MapEditor.getFromCell(y_s, x_s);
+        char cell = MapEditor.getFromCell(y_s, x_s);
 
         if(isInterrupted()){
-            System.out.println(Colors.RED_BRIGHT + "Interrupted");
+            System.out.println(Colors.RED_BRIGHT + getName() + " " + "Interrupted");
+            Debug.log("MOB: " + mob.Name + " controller is interrupted from move");
             return false;
         }
 
@@ -167,9 +178,9 @@ public class MobController extends Thread {
 
             mob.setMobPosition(y_s, x_s);
 
-            Objects.requireNonNull(Dungeon.GetCurrentRoom().RoomCreatures.stream().filter(
-                    mob1 -> mob1.id == mob.id
-            ).findAny().orElse(null)).setMobPosition(y_s, x_s);
+            GetCurrentMobFromRoom().setMobPosition(y_s, x_s);
+
+            Draw.call(gameMapBlock);
         }
         return false;
     }
@@ -179,7 +190,7 @@ public class MobController extends Thread {
     }
 
     private void MoveMobInPosition(Position mobpos, int y_s, int x_s){
-        MapEditor.setIntoCell('.', mobpos.y, mobpos.x);
+        MapEditor.clearCell(mobpos);
 
         MapEditor.setIntoCell(mob.MobSymbol, y_s, x_s);
     }
@@ -189,7 +200,9 @@ public class MobController extends Thread {
 
             mob.MobSpeed = GameVariables.FightSpeed;
 
-            Fight.HitPlayer(mob);
+            Fight.HitPlayerByMob(mob);
+
+            mob.setHP(GetCurrentMobFromRoom().getHP());
 
             return false;
         }
@@ -198,48 +211,57 @@ public class MobController extends Thread {
         return true;
     }
 
+    void GiveXPToPlayer(){
+        Player.XP += mob.GainXP;
+        logBlock.Action("get " + Colors.ORANGE + mob.GainXP + Colors.R + " XP!");
+    }
+
     void RemoveMob(){
+
+        Player.playerStatistics.MobKilled += 1;
 
         MapEditor.clearCell(mob.HisPosition);
 
-        Dungeon.CurrentRoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
+        logBlock.Action("kill the " + mob.Name);
 
-        Objects.requireNonNull(Dungeon.Rooms
-                .stream().filter(
-                        room -> room.NumberOfRoom == Player.CurrentRoom
-                )
-                .findAny()
-                .orElse(null))
-                .RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
+        Dungeon.GetCurrentRoom().RoomCreatures.removeIf(mob1 -> mob1.getMobBehavior().currentState.equals("DEAD"));
+
+        Draw.call(gameMapBlock);
     }
 
     void DropLoot(){
 
         Random rnd = new Random();
 
-        for(Item item : mob.Loot){
-            Position lootdrop = new Position();
-            Dungeon.GetCurrentRoom().RoomItems.add(item);
+        Position LootDropPosition = new Position();
 
-            lootdrop.setPosition(
+        for(Item item : mob.Loot){
+
+            LootDropPosition.setPosition(
                     mob.HisPosition.y+(DropPos[rnd.nextInt(4)]),
                     mob.HisPosition.x+(DropPos[rnd.nextInt(4)])
             );
 
             int b = 0;
 
-            while(MapEditor.getFromCell(lootdrop) != ' '){
-                lootdrop.setPosition(
+            while(MapEditor.getFromCell(LootDropPosition) != ' '){
+                LootDropPosition.setPosition(
                         Math.max(mob.HisPosition.y+(DropPos[rnd.nextInt(4)]),0),
                         Math.max(mob.HisPosition.x+(DropPos[rnd.nextInt(4)]),0)
                 );
-                if(b > 10){
+                if(b > 15){
                     break;
                 }
                 b++;
             }
-            MapEditor.setIntoCell(item._model, lootdrop);
 
+            item.ItemPosition = new Position(LootDropPosition);
+
+            Dungeon.GetCurrentRoom().RoomItems.add(item);
+
+            Debug.log("FIGHT: Mob" + mob.Name + " drop " + item.name + " Pos: " + LootDropPosition.toString());
+
+            MapEditor.setIntoCell(item._model, LootDropPosition);
         }
     }
 }

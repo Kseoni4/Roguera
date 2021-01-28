@@ -2,24 +2,28 @@ package com.rogurea.main.map;
 
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobFactory;
+import com.rogurea.main.creatures.NPC;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.ItemGenerate;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Room {
-    public int NumberOfRoom;
+public class Room implements Serializable {
+    public byte NumberOfRoom;
 
-    public int X = 1;
+    public byte X = 1;
 
-    public int Y = 1;
+    public byte Y = 1;
 
-    public BaseGenerate.RoomSize roomSize;
+    public transient BaseGenerate.RoomSize roomSize;
 
     public boolean IsEndRoom = false;
 
     public ArrayList<Mob> RoomCreatures;
+
+    public NPC RoomNPC;
 
     public ArrayList<Item> RoomItems;
 
@@ -27,25 +31,22 @@ public class Room {
 
     public boolean IsRoomStructureGenerate = false;
 
-    public Room nextRoom;
+    public transient Room nextRoom;
 
-//    public DungeonShop dungeonShop;
+    public Shop dungeonShop;
 
-    public Room(int RoomCounter, int x, int y){
+    public Room(byte RoomCounter, byte x, byte y, BaseGenerate.RoomSize roomSize){
+        this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);
     }
 
-//    public R_Room(int RoomCounter, DungeonShop DS){
-//        NumberOfRoom = RoomCounter;
-//        this.dungeonShop = DS;
-//    }
-
-    public Room(int RoomCounter, boolean IsEndRoom, int x, int y){
+    public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y, BaseGenerate.RoomSize roomSize){
         this.IsEndRoom = IsEndRoom;
+        this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);
     }
 
-    private void MakeRoom(int RoomCounter, int x, int y){
+    private void MakeRoom(byte RoomCounter, byte x, byte y){
         this.NumberOfRoom = RoomCounter;
 
         this.X = x;
@@ -53,13 +54,19 @@ public class Room {
         this.Y = y;
 
         if(RoomCounter > 1)
-            RoomCreatures = MobFactory.getMobs();
-        else
+            RoomCreatures = MobFactory.getMobs(this);
+        else {
             RoomCreatures = new ArrayList<>(0);
+        }
+
+        if(IsEndRoom){
+            dungeonShop = new Shop(new Position(1,2));
+            RoomNPC = dungeonShop.shopOwner;
+        }
 
         RoomStructure = new char[y][x];
 
-        RoomItems = ItemGenerate.PutItemsIntoRoom();
+        RoomItems = new ArrayList<>();
     }
 
     public Mob getMobFromRoom(Position pos){

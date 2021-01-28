@@ -1,21 +1,33 @@
 package com.rogurea.main.resources;
 
+import com.rogurea.main.items.Armor;
+import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.Weapon;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class GetRandom {
 
-    public static Random rnd = new Random();
+    public static SecureRandom RNGenerator = new SecureRandom();
+
+    public static void SetRNGSeed(byte[] seed){
+        RNGenerator.setSeed(seed);
+    }
 
     public static char WeaponModel(String type){
+
         if(type.equals("MELEE")){
-            return GameResources.MeleeAtlas[rnd.nextInt(GameResources.MeleeAtlas.length)];
+            return GameResources.MeleeAtlas[RNGenerator.nextInt(GameResources.MeleeAtlas.length)];
         }
         else if (type.equals("RANGE")){
-            return GameResources.RangeAtlas[rnd.nextInt(GameResources.RangeAtlas.length)];
+            return GameResources.RangeAtlas[RNGenerator.nextInt(GameResources.RangeAtlas.length)];
         }
         return '?';
+    }
+
+    public static String ArmorName(String mat){
+
+        return mat + " " + "chest";
     }
 
     public static String WeaponName(String type){
@@ -24,15 +36,15 @@ public class GetRandom {
 
         switch (type){
             case "MELEE" -> {
-                return name.append(GetLenght())
+                return name.append(Lenght())
                         .append(" ")
-                        .append(GetMaterial())
+                        .append("%mat%")
                         .append(" ")
-                        .append("sword").toString();
+                        .append("%name%").toString();
             }
             case "RANGE" -> {
                 return name
-                        .append(GetMaterial())
+                        .append("%mat%")
                         .append(" ")
                         .append("bow").toString();
             }
@@ -41,16 +53,30 @@ public class GetRandom {
         return "";
     }
 
-    private static String GetLenght(){
-        return GameResources.SwordLenght[rnd.nextInt(GameResources.SwordLenght.length)];
+    private static String Lenght(){
+        return GameResources.SwordLenght[RNGenerator.nextInt(GameResources.SwordLenght.length)];
     }
 
-    private static String GetMaterial(){
-        return GameResources.MaterialName[rnd.nextInt(GameResources.MaterialName.length)];
+    public static String Material(Equipment equipment){
+        if(equipment.getClass().equals(Weapon.class)){
+            return WeaponMaterial();
+        }
+        else if(equipment.getClass().equals(Armor.class)){
+            return ArmorMaterial();
+        }
+        return "";
+    }
+
+    public static String WeaponMaterial(){
+        return GameResources.MaterialName[RNGenerator.nextInt(GameResources.MaterialName.length)];
+    }
+
+    public static String ArmorMaterial(){
+        return GameResources.ArmorMaterialName[RNGenerator.nextInt(GameResources.ArmorMaterialName.length)];
     }
 
     public static String HitLog(int dmg){
-        String s = GameResources.HitsMessages[rnd.nextInt(GameResources.HitsMessages.length)];
+        String s = GameResources.HitsMessages[RNGenerator.nextInt(GameResources.HitsMessages.length)];
         s = s.replace("%dmg%", Colors.RED_BRIGHT+dmg+" damage!");
         return s;
     }

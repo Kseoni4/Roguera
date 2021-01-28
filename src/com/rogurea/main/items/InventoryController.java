@@ -2,10 +2,12 @@ package com.rogurea.main.items;
 
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
-import com.rogurea.main.view.InventoryMenu;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.view.Draw;
+
+import static com.rogurea.main.view.ViewObjects.*;
 
 public class InventoryController {
 
@@ -22,18 +24,22 @@ public class InventoryController {
     public static void DropItem(Item dropingItem){
 
         if (Scans.CheckItems(Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x])) {
-            LogBlock.Event("There already lying something ");
+            logBlock.Event("There already lying something ");
             return;
         }
 
         Player.GetFromInventory(item -> dropingItem.id == item.id);
 
+        dropingItem.ItemPosition.setPosition(Player.Pos.y+1, Player.Pos.x);
+
+        MapEditor.setIntoCell(dropingItem._model, Player.GetPlayerPosition().getRelative(0,1));
+
         Dungeon.GetCurrentRoom().RoomItems.add(dropingItem);
 
-        Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x] = dropingItem._model;
+        Draw.call(gameMapBlock);
     }
 
-    public static void EquipItem(Item equipingItem, String place){
+    public static void EquipItem(Equipment equipingItem, String place){
 
         if(Player.Equip.get(place) != null){
             SwitchItems(equipingItem, place);
@@ -43,18 +49,23 @@ public class InventoryController {
 
         Player.Equip.put(place, equipingItem);
 
-        LogBlock.Action("equip the " + Colors.ORANGE + equipingItem.name);
+        logBlock.Action("equip the " + Colors.ORANGE + equipingItem.name);
+
+        Draw.call(playerInfoBlock);
     }
 
-    private static void SwitchItems(Item item, String place){
+    public static void UseItem(Usable usableItem){
+        usableItem.use();
+    }
 
-        Item currentItem = Player.Equip.get(place);
+    private static void SwitchItems(Equipment item , String place){
+
+        Equipment currentEquip = Player.Equip.get(place);
 
         Player.Equip.remove(place);
 
-        Player.Inventory.add(currentItem);
+        Player.Inventory.add(currentEquip);
 
         Player.Equip.put(place, item);
     }
-
 }

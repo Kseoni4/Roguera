@@ -1,24 +1,31 @@
 package com.rogurea.main.creatures;
 
+import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.gamelogic.rgs.Formula;
+import com.rogurea.main.items.Gold;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameVariables;
 
 public class Mob extends Creature {
 
-    private int Armor;
+    private final short DEFm;
 
-    private final int Damage;
+    private final short ATKm;
 
-    public final int ScanZone = 5;
+    public short MobLevel;
 
-    public char MobSymbol;
+    public final byte ScanZone = 5;
 
-    public Position Destination = new Position();
+    public final char MobSymbol;
 
-    public Position HisPosition = new Position();
+    public final short GainXP;
 
-    public int MobSpeed = GameVariables.Fast;
+    public final Position Destination = new Position();
+
+    public final Position HisPosition = new Position();
+
+    public short MobSpeed = GameVariables.Fast;
 
     public enum Behavior {
         IDLE {
@@ -28,52 +35,52 @@ public class Mob extends Creature {
         },
         CHASE {
             public void SetBehaviorAction(){
-                System.out.println("CHASE");
                 currentState = "CHASE";
             }
         },
         FIGHT {
             public void SetBehaviorAction(){
-                System.out.println("FIGHT");
                 currentState = "FIGHT";
             }
         },
         DEAD {
             public void SetBehaviorAction(){
-                System.out.println("DEAD");
                 currentState = "DEAD";
             }
         };
         public String currentState = "IDLE";
 
-        public int id = 0;
+        public short id = 0;
 
         public abstract void SetBehaviorAction();
     }
 
     private Behavior mobBehavior;
 
-    public Mob(String name, char mobSymbol, int HP) {
+    public Mob(String name, char mobSymbol, String _name, int roomnum) {
         super(name);
         this.MobSymbol = mobSymbol;
-        setHP(HP);
-        setCreatureType(CreatureType.MOB);
-        this.Damage = MobFactory.GetDamage();
+        this.MobLevel = (short) Formula.GetLvlForMob(roomnum);
+        this.GainXP = (short) Formula.GetXPForMob(_name, this.MobLevel);
+        this.ATKm = (short) Formula.GetATKForMob(_name, this.MobLevel, roomnum);
+        this.DEFm = (short) Formula.GetDEFForMob(_name, this.MobLevel, roomnum);
         this.Loot = MobFactory.GetLoot();
         this.mobBehavior = Behavior.IDLE;
         this.mobBehavior.id = super.id;
+        setHP((short) Formula.GetHPForMob(MobLevel));
+        setCreatureType(CreatureType.MOB);
     }
 
     public void setMobPosition(int y, int x){
         this.HisPosition.setPosition(y,x);
     }
 
-    public int getMobPosX() {
-        return HisPosition.x;
+    public byte getMobPosX() {
+        return (byte) HisPosition.x;
     }
 
-    public int getMobPosY() {
-        return HisPosition.y;
+    public byte getMobPosY() {
+        return (byte) HisPosition.y;
     }
 
     public boolean ScanForPlayer(char c){
@@ -88,23 +95,37 @@ public class Mob extends Creature {
        this.mobBehavior = mb;
     }
 
-    public void SetBehaviorId(int id){
-        this.mobBehavior.id = id;
-    }
-
     @Override
     public char getCreatureSymbol() {
         return this.MobSymbol;
     }
 
     @Override
-    public int getDamage() {
-        return this.Damage;
+    public short getATKm() {
+        return this.ATKm;
     }
 
     @Override
-    public int getArmor() {
-        return this.Armor;
+    public short getDEFm() {
+        return this.DEFm;
+    }
+
+    public void GetAllInfo(){
+
+        StringBuilder MobInfo = new StringBuilder();
+        MobInfo.append("Mob name: ").append(this.Name).append('\n')
+                .append("HP: ").append(getHP()).append('\n')
+                .append("ATK: ").append(this.ATKm).append('\n')
+                .append("DEF: ").append(this.DEFm).append('\n')
+                .append("Mob level: ").append(this.MobLevel).append('\n')
+                .append("Have gold: ").append(
+                        ((Gold) this.Loot.stream()
+                                .filter(item -> item instanceof Gold)
+                                .findAny().get())
+                                .Amount)
+                .append('\n');
+
+        Debug.log(MobInfo.toString());
     }
 }
 

@@ -1,8 +1,11 @@
 package com.rogurea.main.player;
 
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.main.GameLoop;
 import com.rogurea.main.gamelogic.Fight;
+import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
@@ -11,11 +14,19 @@ import com.rogurea.main.map.Position;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.TerminalView;
+import com.rogurea.main.view.UI.Menu.ExitDungeonMenu;
 
+import java.io.IOException;
 import java.util.Objects;
 
+import static com.rogurea.main.view.ViewObjects.*;
+
 public class PlayerMoveController {
+
+    private static final Position pos = new Position();
 
     public static void MovePlayer(KeyType key) {
         switch (key) {
@@ -25,31 +36,32 @@ public class PlayerMoveController {
             case ArrowRight -> Move(Player.Pos.y, Player.Pos.x + 1);
         }
     }
-    public static void Move(int y, int x){
+    public static void Move(int NewY, int NewX){
 
-        char cell = MapEditor.getFromCell(y,x);
+        char cell = MapEditor.getFromCell(NewY,NewX);
 
-        Position pos = new Position();
-
-        pos.setPosition(y,x);
+        pos.setPosition(NewY,NewX);
 
         if(!Scans.CheckWall(cell)
-/*
-         || Scans.CheckCreature(cell)
-*/
-        || Scans.CheckProps(cell)){
+        /*|| Scans.CheckProps(cell)*/){
             return;
         }
 
-        if(Scans.CheckExit(cell)){
+        if(Scans.CheckRoomExit(cell)){
+
+            try {
+                SavingSystem.saveGame();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
-            GameLoop.ChangeRoom(
+            Dungeon.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
             );
 
-            LogBlock.Action("enter the room");
+            logBlock.Action("enter the room");
             return;
         }
 
@@ -59,63 +71,56 @@ public class PlayerMoveController {
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
-            GameLoop.ChangeRoom(
+            Dungeon.ChangeRoom(
                     Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.BACK))
             );
             return;
         }
 
+        if(Scans.CheckDungeonExit(cell)){
+            ExitDungeonMenu exitDungeonMenu = new ExitDungeonMenu();
+            exitDungeonMenu.Init();
+            exitDungeonMenu.show();
+            return;
+        }
+
         if(Scans.CheckItems(cell)){
-            if(Player.Inventory.size() >= 10){
-                LogBlock.Event("Your inventory is full!");
+            if(Player.Inventory.size() >= 10 && cell != GameResources.Gold) {
+                logBlock.Event("Your inventory is full!");
                 return;
             }
+            Room rm = Dungeon.GetCurrentRoom();
 
-            Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
+            Item ItemForTake = rm.RoomItems.stream()
                     .filter(
-                            room -> room.NumberOfRoom == Player.CurrentRoom
-                    )
-                    .findAny()
-                    .orElse(null));
-
-            Item wp = rm.RoomItems.stream()
-                    .filter(
-                            item -> item._model == cell
+                            item -> item.ItemPosition.equals(pos)
                     )
                     .findFirst().orElse(null);
 
-            rm.RoomItems.remove(wp);
+            Dungeon.GetCurrentRoom().RoomItems.remove(ItemForTake);
 
-            Player.PutInInventory(wp);
-        }
-
-        if(cell == '$'){
-
-            Room rm = Objects.requireNonNull(Dungeon.Rooms.stream()
-                    .filter(
-                            room -> room.NumberOfRoom == Player.CurrentRoom
-                    )
-                    .findAny()
-                    .orElse(null));
-
-            Gold gold = ((Gold) rm.RoomItems.stream()
-                    .filter(
-                            item -> item._model == cell
-                    ).findFirst().orElse(null));
-
-            rm.RoomItems.remove(gold);
-
-            Player.GetGold(gold);
+            if(ItemForTake instanceof Gold){
+                Player.GetGold((Gold) ItemForTake);
+            }else{
+                Player.PutInInventory(ItemForTake);
+            }
         }
 
         if(Scans.CheckCreature(cell)){
-            System.out.println(pos.y + " " + pos.x);
-            Fight.HitMob(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
+            Fight.HitMobByPlayer(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
             return;
         }
+
+        if(Scans.CheckNPC(pos)){
+            Dungeon.GetCurrentRoom().RoomNPC.NPCAction.run();
+            return;
+        }
+
         MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
-        MapEditor.setIntoCell(Player.PlayerModel, y, x);
-        Player.Pos.x = x;
-        Player.Pos.y = y;
+        MapEditor.setIntoCell(Player.PlayerModel, NewY, NewX);
+        Player.Pos.x = (byte) NewX;
+        Player.Pos.y = (byte) NewY;
+        Draw.call(gameMapBlock);
+        Draw.call(playerInfoBlock);
     }
 }

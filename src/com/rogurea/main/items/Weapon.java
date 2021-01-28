@@ -1,18 +1,11 @@
 package com.rogurea.main.items;
-
-import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
 
-public class Weapon extends Item {
-
-    private int _damage;
-
-    public int _minLevel = 1;
+public class Weapon extends Equipment {
 
     public enum _weapontype {
         MELLE{
-
             public char getModel(){
                 return GetRandom.WeaponModel("MELEE");
             }
@@ -23,22 +16,27 @@ public class Weapon extends Item {
             }
         };
         public abstract char getModel();
-
     }
 
-    public boolean IsWearable = true;
+    public int SpawnRoomNumber;
 
-    public Weapon(String name, int SellPrice, _weapontype weapontype) {
-        super(name, SellPrice, weapontype.getModel());
-        this._minLevel += Player.CurrentRoom;
-        this._damage = ItemGenerate.WeaponForge(this._minLevel);
+    public Weapon(String name, int SellPrice, _weapontype weapontype, int RoomNumber) {
+        super(name, SellPrice, weapontype.getModel(), RoomNumber);
+        super.name = PutName();
+        super.name = PutMaterialInName(this.Material);
+        this.SpawnRoomNumber = RoomNumber;
+        GameResources.AllWeapons.add(this);
     }
 
-    public int getDamage(){
-        return this._damage;
+    public String getMaterialColor(){
+        return GameResources.MaterialColor.get(this.Material);
     }
 
-    public boolean checkLevel(int plevel){
-        return plevel >= this._minLevel;
+    private String PutName(){
+       return super.name.replace("%name%", ItemGenerate.SetWeaponName(this._model));
+    }
+
+    private String PutMaterialInName(String material){
+        return super.name.replace("%mat%", material);
     }
 }

@@ -1,15 +1,20 @@
 package com.rogurea.main.items;
 
-public class Armor extends Item{
+import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GetRandom;
 
-    private int Defense;
+public class Armor extends Equipment{
 
-    public int getDefense(){
-        return this.Defense;
+    public int GetStats() {
+        return super.GetStats();
     }
 
-    public Armor(String name, int SellPrice, char model) {
-        super(name, SellPrice, model);
-        this.Defense = ItemGenerate.ArmorForge();
+    public String getMaterialColor() {
+        return GameResources.ArmorMaterialColor.get(this.Material);
+    }
+
+    public Armor(String name, int SellPrice, char model, int level) {
+        super(name, SellPrice, model, level);
+        super.name = GetRandom.ArmorName(this.Material);
     }
 }

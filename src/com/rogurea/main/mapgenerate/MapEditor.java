@@ -1,103 +1,104 @@
 package com.rogurea.main.mapgenerate;
 
-import com.googlecode.lanterna.Symbols;
 import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.gamelogic.Scans;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MapEditor {
+
+    static char VWall = GameResources.GetModel("Vwall");
+
+    static char HWall = GameResources.GetModel("Hwall");
+
+    static char RBCorner = GameResources.GetModel("RBCorner");
+
+    static char RTCorner = GameResources.GetModel("RTCorner");
+
+    static char LBCorner = GameResources.GetModel("LBCorner");
+
+    static char LTCorner = GameResources.GetModel("LTCorner");
+
 
     enum DrawDirection{
         UP {
             @Override
             public char getCell() {
-                return GameResources.VWall;
+                return VWall;
             }
 
             @Override
             public char getCorner(boolean IsReverse) {
-                return Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
+                return RBCorner;
             }
         },
         DOWN{
             @Override
             public char getCell() {
-                return GameResources.VWall;
+                return VWall;
             }
 
             @Override
             public char getCorner(boolean IsReverse) {
                 if(IsReverse)
-                    return Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
+                    return RTCorner;
                 else
-                    return Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+                    return LBCorner;
             }
         },
         LEFT{
             @Override
             public char getCell() {
-                return GameResources.HWall;
+                return HWall;
             }
 
             @Override
             public char getCorner(boolean IsReverse) {
                 if(IsReverse)
-                    return Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
+                    return RTCorner;
                 else
-                    return Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
+                    return LTCorner;
             }
         },
         RIGHT{
             @Override
             public char getCell() {
-                return GameResources.HWall;
+                return HWall;
             }
 
             @Override
             public char getCorner(boolean IsReverse) {
                 if(IsReverse)
-                    return Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+                    return LBCorner;
                 else
-                    return Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-            }
-        },
-        SAME{
-            @Override
-            public char getCell() {
-                return GenerateRules.previousDirection.getCell();
-            }
-
-            @Override
-            public char getCorner(boolean IsReverse) {
-                return GenerateRules.previousDirection.getCorner(IsReverse);
+                    return RTCorner;
             }
         };
         public abstract char getCell();
         public abstract char getCorner(boolean IsReverse);
     }
 
-    public static char EmptyCell = GameResources.EmptyCell;
-
-    private static char[] LineBuffer;
+    public static final char EmptyCell = GameResources.EmptyCell;
 
     private static final Random rnd = new Random();
 
     public static char[] DrawLine(DrawDirection drawDirection, int Length){
 
-        LineBuffer = new char[Length];
+        char[] lineBuffer = new char[Length];
 
         for(int i = 0;i < Length; i++){
-            LineBuffer[i] = drawDirection.getCell();
+            lineBuffer[i] = drawDirection.getCell();
         }
-        return LineBuffer;
+        return lineBuffer;
     }
 
-    public static char[][] DrawSquare(int square){
+     public static char[][] DrawSquare(int square){
         char[][] squareBuffer = new char[square][square];
 
         int y = 0;
@@ -105,17 +106,17 @@ public class MapEditor {
 
         FillSpaceWithEmpty(squareBuffer);
 
-        DrawLine(DrawDirection.UP, square);
+        char[] lineBuffer = DrawLine(DrawDirection.UP, square);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             squareBuffer[y][0] = c;
             squareBuffer[y][square-1] = c;
             y++;
         }
 
-        DrawLine(DrawDirection.RIGHT, square);
+        lineBuffer = DrawLine(DrawDirection.RIGHT, square);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             squareBuffer[0][x] = c;
             squareBuffer[square-1][x] = c;
             x++;
@@ -133,17 +134,17 @@ public class MapEditor {
 
         FillSpaceWithEmpty(RectagnleBuffer);
 
-        DrawLine(DrawDirection.UP, h);
+        char[] lineBuffer = DrawLine(DrawDirection.UP, h);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             RectagnleBuffer[y][0] = c;
             RectagnleBuffer[y][w-1] = c;
             y++;
         }
 
-        DrawLine(DrawDirection.RIGHT, w);
+        lineBuffer = DrawLine(DrawDirection.RIGHT, w);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             RectagnleBuffer[0][x] = c;
             RectagnleBuffer[h-1][x] = c;
             x++;
@@ -155,17 +156,17 @@ public class MapEditor {
     }
 
     static void PlaceCorners(char[][] ShapeBuffer){
-        ShapeBuffer[0][0] = Symbols.DOUBLE_LINE_TOP_LEFT_CORNER;
-        ShapeBuffer[ShapeBuffer.length-1][ShapeBuffer[0].length-1] = Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER;
-        ShapeBuffer[0][ShapeBuffer[0].length-1] = Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER;
-        ShapeBuffer[ShapeBuffer.length-1][0] = Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER;
+        setIntoCell(ShapeBuffer, LTCorner, new Position(0,0));
+        setIntoCell(ShapeBuffer, RBCorner, new Position(ShapeBuffer[0].length-1,ShapeBuffer.length-1));
+        setIntoCell(ShapeBuffer, RTCorner, new Position(ShapeBuffer[0].length-1,0));
+        setIntoCell(ShapeBuffer, LBCorner, new Position(0,ShapeBuffer.length-1));
     }
 
     public static void FillSpaceWithEmpty(char[][] ShapeBuffer){
         for (int i = 0; i < ShapeBuffer.length; i++) {
             for (int j = 0; j < ShapeBuffer[0].length; j++) {
                 if(Scans.CheckWall(ShapeBuffer[i][j]))
-                ShapeBuffer[i][j] = EmptyCell;
+                    setIntoCell(ShapeBuffer, EmptyCell, new Position(j,i));
             }
         }
     }
@@ -173,7 +174,7 @@ public class MapEditor {
     public static void FillAllSpaceWithEmpty(char[][] ShapeBuffer){
         for (int i = 0; i < ShapeBuffer.length; i++) {
             for (int j = 0; j < ShapeBuffer[0].length; j++) {
-                    ShapeBuffer[i][j] = EmptyCell;
+                setIntoCell(ShapeBuffer, EmptyCell, new Position(j,i));
             }
         }
     }
@@ -207,8 +208,11 @@ public class MapEditor {
                     X_a++;
                 }
             }
-            case SAME -> InsertShapeLine(CurrentRoom, GenerateRules.previousDirection, Length, X_a, Y_a);
         }
+    }
+
+    static void InsertShapeLine(char[][] CurrentRoom, DrawDirection drawDirection, int Length, Position FromPosition){
+        InsertShapeLine(CurrentRoom, drawDirection, Length, FromPosition.x, FromPosition.y);
     }
 
     static void InsertShapeFlat(char[][] CurrentRoom, char[][] shape, int X_a, int Y_a){
@@ -229,36 +233,61 @@ public class MapEditor {
         }
     }
 
-    static void InsertLine(char[][] CurrentRoom, char c, int x, int y){
-        CurrentRoom[y][x] = c;
+    static void InsertShapeFlat(char[][] CurrentRoom, char[][] shape, Position FromPosition) {
+        InsertShapeFlat(CurrentRoom, shape, FromPosition.x, FromPosition.y);
     }
 
-    static void PlaceDoors(Room room, char[][] CurrentRoom){
+    static void InsertLine(char[][] CurrentRoom, char c, int x, int y){
+        setIntoCell(CurrentRoom, c, new Position(x,y));
+    }
 
-        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
+    static void PlaceDoors(Room room, char[][] CurrentRoom, Position ExitPoint){
+
+        int ExitPointX = ExitPoint.x, ExitPointY = ExitPoint.y;
+
+        char cell = CurrentRoom[ExitPointY][ExitPointX];
+
+        char NextDoor = GameResources.GetModel("NextDoor");
+
+        char BackDoor = GameResources.GetModel("BackDoor");
+
+        char ExitDoor = GameResources.GetModel("DungeonExit");
 
         if(!room.IsEndRoom) {
             if (Scans.CheckCorner(cell))
-                CurrentRoom[GenerateRules.ye][GenerateRules.xe] = GameResources.NextRoom;
+                setIntoCell(CurrentRoom, NextDoor, ExitPoint);
             else{
-                int x_shift = FindWall(CurrentRoom);
-                CurrentRoom[GenerateRules.ye][GenerateRules.xe+x_shift] = GameResources.NextRoom;
+                int x_shift = FindWall(CurrentRoom, ExitPoint);
+                setIntoCell(CurrentRoom, NextDoor, ExitPoint.getRelative(x_shift,0));
+            }
+        }
+        else{
+            if (Scans.CheckCorner(cell))
+                setIntoCell(CurrentRoom, ExitDoor, ExitPoint);
+            else{
+                int x_shift = FindWall(CurrentRoom, ExitPoint);
+                setIntoCell(CurrentRoom, ExitDoor, ExitPoint.getRelative(x_shift,0));
             }
         }
         if(room.NumberOfRoom > 1)
-            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.BackRoom;
+            CurrentRoom[0][CurrentRoom[0].length/2] = BackDoor;
+        if(room.NumberOfRoom == (Dungeon.CurrentDungeonLenght-Dungeon.DungeonLenght)+1)
+            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.SWall;
     }
 
-    private static int FindWall(char[][] CurrentRoom){
-        char cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe];
 
-        int l = (cell == GameResources.RBCorner || cell == GameResources.RTCorner ? -1 : 1);
+    private static int FindWall(char[][] CurrentRoom, Position ExitPoint){
+        int x = ExitPoint.x, y = ExitPoint.y;
+
+        char cell = CurrentRoom[y][x];
+
+        int l = (cell == RBCorner || cell == RTCorner ? -1 : 1);
 
         int x_shift = 0;
 
         while(!Scans.CheckWall(cell) && !Scans.CheckCorner(cell)){
             x_shift++;
-            cell = CurrentRoom[GenerateRules.ye][GenerateRules.xe+(x_shift*=l)];
+            cell = CurrentRoom[y][x+(x_shift*=l)];
         }
 
         return x_shift;
@@ -270,6 +299,14 @@ public class MapEditor {
 
     public static void setIntoCell(char cell, Position position){
         setIntoCell(cell, position.y, position.x);
+    }
+
+    public static void setIntoCell(char[][] CurrentRoom, char cell, Position position){
+        try {
+            CurrentRoom[position.y][position.x] = cell;
+        } catch (ArrayIndexOutOfBoundsException e){
+            Debug.log("ERROR: generation was failed, index " +position.toString()+" is outer of bounds");
+        }
     }
 
     public static char getFromCell(int y, int x){
@@ -298,62 +335,6 @@ public class MapEditor {
         }
     }
 
-    static void PlaceSubShapes(BaseGenerate.RoomSize roomSize, char[][] CurrentRoom){
-
-        Random random = new Random();
-
-        int offsetX = 0;
-
-        int offsetY = 0;
-
-        int RandomXY = 2;
-
-        System.out.println("Room size: " + roomSize);
-
-        for(int i = 0; i < CheckSize(roomSize); i++) {
-
-            int sq = random.nextInt(2)+2;
-
-            char[][] shape = DrawSquare(sq);
-
-            System.out.println("Square: " + sq);
-
-            System.out.println(
-                    "i: " + i + "\n" +
-                            "\t offsetX: " + offsetX
-                            + " offsetY: " + offsetY
-
-            );
-
-            System.out.println("SumOFX: " + (RandomXY + Math.max(offsetX,shape[0].length)));
-            System.out.println("SumOFY: " + (RandomXY + Math.max(offsetY,shape.length)));
-
-            if(OutOfBounds(RandomXY, offsetX, offsetY,
-                    CurrentRoom[0].length, CurrentRoom.length,
-                    shape[0].length, shape.length)){
-                offsetX = 0;
-            }
-
-            System.out.println("Random XY: " + RandomXY);
-            try {
-                InsertShapeFlat(CurrentRoom, shape,
-                        RandomXY + offsetX,
-                        RandomXY + offsetY);
-            }
-            catch (ArrayIndexOutOfBoundsException e){
-                break;
-            }
-            offsetX += shape[0].length + 2;
-
-            if((i+1) % 4 == 0) {
-                offsetX = 0;
-                offsetY += shape.length + 1;
-                continue;
-            }
-            offsetY += 0;
-        }
-    }
-
     static int CheckSize(BaseGenerate.RoomSize roomSize) {
         switch (roomSize) {
             case MIDDLE -> {
@@ -377,22 +358,19 @@ public class MapEditor {
         );
     }
 
-    static void PlaceMobs(Room room, char[][] CurrentRoom){
+    static void PlaceMobs(Room room, char[][] CurrentRoom, ArrayList<Position> SpawnPositions){
 
         for(Mob mob : room.RoomCreatures){
-            int y = rnd.nextInt(3)+1;
 
-            int x = rnd.nextInt(9)+1;
+            Position SpawnPosition = SpawnPositions.get(rnd.nextInt(SpawnPositions.size()));
 
-            while(!Scans.CheckWall(CurrentRoom[y][x])){
-                y = rnd.nextInt(3)+1;
-                x = rnd.nextInt(9)+1;
-            }
+            int y = SpawnPosition.y, x = SpawnPosition.x;
+
             if(!Scans.CheckCreature(CurrentRoom[y][x])) {
-                CurrentRoom[y][x] = mob.getCreatureSymbol();
-                mob.setMobPosition(y,x);
-                Dungeon.CurrentRoomCreatures.add(mob);
-                System.out.println("MobPosition" + " " + "x:" + x + " " + "y:" + y);
+                if(Scans.CheckWall(CurrentRoom[y][x])) {
+                    CurrentRoom[y][x] = mob.getCreatureSymbol();
+                    mob.setMobPosition(y, x);
+                }
             }
         }
     }

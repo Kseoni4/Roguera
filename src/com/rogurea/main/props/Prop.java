@@ -2,11 +2,11 @@ package com.rogurea.main.props;
 
 public abstract class Prop {
 
-    public String name;
+    public final String name;
 
-    protected boolean isUsable;
+    protected final boolean isUsable;
 
-    protected char model;
+    protected final char model;
 
     public Prop(String name, boolean isUsable, char model){
         this.name = name;

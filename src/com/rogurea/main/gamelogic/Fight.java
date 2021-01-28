@@ -1,34 +1,43 @@
 package com.rogurea.main.gamelogic;
 
 import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GetRandom;
-import com.rogurea.main.view.LogBlock;
+import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.Effects;
+import static com.rogurea.main.view.ViewObjects.*;
 
 public class Fight {
 
-    public static void HitPlayer(Mob mob){
-        int dmg = (mob.getDamage() - Player.getArmor());
+    public static void HitPlayerByMob(Mob mob){
 
-        Player.HP -= (Math.max(dmg, 0));
+        int dmg = Math.max((mob.getATKm() - Formula.GetPlayerDEF()), 0);
 
-        LogBlock.Action(GetRandom.HitLog(dmg), mob);
+        if(Formula.IsMiss(Player.DEX)){
+            logBlock.Action("miss!", mob);
+            return;
+        }
 
-        /*LogBlock.Action("hit " + Colors.GREEN_BRIGHT +
-                "you" + Colors.R
-                + " for " + Colors.RED_BRIGHT
-                + (Math.max(dmg,0))
-                + " damage!", mob);*/
+        Effects.PlayerHitEffect();
+
+        Player.HP -= dmg;
+
+        logBlock.Action(GetRandom.HitLog(dmg), mob);
+
+        Draw.call(playerInfoBlock);
     }
 
-    public static void HitMob(Mob mob){
-        System.out.println("HitMob");
-        System.out.println("Mob id: " + mob.id);
-        mob.changeHP(
-                Player.getDamage()
-        );
-        LogBlock.Action("hit "
-                + mob.Name + " for " + Player.getDamage() + " damage!");
-    }
+    public static void HitMobByPlayer(Mob mob){
+        try {
+            mob.changeHP((short) Formula.GetPlayerATK());
+            logBlock.Action("hit "
+                    + mob.Name + " for " + Formula.GetPlayerATK() + " damage by " + Player.getPlayerWeaponInHands());
+            Effects.MobHitEffect(mob);
+        }catch (NullPointerException e){
+            Debug.log("ERROR: No mob found to hit");
+        }
 
+        Draw.call(playerInfoBlock);
+    }
 }

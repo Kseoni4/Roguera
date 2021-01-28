@@ -2,50 +2,48 @@ package com.rogurea.main.creatures;
 
 import com.rogurea.main.items.Item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Creature {
+public abstract class Creature implements Serializable {
 
     public String Name = "";
 
-    public int id;
+    public final short id;
 
-    public static int CreatureCount = 0;
+    public static short CreatureCount = 0;
 
     public abstract char getCreatureSymbol();
 
     public abstract void setMobPosition(int x, int y);
 
-    public abstract int getMobPosX();
+    public abstract byte getMobPosX();
 
-    public abstract int getMobPosY();
+    public abstract byte getMobPosY();
 
     public enum CreatureType {
         MOB,
         NPC
     }
 
-    private CreatureType creatureType;
+    private short HP;
 
-    private int HP;
+    public byte Level = 1;
 
-    public int Level = 1;
-
-    public ArrayList<Item> Loot = new ArrayList<Item>();
+    public ArrayList<Item> Loot = new ArrayList<>();
 
     public void setCreatureType(CreatureType creatureType){
-        this.creatureType = creatureType;
     }
 
-    public int getHP(){
+    public short getHP(){
         return this.HP;
     }
 
-    public void changeHP(int dmg){
+    public void changeHP(short dmg){
         this.HP -= dmg;
     }
 
-    public void setHP(int HP){
+    public void setHP(short HP){
         this.HP = HP;
     }
 
@@ -54,7 +52,7 @@ public abstract class Creature {
         id = CreatureCount++;
     }
 
-    public abstract int getDamage();
+    public abstract short getATKm();
 
-    public abstract int getArmor();
+    public abstract short getDEFm();
 }
