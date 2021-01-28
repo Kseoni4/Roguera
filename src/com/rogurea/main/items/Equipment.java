@@ -8,13 +8,10 @@ public class Equipment extends Item implements Wearable, Usable{
 
     public String Material;
 
-    public int level;
-
-    public Equipment(String name, int SellPrice, char model, int level) {
+    public Equipment(String name, int SellPrice, char model, int RoomNumber) {
         super(name, SellPrice, model);
-        this.level = level;
         this.Material = GetRandom.Material(this);
-        this.EquipStats = ItemGenerate.MoveToForge(this);
+        this.EquipStats = ItemGenerate.MoveToForge(this, RoomNumber);
     }
 
     public int GetStats(){

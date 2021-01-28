@@ -5,6 +5,7 @@ import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.Potion;
 import com.rogurea.main.items.Weapon;
+import com.rogurea.main.map.Room;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GameVariables;
@@ -19,32 +20,11 @@ public class MobFactory {
     static final String[] MobNames = {
             "Rat",
             "Goblin",
-            "Skelleton",
+            "Skeleton",
             "Bandit"
     };
 
-    static final HashMap<String, Integer> MobPower;
-
-    static {
-        MobPower = new HashMap<>();
-
-        int Power = (int) Math.floor((GameVariables.MobDamageEmpower * GameVariables.BaseMobDamageStat) * 1.2);
-
-        for(String mob : MobNames) {
-            MobPower.put(mob, Power);
-
-            Power = (int) Math.floor(Power * GameVariables.MobDamageEmpower);
-        }
-    }
-
     private static final SecureRandom random = new SecureRandom();
-
-    public static short GetDamage(String mob, int moblevel){
-        return (short) Math.ceil(
-                    ((GameVariables.BaseMobDamageStat * MobPower.get(mob))
-                * GameVariables.MobDamageEmpower) * moblevel
-        );
-    }
 
     public static ArrayList<Item> GetLoot(){
         ArrayList<Item> bufferLoot = new ArrayList<>();
@@ -64,18 +44,29 @@ public class MobFactory {
         return bufferLoot;
     }
 
-    public static ArrayList<Mob> getMobs(int roomnum){
+    public static ArrayList<Mob> getMobs(Room room){
 
         ArrayList<Mob> OutMobList = new ArrayList<>();
 
-        for(int i = 0; i < 3;i++){
+        int MaxMobs = 1;
+        int MinMobs = 0;
+
+        switch (room.roomSize){
+            case SMALL -> {MaxMobs = 2; }
+            case MIDDLE -> {MaxMobs = 3; MinMobs = 1;}
+            case BIG -> {MaxMobs = 6; MinMobs = 3;}
+        }
+
+        for(int i = 0; i < random.nextInt(MaxMobs)+MinMobs;i++){
             String name = MobNames[random.nextInt(MobNames.length)];
             OutMobList.add(
                     new Mob((Colors.RED_BRIGHT+name+Colors.R),
-                            name.charAt(0),
-                            (short) (random.nextInt(5*roomnum)+5), name, roomnum)
+                            name.charAt(0), name, room.NumberOfRoom)
             );
             GameResources.ModelNameMap.put(name.charAt(0), Colors.RED_BRIGHT+name);
+        }
+        if(OutMobList.size() == 0){
+            Formula.GetLvlForMob(room.NumberOfRoom);
         }
         return OutMobList;
     }

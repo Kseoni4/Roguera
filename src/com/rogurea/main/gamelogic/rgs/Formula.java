@@ -2,42 +2,53 @@ package com.rogurea.main.gamelogic.rgs;
 
 import com.rogurea.main.items.Potion;
 import com.rogurea.main.player.Player;
+import com.rogurea.main.resources.GameVariables;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Formula {
 
     private static final SecureRandom RNGFormula = new SecureRandom();
 
-    private static short RequirementXP = 0;
+    public static ArrayList<Integer> RoomsForMobLevelUp;
 
-    private static byte n = 100;
+    private static int CalculateBaseDMG(int CurrentRoomNumber, float EmPowerMaterial){
 
-    private static short p = 0;
+        int BaseDMG = GameVariables.WeaponBaseDmg;
 
-    private static byte levelDecade = 10;
+        for(int i = 2; i < CurrentRoomNumber;i++){
+            BaseDMG = (int) Math.floor(BaseDMG + (Math.sqrt(i) * EmPowerMaterial));
+        }
 
-    private static byte calcLD(byte currentLVL){
-        return (byte) (((currentLVL / 10) + 1) * 10);
+        return BaseDMG;
     }
 
-    public static short CalculateXPForLevel(short currentRXP, byte currentLVL){
-        levelDecade = calcLD(currentLVL);
-        RequirementXP = (short) ((currentRXP + (p + n)) * (levelDecade / 10));
-        p += p + n;
-        return RequirementXP;
+    public static int GetWeaponDMG(int RoomNumber, float EmpowerMaterial){
+        int DMG = GameVariables.WeaponBaseDmg;
+        if(RoomNumber > 2){
+            DMG = CalculateBaseDMG(RoomNumber, EmpowerMaterial);
+        }
+        return (int) Math.floor(DMG + Math.sqrt(RoomNumber) * EmpowerMaterial);
     }
 
-    public static boolean IsMiss(int dex){
-        return RNGFormula.nextInt(100) >= 100 - dex;
+    public static int GetRequirementXP(){
+        return GameVariables.BaseReqXP = (int) Math.floor((GameVariables.BaseReqXP * GameVariables.ProgressionCoefficient));
     }
 
-    public static short GetXPForMob(short moblvl){
-        return (short) (moblvl * (RNGFormula.nextInt(90) + 10));
+    public static int CalculatePlayerATK(int NewLevel){
+        return (int) Math.floor(Player.ATK + (Math.log10(NewLevel)*2));
     }
 
-    public static byte GetLvlForMob(int currentRoomNumber){
-        return (byte) ((currentRoomNumber) % levelDecade);
+    public static int CalculatePlayerDEF(int NewLevel){
+        return (int) Math.floor(Player.DEF + (Math.sqrt(NewLevel)));
+    }
+
+    public static int CalculatePlayerDEX(int NewLevel){
+        return (int) Math.floor(Math.log(NewLevel) / Math.log(2));
     }
 
     public static int GetPlayerATK(){
@@ -45,7 +56,59 @@ public class Formula {
     }
 
     public static int GetPlayerDEF(){
-        return Player.DEF + Player.getArmor();
+        return 1;
+    }
+
+    public static int GetHPForMob(int LVLm){
+        return GameVariables.BaseMobHP * LVLm;
+    }
+
+    public static int GetLvlForMob(int RoomNumber){
+        if(RoomsForMobLevelUp.contains(RoomNumber)){
+            return GameVariables.BaseMobLevel = RoomsForMobLevelUp.indexOf(RoomNumber)+2;
+        }else{
+            return GameVariables.BaseMobLevel;
+        }
+    }
+
+    public static int GetXPForMob(String MobType, int LVLm){
+        return (int) Math.floor(Math.pow(LVLm,2) * GameVariables.MobTypeEmpower.get(MobType));
+    }
+
+    private static int CalculateBaseMobATK(int LVLm, String MobType){
+        int BaseATKm = GameVariables.BaseMobDamageStat;
+
+        for(int i = 2; i < LVLm+1; i++){
+            BaseATKm = (int) Math.nextUp(BaseATKm + (Math.log10(i) * GameVariables.N) * GameVariables.MobTypeEmpower.get(MobType));
+        }
+        return BaseATKm;
+    }
+
+    public static int GetATKForMob(String MobType, int LVLm, int RoomNumber){
+        int BaseATKm = GameVariables.BaseMobDamageStat;
+
+        if(RoomNumber > 3){
+            BaseATKm = CalculateBaseMobATK(LVLm, MobType);
+        }
+        return (int) Math.nextUp(BaseATKm + (Math.log10(LVLm) * GameVariables.N) * GameVariables.MobTypeEmpower.get(MobType));
+    }
+
+    private static int CalculateBaseMobDEF(int LVLm, String MobType){
+        int BaseDEFm = GameVariables.BaseMobDefence;
+
+        for(int i = 2; i < LVLm+1; i++){
+            BaseDEFm = (int) Math.floor(BaseDEFm + Math.sqrt(i) * GameVariables.MobTypeEmpower.get(MobType));
+        }
+        return BaseDEFm;
+    }
+
+    public static int GetDEFForMob(String MobType, int LVLm, int RoomNumber){
+        int BaseDEFm = GameVariables.BaseMobDefence;
+
+        if(RoomNumber > 3){
+            BaseDEFm = CalculateBaseMobDEF(LVLm, MobType);
+        }
+        return (int) Math.floor(BaseDEFm + Math.sqrt(LVLm) * GameVariables.MobTypeEmpower.get(MobType));
     }
 
     public static int GetPotionPointsByType(Potion.PotionType potionType, int potionLevel){
@@ -65,4 +128,7 @@ public class Formula {
         return Math.min(points, 100);
     }
 
+    public static boolean IsMiss(int dex){
+        return RNGFormula.nextInt(100) >= 100 - dex;
+    }
 }

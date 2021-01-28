@@ -1,9 +1,6 @@
 package com.rogurea.main.items;
-import com.rogurea.main.input.Cursor;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
-
-import java.lang.reflect.Field;
 
 public class Weapon extends Equipment {
 
@@ -21,10 +18,14 @@ public class Weapon extends Equipment {
         public abstract char getModel();
     }
 
-    public Weapon(String name, int SellPrice, _weapontype weapontype, int level) {
-        super(name, SellPrice, weapontype.getModel(), level);
+    public int SpawnRoomNumber;
+
+    public Weapon(String name, int SellPrice, _weapontype weapontype, int RoomNumber) {
+        super(name, SellPrice, weapontype.getModel(), RoomNumber);
         super.name = PutName();
         super.name = PutMaterialInName(this.Material);
+        this.SpawnRoomNumber = RoomNumber;
+        GameResources.AllWeapons.add(this);
     }
 
     public String getMaterialColor(){
@@ -37,9 +38,5 @@ public class Weapon extends Equipment {
 
     private String PutMaterialInName(String material){
         return super.name.replace("%mat%", material);
-    }
-
-    public boolean checkLevel(int plevel){
-        return plevel >= this.level;
     }
 }

@@ -1,4 +1,4 @@
-package com.rogurea.main.view;
+package com.rogurea.main.view.UI.Menu;
 
 public interface IMenu {
 

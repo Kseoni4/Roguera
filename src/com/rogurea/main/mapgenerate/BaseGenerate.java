@@ -2,23 +2,32 @@ package com.rogurea.main.mapgenerate;
 
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
+import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
+import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.UI.PlayerInfoBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class BaseGenerate {
+public class BaseGenerate implements Serializable {
 
     public static Random random = null;
 
@@ -27,20 +36,19 @@ public class BaseGenerate {
             @Override
             public byte[] GetWidghtX() {
                 return new byte[]{
-                        3, 5, 10
+                        10, 11, 12
                 };
             }
 
             @Override
             public byte[] GetHeightY() {
                 return new byte[] {
-                        3, 5, 10
+                        9, 10, 11
                 };
             }
 
             },
         MIDDLE{
-
             @Override
             public byte[] GetWidghtX() {
                 return new byte[]{
@@ -88,20 +96,36 @@ public class BaseGenerate {
 
         random = GetRandom.RNGenerator;
 
+        AtomicInteger RoomNum = new AtomicInteger(1);
+
+        if(Dungeon.Rooms.size() >= Dungeon.CurrentDungeonLenght){
+            Dungeon.CurrentDungeonLenght += DungeonLenght;
+        }
+
+        Integer DecadeRoom = 0;
+
+        if(Formula.RoomsForMobLevelUp != null){
+            DecadeRoom = Formula.RoomsForMobLevelUp.get(Formula.RoomsForMobLevelUp.size()-1);
+        }
+
+        if(Dungeon.CurrentDungeonLenght >= DecadeRoom) {
+            Formula.RoomsForMobLevelUp = (ArrayList<Integer>) Stream.generate(() -> RoomNum.addAndGet(3)).limit(Dungeon.CurrentDungeonLenght).collect(Collectors.toList());
+            Formula.RoomsForMobLevelUp.forEach(s -> System.out.print(s + " "));
+        }
+
         RoomSize[] roomSizes = RoomSize.values();
 
-        for(byte i = 0; i < DungeonLenght; i++){
+        for(byte i = (byte) Dungeon.Rooms.size(); i < Dungeon.CurrentDungeonLenght; i++){
 
-            byte Height = roomSizes[2].GetHeightY()[random.nextInt(3)];
-            byte Widght = roomSizes[2].GetWidghtX()[random.nextInt(3)];
+            int RandomRoomSize = random.nextInt(3);
 
-            if(i == DungeonLenght-1){
-                Dungeon.Rooms.add(new Room((byte) (i+1), true, Widght, Height));
+            byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
+            byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
+            if(i == Dungeon.CurrentDungeonLenght-1){
+                Dungeon.Rooms.add(new Room((byte) (i+1), true, Widght, Height,roomSizes[RandomRoomSize]));
             }
             else
-                Dungeon.Rooms.add(new Room((byte) (i+1), Widght, Height));
-
-            Dungeon.Rooms.get(i).roomSize = roomSizes[2];
+                Dungeon.Rooms.add(new Room((byte) (i+1), Widght, Height, roomSizes[RandomRoomSize]));
 
             MapEditor.FillSpaceWithEmpty(Dungeon.Rooms.get(i).RoomStructure);
 
@@ -144,7 +168,7 @@ public class BaseGenerate {
         return null;
     }
 
-    static Room GetFromSet(Predicate<Room> predicate){
+    public static Room GetFromSet(Predicate<Room> predicate){
         return Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
     }
 
@@ -173,21 +197,26 @@ public class BaseGenerate {
 
         room.IsRoomStructureGenerate = true;
 
-        if(room.roomSize == RoomSize.BIG) {
-            CurrentRoom = pgp.GenerateRoom(CurrentRoom);
-        }
+/*        if(room.roomSize == RoomSize.BIG) {
+        }*/
+
+        CurrentRoom = pgp.GenerateRoom(CurrentRoom);
 
         ArrayList<Position> positions = getPositionsList(CurrentRoom, pgp.ExitPoint);
 
         MapEditor.PlaceDoors(room, CurrentRoom, pgp.ExitPoint);
 
-        BuildSubRooms(CurrentRoom, (byte) (pgp.ExitPoint.y/2));
+        if(room.roomSize == RoomSize.BIG)
+            BuildSubRooms(CurrentRoom, (byte) (pgp.ExitPoint.y/2), room.roomSize);
 
         MapEditor.PlaceMobs(room, CurrentRoom, positions);
 
         Dungeon.CurrentRoom = CurrentRoom;
 
         room.RoomStructure = CurrentRoom;
+
+        if(room.dungeonShop != null)
+            MapEditor.InsertShapeFlat(room.RoomStructure, room.dungeonShop.getShopStructure(), room.dungeonShop.ShopPosition);
 
         for(Mob mob : room.RoomCreatures){
             mob.GetAllInfo();
@@ -209,7 +238,15 @@ public class BaseGenerate {
 
         Debug.log("GENERATE: Place player into position " + Player.GetPlayerPosition().toString());
 
-        TerminalView.ReDrawAll(null);
+        try {
+            SavingSystem.saveGame();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Draw.clear();
+
+        TerminalView.ReDrawAll(new IViewBlock[]{});
     }
 
     public static int GetCenterOfRoom(Room room){
@@ -259,10 +296,15 @@ public class BaseGenerate {
         return PositionsList;
     }
 
-    private static void BuildSubRooms(char[][] CurrentRoom, byte y){
+    private static void BuildSubRooms(char[][] CurrentRoom, byte y, RoomSize roomSize){
         byte x = FindLeftBorder(CurrentRoom, y);
 
-        SubdivideZone(CurrentRoom, new Position(x,y), 2);
+        int depth = 1;
+
+        if(roomSize == RoomSize.BIG)
+            depth = 2;
+
+        SubdivideZone(CurrentRoom, new Position(x,y), depth);
     }
 
     private static byte FindLeftBorder(char[][] CurrentRoom, byte y){
@@ -304,17 +346,22 @@ public class BaseGenerate {
 
     private static int FindLenght(char[][] CurrentRoom, MapEditor.DrawDirection direction, Position startpos){
         int l = 0;
-        while(Scans.CheckWall(CurrentRoom[startpos.y][startpos.x])){
-            if(direction == MapEditor.DrawDirection.RIGHT)
-                startpos.x++;
-            else if (startpos.y > 0){
-                startpos.y--;
+        try {
+            while(Scans.CheckWall(CurrentRoom[startpos.y][startpos.x])){
+                if(direction == MapEditor.DrawDirection.RIGHT)
+                    startpos.x++;
+                else if (startpos.y > 0){
+                    startpos.y--;
+                }
+                else{
+                    break;
+                }
+                l++;
             }
-            else{
-                break;
-            }
-            l++;
+        }catch (ArrayIndexOutOfBoundsException e){
+            Debug.log("ERROR: Subdivide generation failed, index (y:" + startpos.y + ";x:" + startpos.x+") is out of bounds");
         }
+
         return l+1;
     }
 

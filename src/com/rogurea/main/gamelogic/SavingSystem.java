@@ -8,13 +8,12 @@ import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
 
 import java.io.*;
-import java.util.Arrays;
 
 public class SavingSystem {
 
     public static void saveGame() throws IOException {
 
-        Debug.log("Saving game...");
+        Debug.log("SAVE: Saving game...");
 
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(
                 new FileOutputStream(Player.nickName+".sav")
@@ -24,9 +23,17 @@ public class SavingSystem {
 
         savePlayerFile.SaveFileVer = GameResources.version;
 
+        savePlayerFile.CurrentDungeonLenght = Dungeon.CurrentDungeonLenght;
+
+        Debug.log("SAVE: Current dungeon length " + savePlayerFile.CurrentDungeonLenght);
+
+        savePlayerFile.CurrentRoomObject = Dungeon.GetCurrentRoom();
+
+        Debug.log("SAVE: room " + savePlayerFile.CurrentRoomObject.NumberOfRoom + " has saved");
+
         objectOutputStream.writeObject(savePlayerFile);
 
-        Debug.log("Save success: " + Player.nickName+".sav has created");
+        Debug.log("SAVE: success! " + Player.nickName+".sav has created");
     }
 
     private static PlayerContainer GetPlayerContainer(){
@@ -44,34 +51,35 @@ public class SavingSystem {
                 Player.ATK,
                 Player.DEF,
                 Player.DEX,
-                Player.XPForNextLevel,
+                Player.ReqXPForNextLevel,
                 Player.Inventory,
                 Player.Equip,
                 Player.playerStatistics
         );
     }
 
-    public static void loadGame(String SaveFileName) throws IOException, ClassNotFoundException {
+    public static void loadGame(String SaveFileName) throws IOException, ClassNotFoundException, StreamCorruptedException, InvalidClassException {
         ObjectInputStream objectInputStream = new ObjectInputStream(
                 new FileInputStream(SaveFileName)
         );
 
         Debug.log("Loading game from file: " + SaveFileName);
 
-        PlayerContainer loadedFile = null;
-        try {
-            loadedFile = (PlayerContainer) objectInputStream.readObject();
-        }catch (NotSerializableException e){
-            Debug.log("ERROR: Saving file has been obsoleted. \n\tFile ver: "
-                    + ((PlayerContainer) objectInputStream.readObject()).SaveFileVer);
-            return;
-        }
+        PlayerContainer loadedFile;
+
+        loadedFile = (PlayerContainer) objectInputStream.readObject();
 
         Player.LoadPlayerDataFromFile(loadedFile);
 
         Debug.log("Player name: " + Player.nickName);
 
         GameResources.UpdatePlayerName();
+
+        Dungeon.CurrentDungeonLenght = loadedFile.CurrentDungeonLenght;
+
+        Dungeon.SavedRoom = loadedFile.CurrentRoomObject;
+
+        Dungeon.SavedRoom.roomSize = BaseGenerate.RoomSize.BIG;
 
         GetRandom.SetRNGSeed(loadedFile.RandomSeed);
 
@@ -83,7 +91,7 @@ public class SavingSystem {
 
         File[] files = directory.listFiles(((dir, name) -> name.endsWith(".sav")));
 
-        return files[0].getName();
+        return files[files.length-1].getName();
     }
 
     public static boolean SaveFileExists(){

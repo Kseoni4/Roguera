@@ -7,7 +7,6 @@ import com.rogurea.main.map.Position;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
 
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import static com.rogurea.main.view.ViewObjects.logBlock;
@@ -30,8 +29,12 @@ public class Scans {
         return true;
     }
 
-    public static boolean CheckExit(char c){
+    public static boolean CheckRoomExit(char c){
             return c == GameResources.GetModel("NextDoor");
+    }
+
+    public static boolean CheckDungeonExit(char c){
+        return c == GameResources.GetModel("DungeonExit");
     }
 
     public static boolean CheckBack(char c){
@@ -78,7 +81,7 @@ public class Scans {
                     Debug.log("ITEM ERROR: no such item in the looking position " + LookPosition.toString());
                 }
             }
-        else if(Scans.CheckExit(MapEditor.getFromCell(LookPosition)))
+        else if(Scans.CheckRoomExit(MapEditor.getFromCell(LookPosition)))
             logBlock.Action("see the door");
     }
 
@@ -89,5 +92,12 @@ public class Scans {
                  return true;
         }
         return false;
+    }
+
+    public static boolean CheckNPC(Position LookPosition){
+        if(Dungeon.GetCurrentRoom().RoomNPC != null)
+            return Dungeon.GetCurrentRoom().RoomNPC.getNPCPosition().equals(LookPosition);
+        else
+            return false;
     }
 }

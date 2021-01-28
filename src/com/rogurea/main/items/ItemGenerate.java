@@ -1,5 +1,7 @@
 package com.rogurea.main.items;
 
+import com.rogurea.main.gamelogic.rgs.Formula;
+import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.resources.GetRandom;
@@ -13,26 +15,23 @@ public class ItemGenerate {
 
     private static final Random rng = new Random();
 
-    public static int MoveToForge(Equipment equipment){
+    public static int MoveToForge(Equipment equipment, int RoomNumber){
         if (equipment instanceof Armor) {
-            return ArmorForge(equipment.level, equipment.Material);
+            return ArmorForge((Armor) equipment, RoomNumber);
         }
         else if (equipment instanceof Weapon){
-            return WeaponForge(equipment.level, equipment.Material);
+            return WeaponForge((Weapon) equipment, RoomNumber);
         }
         return 0;
     }
 
-    private static int WeaponForge(int level, String mat){
-        return (int) Math.ceil(
-                    ((GameVariables.WeaponBaseDmg * GameVariables.WeaponMaterialPower.get(mat))
-                    * GameVariables.EmpowerVar) * level
-        );
+    private static int WeaponForge(Weapon wp, int RoomNumber){
+        System.out.println(wp.name + " " + wp.Material);
+        return Formula.GetWeaponDMG(RoomNumber, GameVariables.WeaponMaterialPower.get(wp.Material));
     }
 
-    private static int ArmorForge(int lvl, String mat){
-        return (int) ((GameVariables.ArmorBaseStat * GameVariables.ArmorMaterialPower.get(mat))
-                * GameVariables.ArmorEmpowerConst) * lvl;
+    private static int ArmorForge(Armor ar, int RoomNumber){
+        return 0;
     }
 
     public static String SetWeaponName(char _model){

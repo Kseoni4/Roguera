@@ -24,51 +24,48 @@ public class GameVariables {
 
     public static final int WeaponBaseDmg = 2;
 
-    public static final double EmpowerVar = 1.5;
-
-    public static final HashMap<String, Integer> WeaponMaterialPower;
-
+    public static final HashMap<String, Float> WeaponMaterialPower;
     static {
         WeaponMaterialPower = new HashMap<>();
 
-        int epv = 1;
-
-        epv *= (int) Math.floor(EmpowerVar * 3);
-
-        for (String mat : GameResources.MaterialName){
-            WeaponMaterialPower.put(mat, epv);
-
-            epv = (int) Math.floor(epv * 1.3);
-        }
+        WeaponMaterialPower.put("Wood",0.3f);
+        WeaponMaterialPower.put("Stone",0.6f);
+        WeaponMaterialPower.put("Copper",0.8f);
+        WeaponMaterialPower.put("Iron",1f);
+        WeaponMaterialPower.put("Golden",1.3f);
+        WeaponMaterialPower.put("Steel",0.5f);
+        WeaponMaterialPower.put("Diamond",2f);
     }
-
-    public static final int ArmorBaseStat = 1;
-
-    public static final int ArmorBaseDurability = 4;
-
-    public static final double ArmorDurabilityEmpowerVar = 1.3;
-
-    public static final double ArmorEmpowerConst = 2;
-
-    public static final HashMap<String, Integer> ArmorMaterialPower;
-
-    static {
-        ArmorMaterialPower = new HashMap<>();
-
-        int epv = 1;
-
-        epv *= (int) Math.floor(ArmorBaseDurability * ArmorDurabilityEmpowerVar);
-
-        for (String mat : GameResources.ArmorMaterialName){
-            ArmorMaterialPower.put(mat, epv);
-
-            epv = (int) Math.floor(epv * ArmorDurabilityEmpowerVar);
-        }
-    }
-
-
     /* Variables for mob */
 
     public static final int BaseMobDamageStat = 1;
-    public static final double MobDamageEmpower = 1.6;
+
+    public static final int BaseMobDefence = 1;
+
+    public static final int N = 5;
+
+    public static int BaseMobLevel = 1;
+
+    public static final int BaseMobHP = 10;
+
+    public static HashMap<String, Float> MobTypeEmpower = new HashMap<>();
+
+    static {
+        MobTypeEmpower.put("Rat", 0.5f);
+        MobTypeEmpower.put("Skeleton", 0.55f);
+        MobTypeEmpower.put("Goblin", 0.7f);
+        MobTypeEmpower.put("Bandit", 1f);
+    }
+
+    /* Variables for player */
+
+    public static int BaseReqXP = 50;
+
+    public static final double ProgressionCoefficient = 1.3;
+
+    public static final short BasePlayerATK = 1;
+
+    public static final short BasePlayerDEF = 1;
+
+    public static final short BasePlayerDEX = 1;
 }

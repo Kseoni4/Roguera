@@ -5,6 +5,7 @@ import com.rogurea.main.items.*;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.view.Draw;
 
 import java.io.Serializable;
@@ -36,10 +37,10 @@ public class Player implements Serializable {
 
 
     public static short XP = 0; //Experience Points
-    public static byte ATK = 1; //Attack
-    public static byte DEF = 1; //Defence
-    public static byte DEX = 1; //Dexterity
-    public static short XPForNextLevel = 0;
+    public static short ATK = GameVariables.BasePlayerATK; //Attack
+    public static short DEF = GameVariables.BasePlayerDEF; //Defence
+    public static byte DEX = GameVariables.BasePlayerDEX; //Dexterity
+    public static short ReqXPForNextLevel = (short) GameVariables.BaseReqXP;
 
     public static ArrayList<Item> Inventory = new ArrayList<>();
 
@@ -151,7 +152,7 @@ public class Player implements Serializable {
         ATK = SavedPlayerData.ATK;
         DEF = SavedPlayerData.DEF;
         DEX = SavedPlayerData.DEX;
-        XPForNextLevel = SavedPlayerData.XPForNextLevel;
+        ReqXPForNextLevel = SavedPlayerData.XPForNextLevel;
         Inventory = SavedPlayerData.Inventory;
         Equip = SavedPlayerData.Equip;
         playerStatistics = SavedPlayerData.playerStatistics;

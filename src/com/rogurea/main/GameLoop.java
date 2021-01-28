@@ -8,18 +8,16 @@ import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.gamelogic.rgs.Events;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.KeyController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.player.PlayerMoveController;
 import com.rogurea.main.resources.Colors;
-import com.rogurea.main.resources.GetRandom;
 import com.rogurea.main.view.TerminalView;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,14 +34,16 @@ public class GameLoop {
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private boolean isGameOver = false;
+    public boolean isGameOver = false;
 
     public void RestartThread(){
 
         if(ActiveThreads.size() > 0) {
-            executorService.shutdown();
+            Debug.log("THREADS: " + ActiveThreads.size() + " Active threads, shutting down");
+            executorService.shutdownNow();
             try{
-                executorService.awaitTermination(5, TimeUnit.SECONDS);
+                Debug.log("THREADS: Awaiting Termination...");
+                executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
             }catch (InterruptedException e){
                 Debug.log(e.getMessage());
                 e.getStackTrace();
@@ -59,14 +59,19 @@ public class GameLoop {
             ActiveThreads.removeIf(
                     thread -> !thread.isAlive()
             );
+            if(!ActiveThreads.isEmpty()) {
+                ActiveThreads.removeAll(ActiveThreads);
+            }
         }
         StartThreads();
     }
 
     private void StartThreads(){
+        Debug.log("THREADS: Starting mob threads");
         executorService = Executors.newCachedThreadPool();
         int i = 0;
         for (Mob mob : Dungeon.GetCurrentRoom().RoomCreatures) {
+            Debug.log("THREADS: Starting mob controller thread for mob " + mob.Name);
             ActiveThreads.add(new Thread(new MobController(mob), "mobcontroller for mob " + mob.Name));
             executorService.submit(ActiveThreads.get(i));
             i++;
@@ -101,9 +106,9 @@ public class GameLoop {
 
         Debug.log("RANDOM SEED: " + new BigInteger(Player.RandomSeed));
 
-        while (TerminalView.keyStroke == null || TerminalView.keyStroke.getKeyType() != KeyType.Escape) {
+        while (TerminalView.keyStroke == null || (TerminalView.keyStroke.getKeyType() != KeyType.Escape && !isGameOver)) {
 
-            if(Player.XP >= Player.XPForNextLevel)
+            if(Player.XP >= Player.ReqXPForNextLevel)
                 Events.getNewLevel();
 
             TerminalView.keyStroke = TerminalView.terminal.readInput();
@@ -123,6 +128,8 @@ public class GameLoop {
                 Scans.CheckSee((Player.GetPlayerPosition().getRelative(0,1)));
             }
         }
+
+        MapEditor.clearCell(Player.GetPlayerPosition());
 
         SavingSystem.saveGame();
 

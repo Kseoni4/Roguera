@@ -2,24 +2,28 @@ package com.rogurea.main.map;
 
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobFactory;
+import com.rogurea.main.creatures.NPC;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.items.ItemGenerate;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Room {
+public class Room implements Serializable {
     public byte NumberOfRoom;
 
     public byte X = 1;
 
     public byte Y = 1;
 
-    public BaseGenerate.RoomSize roomSize;
+    public transient BaseGenerate.RoomSize roomSize;
 
     public boolean IsEndRoom = false;
 
     public ArrayList<Mob> RoomCreatures;
+
+    public NPC RoomNPC;
 
     public ArrayList<Item> RoomItems;
 
@@ -27,16 +31,18 @@ public class Room {
 
     public boolean IsRoomStructureGenerate = false;
 
-    public Room nextRoom;
+    public transient Room nextRoom;
 
-//    public DungeonShop dungeonShop;
+    public Shop dungeonShop;
 
-    public Room(byte RoomCounter, byte x, byte y){
+    public Room(byte RoomCounter, byte x, byte y, BaseGenerate.RoomSize roomSize){
+        this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);
     }
 
-    public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y){
+    public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y, BaseGenerate.RoomSize roomSize){
         this.IsEndRoom = IsEndRoom;
+        this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);
     }
 
@@ -48,9 +54,15 @@ public class Room {
         this.Y = y;
 
         if(RoomCounter > 1)
-            RoomCreatures = MobFactory.getMobs(NumberOfRoom);
-        else
+            RoomCreatures = MobFactory.getMobs(this);
+        else {
             RoomCreatures = new ArrayList<>(0);
+        }
+
+        if(IsEndRoom){
+            dungeonShop = new Shop(new Position(1,2));
+            RoomNPC = dungeonShop.shopOwner;
+        }
 
         RoomStructure = new char[y][x];
 

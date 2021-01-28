@@ -11,6 +11,7 @@ import com.rogurea.Main;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.player.Player;
+import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 
 import java.io.FileNotFoundException;
@@ -32,7 +33,11 @@ public class MainMenu {
 
     private static TerminalPosition CenterOfScreen;
 
-    public static void start(){
+    private static int Normal = 0;
+
+    private static int CorruptedSaveFile = 1;
+
+    public static void start(int code){
         try {
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.version);
 
@@ -58,6 +63,16 @@ public class MainMenu {
         }
     }
 
+    private static void CheckErrorCode(int code){
+        switch (code){
+            case 0 -> {Debug.log("MAIN: All good");}
+            case 1 -> {
+                Label errormessage = new Label("Saving file has been corrupted");
+                BasePanel.addComponent(errormessage);
+            }
+        }
+    }
+
     private static void OpenNewGameWindow() {
         NewGameWindow.setTitle("New game");
 
@@ -73,14 +88,18 @@ public class MainMenu {
     private static void ConstructNewGamePanel(){
         Panel NewGamePanel = new Panel();
 
+        NewGamePanel.setLayoutManager(new LinearLayout());
+
+        NewGamePanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+
         TextBox nickname = new TextBox(new TerminalSize(10,1));
 
-        NewGamePanel.addComponent(nickname);
+        NewGamePanel.addComponent(nickname.withBorder(Borders.singleLine("Enter your nickname"))).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NewGamePanel.addComponent(new Button("Back to menu", () ->{
                 WindowsGUI.getActiveWindow().close();
                 OpenMenuWindow();
-        }));
+        })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NewGamePanel.addComponent(new Button("Start game", () -> {
             WindowsGUI.getActiveWindow().close();
@@ -95,7 +114,7 @@ public class MainMenu {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }));
+        })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NewGameWindow.setComponent(NewGamePanel);
     }
@@ -120,13 +139,21 @@ public class MainMenu {
 
         if(SavingSystem.SaveFileExists()){
             Debug.log("Save file was found");
-            BasePanel.addComponent(new Button("Continue game", () -> {
-                WindowsGUI.getActiveWindow().close();
+            BasePanel.addComponent(new Button("Continue game from last save", () -> {
                 try {
+                    SavingSystem.loadGame(SavingSystem.GetSaveFileName());
+
                     Main.NewGame = !Main.NewGame;
+
+                    CheckErrorCode(Normal);
+
+                    WindowsGUI.getActiveWindow().close();
+
                     GUIWindow.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException | ClassNotFoundException e) {
+                    Debug.log("ERROR: Saving file has been obsoleted.");
+
+                    CheckErrorCode(CorruptedSaveFile);
                 }
             }));
         } else{

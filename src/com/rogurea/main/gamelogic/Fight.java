@@ -12,7 +12,7 @@ public class Fight {
 
     public static void HitPlayerByMob(Mob mob){
 
-        int dmg = Math.max((mob.getDamage() - Formula.GetPlayerDEF()), 0);
+        int dmg = Math.max((mob.getATKm() - Formula.GetPlayerDEF()), 0);
 
         if(Formula.IsMiss(Player.DEX)){
             logBlock.Action("miss!", mob);
@@ -29,10 +29,14 @@ public class Fight {
     }
 
     public static void HitMobByPlayer(Mob mob){
-        mob.changeHP((short) Formula.GetPlayerATK());
-        logBlock.Action("hit "
-                + mob.Name + " for " + Formula.GetPlayerATK() + " damage by " + Player.getPlayerWeaponInHands());
-        Effects.MobHitEffect(mob);
+        try {
+            mob.changeHP((short) Formula.GetPlayerATK());
+            logBlock.Action("hit "
+                    + mob.Name + " for " + Formula.GetPlayerATK() + " damage by " + Player.getPlayerWeaponInHands());
+            Effects.MobHitEffect(mob);
+        }catch (NullPointerException e){
+            Debug.log("ERROR: No mob found to hit");
+        }
 
         Draw.call(playerInfoBlock);
     }

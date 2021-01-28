@@ -22,7 +22,11 @@ public class Dungeon {
 
     static final byte Widght = 1;
 
-    static final byte DungeonLenght = 10;
+    public static byte CurrentDungeonLenght = 0;
+
+    public static final byte DungeonLenght = 10;
+
+    public static Room SavedRoom;
 
     public static ArrayList<Room> Rooms = new ArrayList<>();
 
@@ -36,28 +40,59 @@ public class Dungeon {
             BaseGenerate.PutPlayerInDungeon((byte) (CurrentRoom[0].length / 2), (byte) 1, Dungeon.CurrentRoom);
         }
     }
+
+    public static void NextGenerate(){
+        CleanRooms();
+
+        gameLoop.RestartThread();
+
+        BaseGenerate.GenerateDungeon(DungeonLenght);
+
+        Player.CurrentRoom++;
+
+        BaseGenerate.GenerateRoom(BaseGenerate.GetFromSet(room -> room.NumberOfRoom == ((CurrentDungeonLenght-DungeonLenght)+1)));
+
+        BaseGenerate.PutPlayerInDungeon((byte) (CurrentRoom[0].length / 2), (byte) 1, Dungeon.CurrentRoom);
+    }
+
+    private static void CleanRooms(){
+        Debug.log("GENERATE: Clean previous rooms");
+        Dungeon.Rooms.forEach(room -> {
+            Debug.log("GENERATE: Clean room " + room.NumberOfRoom);
+            Debug.log("CLEAN: Removing all creatures");
+            room.RoomCreatures.removeAll(room.RoomCreatures);
+            Debug.log("CLEAN: Removing structures");
+            room.RoomStructure = null;
+            Debug.log("CLEAN: Room items");
+            room.RoomItems.removeAll(room.RoomItems);
+        });
+        Debug.log("GENERATE: Rooms cleaned");
+    }
+
     public static void ChangeRoom(Room room) {
+
+        Debug.log("GAME: Change room");
 
         if (!room.IsRoomStructureGenerate) {
             try {
-                BaseGenerate.GenerateRoom(
-                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom);
+                BaseGenerate.GenerateRoom(Objects.requireNonNull(room));
             } catch (NullPointerException e) {
-                Debug.log(e.getMessage());
+                Debug.log(Arrays.toString(e.getStackTrace()));
                 e.getStackTrace();
                 MapEditor.setIntoCell(PlayerModel, 1, 1);
             } finally {
                 BaseGenerate.PutPlayerInDungeon(
                         BaseGenerate.GetCenterOfRoom(room), (byte) 1,
                         Dungeon.CurrentRoom);
+                }
             }
-        } else {
-
+        else {
             Player.CurrentRoom = room.NumberOfRoom;
             Dungeon.CurrentRoom = room.RoomStructure;
             BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), (byte) 1,
                     room.RoomStructure);
-        }
+            }
+        Debug.log("THREADS: Restart mob threads");
         gameLoop.RestartThread();
     }
 

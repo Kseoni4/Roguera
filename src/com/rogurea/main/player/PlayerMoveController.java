@@ -1,7 +1,11 @@
 package com.rogurea.main.player;
 
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.gamelogic.Fight;
+import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
@@ -10,8 +14,12 @@ import com.rogurea.main.map.Position;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
+import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.view.Draw;
+import com.rogurea.main.view.TerminalView;
+import com.rogurea.main.view.UI.Menu.ExitDungeonMenu;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import static com.rogurea.main.view.ViewObjects.*;
@@ -39,7 +47,13 @@ public class PlayerMoveController {
             return;
         }
 
-        if(Scans.CheckExit(cell)){
+        if(Scans.CheckRoomExit(cell)){
+
+            try {
+                SavingSystem.saveGame();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
@@ -63,12 +77,18 @@ public class PlayerMoveController {
             return;
         }
 
+        if(Scans.CheckDungeonExit(cell)){
+            ExitDungeonMenu exitDungeonMenu = new ExitDungeonMenu();
+            exitDungeonMenu.Init();
+            exitDungeonMenu.show();
+            return;
+        }
+
         if(Scans.CheckItems(cell)){
-            if(Player.Inventory.size() >= 10){
+            if(Player.Inventory.size() >= 10 && cell != GameResources.Gold) {
                 logBlock.Event("Your inventory is full!");
                 return;
             }
-
             Room rm = Dungeon.GetCurrentRoom();
 
             Item ItemForTake = rm.RoomItems.stream()
@@ -90,6 +110,12 @@ public class PlayerMoveController {
             Fight.HitMobByPlayer(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
             return;
         }
+
+        if(Scans.CheckNPC(pos)){
+            Dungeon.GetCurrentRoom().RoomNPC.NPCAction.run();
+            return;
+        }
+
         MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
         MapEditor.setIntoCell(Player.PlayerModel, NewY, NewX);
         Player.Pos.x = (byte) NewX;

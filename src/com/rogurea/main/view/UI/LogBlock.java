@@ -130,8 +130,8 @@ public class LogBlock implements IViewBlock {
     }
 
     public void Reset(){
-        TerminalView.InitGraphics(LoggerGraphics, topLoggerLeft, LogSize);
         topLoggerLeft = new TerminalPosition(Dungeon.CurrentRoom[0].length + 4,12);
+        TerminalView.InitGraphics(LoggerGraphics, topLoggerLeft, LogSize);
         DrawLogBorders();
     }
 }

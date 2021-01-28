@@ -1,6 +1,7 @@
 package com.rogurea.main.resources;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.rgs.Formula;
+import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 
@@ -8,6 +9,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static com.rogurea.main.view.ViewObjects.*;
@@ -16,7 +18,7 @@ public class GameResources {
 
     public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
-    public static final String version = "0.0.5:1111:1416dev";
+    public static final String version = "0.0.8:0901:0158dev";
 
     public static final char EmptyCell = ' ';
 
@@ -26,7 +28,11 @@ public class GameResources {
 
     public static final char HWall = '━';
 
+    public static final char SWall = '─';
+
     public static final char Vwall = '┃';
+
+    /*public static final char ShopWindow = '╎';*/
 
     public static final char LBCorner = '┗';
     public static final char RTCorner = '┓';
@@ -37,7 +43,7 @@ public class GameResources {
     public static final char TCenter  = '┳';
     public static final char BCenter  = '┻';
 
-    public static final char[] MapStructureAtlas = {HWall, Vwall, LBCorner, RTCorner, LTCorner, RBCorner, LRCenter, RLCenter, TCenter, BCenter};
+    public static final char[] MapStructureAtlas = {HWall, Vwall, SWall, LBCorner, RTCorner, LTCorner, RBCorner, LRCenter, RLCenter, TCenter, BCenter};
 
     public static final char[] CornersAtlas = {LBCorner, RTCorner, LTCorner, RBCorner};
 
@@ -100,6 +106,8 @@ public class GameResources {
             "successfull hit! You get %dmg%"
     };
 
+    public static HashSet<Weapon> AllWeapons = new HashSet<>();
+
     public static final HashMap<Character, String> ModelNameMap = new HashMap<>();
 
     public static String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
@@ -117,12 +125,12 @@ public class GameResources {
 
     public static StringBuilder UpdatePlayerHPMP() {
         return new StringBuilder(Colors.R + "HP: " + Colors.RED_BRIGHT + Player.HP + " "
-                + Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " ");
+                /*+ Colors.R + "MP: " + Colors.BLUE_BRIGHT + Player.MP + " "*/);
     }
 
     public static StringBuilder UpdatePlayerMoneyXP(){
         return new StringBuilder(Colors.R + "Money: " + Colors.ORANGE + Player.Money + " "
-                + Colors.R + "XP: " + Colors.ORANGE + Player.XP + "/" + Player.XPForNextLevel);
+                + Colors.R + "XP: " + Colors.ORANGE + Player.XP + "/" + Player.ReqXPForNextLevel);
     }
 
     public static StringBuilder UpdatePlayerATKDEFDEX(){
@@ -222,7 +230,7 @@ public class GameResources {
         HashMap<Character, Runnable> _keymap = new HashMap<>();
         _keymap.put('r', Dungeon::RegenRoom);
         _keymap.put('c', logBlock::Clear);
-        _keymap.put('i', inventoryBlock::show);
+        _keymap.put('i', () -> inventoryMenu.show());
         //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;
 
         return _keymap;

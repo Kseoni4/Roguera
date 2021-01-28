@@ -4,14 +4,18 @@ import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.GameLoop;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.mapgenerate.BaseGenerate;
+import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
+import com.rogurea.main.view.Draw;
 import com.rogurea.main.view.MainMenu;
 import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.TerminalView;
 
+import java.awt.desktop.AppForegroundListener;
 import java.io.IOException;
 
 public class Main{
@@ -19,6 +23,8 @@ public class Main{
     public static final GameLoop gameLoop = new GameLoop();
 
     public static boolean NewGame = true;
+
+    private static int Normal = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -32,7 +38,7 @@ public class Main{
 
         Debug.log("GAME VERSION: " + GameResources.version);
 
-        MainMenu.start();
+        MainMenu.start(Normal);
 
         Debug.log("== INITIALIZING TERMINAL INSTANCE ==");
 
@@ -72,6 +78,11 @@ public class Main{
 
         Debug.log(Player.playerStatistics.toString());
 
+        Debug.log("Draw\n" +
+                "\t [Calls]: " + Draw.DrawCallCount+'\n'+
+                "\t [Resets]: " + Draw.DrawResetCount+'\n'+
+                "\t [Inits]: " + Draw.DrawInitCount+'\n');
+
         Debug.SaveLogToFile();
 
         System.out.println("Game session end");
@@ -89,18 +100,22 @@ public class Main{
         try {
             Debug.log("SYSTEM: Starting game from saved file " + SavingSystem.GetSaveFileName());
 
-            SavingSystem.loadGame(SavingSystem.GetSaveFileName());
-
             Dungeon.Generate();
 
-            Dungeon.ChangeRoom(Dungeon.GetCurrentRoom());
+            Dungeon.Rooms.set(Player.CurrentRoom-1, Dungeon.SavedRoom);
+
+            if(!Dungeon.SavedRoom.IsEndRoom)
+                Dungeon.Rooms.get(Player.CurrentRoom - 1).nextRoom = Dungeon.Rooms.get(Player.CurrentRoom);
+
+            Dungeon.CurrentRoom = Dungeon.SavedRoom.RoomStructure;
+
+            MapEditor.setIntoCell(GameResources.SWall,new Position(Dungeon.SavedRoom.RoomStructure[0].length/2,0));
 
             BaseGenerate.PutPlayerInDungeon((byte) Player.GetPlayerPosition().x,
                     (byte) Player.GetPlayerPosition().y,
                     Dungeon.GetCurrentRoom().RoomStructure);
 
-            TerminalView.terminal.flush();
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (IndexOutOfBoundsException e) {
             Debug.log("ERROR: load game is failed");
 
             e.printStackTrace();

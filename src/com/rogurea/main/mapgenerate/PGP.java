@@ -74,7 +74,7 @@ public class PGP {
                 "\t y0 = %d\n",
                 FirstPoint.x, FirstPoint.y);
 
-        Debug.log("PGP: Induction Place ");
+        //Debug.log("PGP: Induction Place ");
 
         System.out.println("[Induction Place]");
         while (true) {
@@ -90,15 +90,14 @@ public class PGP {
             }
         }
 
-        Debug.log("PGP: Induction place ended ");
+        //Debug.log("PGP: Induction place ended ");
 
         ExitPoint = new Position(FirstPoint);
         System.out.printf("ExitPoint: x:%d y:%d\n", ExitPoint.x, ExitPoint.y);
 
-        Debug.log("PGP: Exit Point: " + ExitPoint.toString());
+        //Debug.log("PGP: Exit Point: " + ExitPoint.toString());
 
-
-        Debug.log("PGP: Deduction Place");
+        //Debug.log("PGP: Deduction Place");
 
         System.out.println("[Deduction Place]");
         while (FirstPoint.y >= 0 && FirstPoint.x >= 0){
@@ -112,7 +111,7 @@ public class PGP {
                 break;
             }
         }
-        Debug.log("PGP: Deduction Place ended");
+        //Debug.log("PGP: Deduction Place ended");
 
         FinalPlace();
     }
@@ -129,7 +128,7 @@ public class PGP {
     }
 
     private void DeductionPlace() throws ArrayIndexOutOfBoundsException{
-        byte xBnd = 1, yBnd = 4;
+        byte xBnd = 1, yBnd = 2;
 
         Placer(xBnd, yBnd, true);
     }

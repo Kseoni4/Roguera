@@ -2,9 +2,10 @@ package com.rogurea.main.creatures;
 
 import com.rogurea.main.items.Item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Creature {
+public abstract class Creature implements Serializable {
 
     public String Name = "";
 
@@ -51,7 +52,7 @@ public abstract class Creature {
         id = CreatureCount++;
     }
 
-    public abstract short getDamage();
+    public abstract short getATKm();
 
-    public abstract short getArmor();
+    public abstract short getDEFm();
 }

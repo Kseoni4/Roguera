@@ -10,7 +10,7 @@ public class KeyController {
 
     public static void GetKey (Character key){
             try {
-                KeyMap.get(key).run();
+               KeyMap.get(key).run();
             }catch (NullPointerException e){
                 System.out.printf("Binding for '%s' key has not found\n", key);
                 Debug.log("Binding for " + key + " has not found");

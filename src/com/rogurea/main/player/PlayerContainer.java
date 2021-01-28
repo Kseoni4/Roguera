@@ -2,7 +2,9 @@ package com.rogurea.main.player;
 
 import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.Item;
+import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
+import com.rogurea.main.map.Room;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,19 +22,21 @@ public class PlayerContainer implements Serializable {
     public  byte attempt;
     public  byte[] RandomSeed;
     public  short XP; //Experience Points
-    public  byte ATK;
-    public  byte DEF;
+    public  short ATK;
+    public  short DEF;
     public  byte DEX;
     public  short XPForNextLevel;
     public  ArrayList<Item> Inventory;
     public  HashMap<String, Equipment> Equip;
     public  PlayerStatistics playerStatistics;
     public  String SaveFileVer;
+    public  byte CurrentDungeonLenght;
+    public  Room CurrentRoomObject;
 
     public PlayerContainer(String nickName, Position playerPosition, short HP,
                            short MP, byte level, byte currentRoom,
                            short money, byte attempt, byte[] randomSeed,
-                           short XP, byte ATK, byte DEF, byte DEX,
+                           short XP, short ATK, short DEF, byte DEX,
                            short XPForNextLevel, ArrayList<Item> inventory, HashMap<String, Equipment> equip,
                            PlayerStatistics playerStatistics) {
         this.nickName = nickName;

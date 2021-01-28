@@ -10,10 +10,22 @@ public class Events {
 
     public static void getNewLevel(){
         Player.Level++;
-        Player.XPForNextLevel = Formula.CalculateXPForLevel(Player.XPForNextLevel, Player.Level);
+
+        Player.ATK = (short) Formula.CalculatePlayerATK(Player.Level);
+
+        Player.DEF = (short) Formula.CalculatePlayerDEF(Player.Level);
+
+        if(Player.DEX < 100){
+            Player.DEX = (byte) Formula.CalculatePlayerDEX(Player.Level);
+        }
+
+        Player.ReqXPForNextLevel = (short) Formula.GetRequirementXP();
+
         Player.XP = 0;
+
         logBlock.Action("Get the new level!");
-        logBlock.Event("Requirement XP for the next level: " + Player.XPForNextLevel);
+        logBlock.Event("Requirement XP for the next level: " + Player.ReqXPForNextLevel);
+
         Draw.call(playerInfoBlock);
     }
 }

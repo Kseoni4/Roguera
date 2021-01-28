@@ -11,6 +11,7 @@ import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.rogurea.main.view.ViewObjects.*;
 
@@ -28,7 +29,7 @@ public class TerminalView {
 
         Debug.log("RENDERING: Setting view blocks");
 
-        ViewBlocks.forEach(IViewBlock::Init);
+        ViewBlocks.forEach(Draw::init);
 
         Effects.Init();
 
@@ -61,35 +62,37 @@ public class TerminalView {
         }
     }
 
-    public static void ReDrawAll(IViewBlock except){
+    public static void ReDrawAll(IViewBlock[] except){
 
         Debug.log("RENDERING: Redraw blocks");
 
-        try {
+        /*try {
             terminal.clearScreen();
+            Debug.log("RENDERING: Screen has been cleared");
         } catch (IOException e) {
             Debug.log("ERROR: Clear screen was failed");
             Debug.log(e.getMessage());
             e.printStackTrace();
-        }
+        }*/
 
         ResetPositions(except);
 
         ViewBlocks.forEach(
                 viewBlock -> {
-                    if (viewBlock != except){
+                    if (Arrays.stream(except).noneMatch(viewBlock::equals)){
                         Debug.log("RENDERING: draw call block " + viewBlock.getClass().getSimpleName());
                         viewBlock.Draw();
                     }
                 });
+        Draw.flush();
     }
 
-    private static void ResetPositions(IViewBlock except){
+    private static void ResetPositions(IViewBlock[] except){
 
         Debug.log("RENDERING: reset view blocks position");
 
         ViewBlocks.forEach(viewBlock -> {
-                if(viewBlock != except)
+                if(Arrays.stream(except).noneMatch(viewBlock::equals))
                     Debug.log("RENDERING: reset block " + viewBlock.getClass().getSimpleName());
                     viewBlock.Reset();
             });

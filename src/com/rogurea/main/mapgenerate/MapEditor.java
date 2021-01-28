@@ -1,6 +1,7 @@
 package com.rogurea.main.mapgenerate;
 
 import com.rogurea.main.creatures.Mob;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
@@ -97,7 +98,7 @@ public class MapEditor {
         return lineBuffer;
     }
 
-    /* public static char[][] DrawSquare(int square){
+     public static char[][] DrawSquare(int square){
         char[][] squareBuffer = new char[square][square];
 
         int y = 0;
@@ -105,17 +106,17 @@ public class MapEditor {
 
         FillSpaceWithEmpty(squareBuffer);
 
-        DrawLine(DrawDirection.UP, square);
+        char[] lineBuffer = DrawLine(DrawDirection.UP, square);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             squareBuffer[y][0] = c;
             squareBuffer[y][square-1] = c;
             y++;
         }
 
-        DrawLine(DrawDirection.RIGHT, square);
+        lineBuffer = DrawLine(DrawDirection.RIGHT, square);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             squareBuffer[0][x] = c;
             squareBuffer[square-1][x] = c;
             x++;
@@ -124,9 +125,8 @@ public class MapEditor {
         PlaceCorners(squareBuffer);
 
         return squareBuffer;
-    }*/
+    }
 
-    /*
     public static char[][] DrawRectangle(int h, int w){
         char[][] RectagnleBuffer = new char[h][w];
 
@@ -134,17 +134,17 @@ public class MapEditor {
 
         FillSpaceWithEmpty(RectagnleBuffer);
 
-        DrawLine(DrawDirection.UP, h);
+        char[] lineBuffer = DrawLine(DrawDirection.UP, h);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             RectagnleBuffer[y][0] = c;
             RectagnleBuffer[y][w-1] = c;
             y++;
         }
 
-        DrawLine(DrawDirection.RIGHT, w);
+        lineBuffer = DrawLine(DrawDirection.RIGHT, w);
 
-        for(char c : LineBuffer){
+        for(char c : lineBuffer){
             RectagnleBuffer[0][x] = c;
             RectagnleBuffer[h-1][x] = c;
             x++;
@@ -154,16 +154,13 @@ public class MapEditor {
 
         return RectagnleBuffer;
     }
-*/
 
-    /*
     static void PlaceCorners(char[][] ShapeBuffer){
         setIntoCell(ShapeBuffer, LTCorner, new Position(0,0));
         setIntoCell(ShapeBuffer, RBCorner, new Position(ShapeBuffer[0].length-1,ShapeBuffer.length-1));
         setIntoCell(ShapeBuffer, RTCorner, new Position(ShapeBuffer[0].length-1,0));
         setIntoCell(ShapeBuffer, LBCorner, new Position(0,ShapeBuffer.length-1));
     }
-    */
 
     public static void FillSpaceWithEmpty(char[][] ShapeBuffer){
         for (int i = 0; i < ShapeBuffer.length; i++) {
@@ -254,6 +251,8 @@ public class MapEditor {
 
         char BackDoor = GameResources.GetModel("BackDoor");
 
+        char ExitDoor = GameResources.GetModel("DungeonExit");
+
         if(!room.IsEndRoom) {
             if (Scans.CheckCorner(cell))
                 setIntoCell(CurrentRoom, NextDoor, ExitPoint);
@@ -262,9 +261,20 @@ public class MapEditor {
                 setIntoCell(CurrentRoom, NextDoor, ExitPoint.getRelative(x_shift,0));
             }
         }
+        else{
+            if (Scans.CheckCorner(cell))
+                setIntoCell(CurrentRoom, ExitDoor, ExitPoint);
+            else{
+                int x_shift = FindWall(CurrentRoom, ExitPoint);
+                setIntoCell(CurrentRoom, ExitDoor, ExitPoint.getRelative(x_shift,0));
+            }
+        }
         if(room.NumberOfRoom > 1)
             CurrentRoom[0][CurrentRoom[0].length/2] = BackDoor;
+        if(room.NumberOfRoom == (Dungeon.CurrentDungeonLenght-Dungeon.DungeonLenght)+1)
+            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.SWall;
     }
+
 
     private static int FindWall(char[][] CurrentRoom, Position ExitPoint){
         int x = ExitPoint.x, y = ExitPoint.y;
@@ -292,7 +302,11 @@ public class MapEditor {
     }
 
     public static void setIntoCell(char[][] CurrentRoom, char cell, Position position){
-        CurrentRoom[position.y][position.x] = cell;
+        try {
+            CurrentRoom[position.y][position.x] = cell;
+        } catch (ArrayIndexOutOfBoundsException e){
+            Debug.log("ERROR: generation was failed, index " +position.toString()+" is outer of bounds");
+        }
     }
 
     public static char getFromCell(int y, int x){
@@ -320,64 +334,6 @@ public class MapEditor {
             System.arraycopy(FurnitureMap[y], 0, CurrentRoom[3 + y], 4, FurnitureMap[0].length);
         }
     }
-
-    /*
-    static void PlaceSubShapes(BaseGenerate.RoomSize roomSize, char[][] CurrentRoom){
-
-        Random random = new Random();
-
-        int offsetX = 0;
-
-        int offsetY = 0;
-
-        int RandomXY = 2;
-
-        System.out.println("Room size: " + roomSize);
-
-        for(int i = 0; i < CheckSize(roomSize); i++) {
-
-            int sq = random.nextInt(2)+2;
-
-            char[][] shape = DrawSquare(sq);
-
-            System.out.println("Square: " + sq);
-
-            System.out.println(
-                    "i: " + i + "\n" +
-                            "\t offsetX: " + offsetX
-                            + " offsetY: " + offsetY
-
-            );
-
-            System.out.println("SumOFX: " + (RandomXY + Math.max(offsetX,shape[0].length)));
-            System.out.println("SumOFY: " + (RandomXY + Math.max(offsetY,shape.length)));
-
-            if(OutOfBounds(RandomXY, offsetX, offsetY,
-                    CurrentRoom[0].length, CurrentRoom.length,
-                    shape[0].length, shape.length)){
-                offsetX = 0;
-            }
-
-            System.out.println("Random XY: " + RandomXY);
-            try {
-                InsertShapeFlat(CurrentRoom, shape,
-                        RandomXY + offsetX,
-                        RandomXY + offsetY);
-            }
-            catch (ArrayIndexOutOfBoundsException e){
-                break;
-            }
-            offsetX += shape[0].length + 2;
-
-            if((i+1) % 4 == 0) {
-                offsetX = 0;
-                offsetY += shape.length + 1;
-                continue;
-            }
-            offsetY += 0;
-        }
-    }
-    */
 
     static int CheckSize(BaseGenerate.RoomSize roomSize) {
         switch (roomSize) {
@@ -411,8 +367,10 @@ public class MapEditor {
             int y = SpawnPosition.y, x = SpawnPosition.x;
 
             if(!Scans.CheckCreature(CurrentRoom[y][x])) {
-                CurrentRoom[y][x] = mob.getCreatureSymbol();
-                mob.setMobPosition(y,x);
+                if(Scans.CheckWall(CurrentRoom[y][x])) {
+                    CurrentRoom[y][x] = mob.getCreatureSymbol();
+                    mob.setMobPosition(y, x);
+                }
             }
         }
     }

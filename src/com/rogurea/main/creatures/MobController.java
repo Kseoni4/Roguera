@@ -49,11 +49,14 @@ public class MobController extends Thread {
 
             mob.getMobBehavior().SetBehaviorAction();
 
-            if(isInterrupted())
+            if(isInterrupted()) {
+                Debug.log("MOB: " + mob.Name + " controller is interrupted");
                 break;
+            }
             try {
                 sleep(mob.MobSpeed);
             } catch (InterruptedException e) {
+                Debug.log("MOB: " + mob.Name + " controller is interrupted from sleep");
                 break;
             }
 
@@ -61,6 +64,7 @@ public class MobController extends Thread {
                 mob.SetMobBehavior(Mob.Behavior.DEAD);
 
                 mob.getMobBehavior().SetBehaviorAction();
+                Debug.log("MOB: " + mob.Name + " is dead");
             }
 
             if(Player.HP <= 0) {
@@ -106,6 +110,7 @@ public class MobController extends Thread {
         if(!isInterrupted())
             return ScanZone();
         else{
+            Debug.log("MOB: " + mob.Name + " controller is interrupted from scan");
             System.out.println(Colors.RED_BRIGHT + "Interrupted");
             return false;
         }
@@ -141,6 +146,7 @@ public class MobController extends Thread {
                 continue;
             }
             if(isInterrupted()){
+                Debug.log("MOB: " + mob.Name + " controller is interrupted from scan zone");
                 System.out.println(Colors.RED_BRIGHT + "Interrupted");
                 break;
             }
@@ -160,6 +166,7 @@ public class MobController extends Thread {
 
         if(isInterrupted()){
             System.out.println(Colors.RED_BRIGHT + getName() + " " + "Interrupted");
+            Debug.log("MOB: " + mob.Name + " controller is interrupted from move");
             return false;
         }
 
