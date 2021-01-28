@@ -197,7 +197,7 @@ public class GameResources {
 
         Debug.log("RESOURCE: Make char map from CharAtlas.csv");
 
-        InputStream csvfile = GameResources.class.getResourceAsStream("csv/Roguera | CharAtlas.csv");
+        InputStream csvfile = GameResources.class.getResourceAsStream("csv/Roguera.CharAtlas.csv");
 
         String[] CharName = null;
 
