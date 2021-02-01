@@ -1,7 +1,6 @@
 package com.rogurea.main.view;
 
 import com.rogurea.main.view.UI.*;
-import com.rogurea.main.view.UI.Menu.ExitDungeonMenu;
 import com.rogurea.main.view.UI.Menu.InventoryMenu;
 import com.rogurea.main.view.UI.Menu.ShopMenu;
 

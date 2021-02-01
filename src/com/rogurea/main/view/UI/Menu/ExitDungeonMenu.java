@@ -7,7 +7,6 @@ import com.rogurea.main.input.Input;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.TerminalView;
 
 public class ExitDungeonMenu extends BasicMenu {
     public ExitDungeonMenu() {

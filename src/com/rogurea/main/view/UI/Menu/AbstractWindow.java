@@ -12,7 +12,6 @@ import com.rogurea.main.resources.Colors;
 import com.rogurea.main.view.Draw;
 import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;
-import com.rogurea.main.view.ViewObjects;
 
 import java.io.IOException;
 import java.io.Serializable;

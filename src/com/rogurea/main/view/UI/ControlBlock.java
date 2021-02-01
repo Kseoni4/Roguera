@@ -1,7 +1,6 @@
 package com.rogurea.main.view.UI;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
-import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;

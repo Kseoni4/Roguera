@@ -4,7 +4,6 @@ import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobFactory;
 import com.rogurea.main.creatures.NPC;
 import com.rogurea.main.items.Item;
-import com.rogurea.main.items.ItemGenerate;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 
 import java.io.Serializable;

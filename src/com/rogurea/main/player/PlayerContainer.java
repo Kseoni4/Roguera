@@ -2,7 +2,6 @@ package com.rogurea.main.player;
 
 import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.Item;
-import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.map.Room;
 

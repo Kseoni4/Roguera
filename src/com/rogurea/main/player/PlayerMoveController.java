@@ -1,8 +1,5 @@
 package com.rogurea.main.player;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.SavingSystem;
@@ -16,8 +13,8 @@ import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.view.Draw;
-import com.rogurea.main.view.TerminalView;
 import com.rogurea.main.view.UI.Menu.ExitDungeonMenu;
+import com.rogurea.main.view.UI.Menu.Message;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -48,20 +45,25 @@ public class PlayerMoveController {
         }
 
         if(Scans.CheckRoomExit(cell)){
+            if(Dungeon.GetCurrentRoom().RoomCreatures.size() <= 0){
+                try {
+                    SavingSystem.saveGame();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-            try {
-                SavingSystem.saveGame();
-            } catch (IOException e) {
-                e.printStackTrace();
+                MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
+
+                Dungeon.ChangeRoom(
+                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
+                );
+
+                logBlock.Action("enter the room");
+
+            } else{
+                new Message("You need to kill all mobs in the room", new Position(10,10));
+
             }
-
-            MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
-
-            Dungeon.ChangeRoom(
-                    Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
-            );
-
-            logBlock.Action("enter the room");
             return;
         }
 

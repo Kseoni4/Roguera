@@ -1,12 +1,10 @@
 package com.rogurea.main.map;
 
-import com.googlecode.lanterna.TerminalSize;
 import com.rogurea.main.creatures.NPC;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.UI.Menu.BasicMenu;
 import com.rogurea.main.view.UI.Menu.Message;
 
 import java.io.Serializable;
