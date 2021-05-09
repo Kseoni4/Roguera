@@ -15,7 +15,7 @@ import com.rogurea.main.view.MainMenu;
 import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.TerminalView;
 
-import java.awt.desktop.AppForegroundListener;
+import java.awt.*;
 import java.io.IOException;
 
 public class Main{
@@ -34,7 +34,11 @@ public class Main{
                 + "OS: " +             System.getProperties().getProperty("os.name")+"\n\t"
                 + "Architecture: " +   System.getProperties().getProperty("os.arch")+"\n\t"
                 + "System version: " + System.getProperties().getProperty("os.version")+"\n\t"
-                + "Java version: " +   System.getProperties().getProperty("java.version"));
+                + "Java version: " +   System.getProperties().getProperty("java.version")+"\n\t"
+                + "Java RNE: " + System.getProperties().getProperty("java.runtime.version")+"\n\t" +
+                "Java VM Version: " + System.getProperties().getProperty("java.vm.specification.version"));
+
+        System.out.println(System.getProperties());
 
         Debug.log("GAME VERSION: " + GameResources.version);
 
@@ -121,7 +125,6 @@ public class Main{
             e.printStackTrace();
         }
     }
-
 }
 
 

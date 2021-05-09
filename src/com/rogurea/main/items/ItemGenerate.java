@@ -1,7 +1,6 @@
 package com.rogurea.main.items;
 
 import com.rogurea.main.gamelogic.rgs.Formula;
-import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.resources.GetRandom;

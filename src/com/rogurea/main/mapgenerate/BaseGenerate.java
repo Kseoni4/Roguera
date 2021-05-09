@@ -18,7 +18,6 @@ import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;

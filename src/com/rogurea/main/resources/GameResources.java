@@ -18,7 +18,7 @@ public class GameResources {
 
     public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
 
-    public static final String version = "0.0.8:0901:0158dev";
+    public static final String version = "0.1:0102:1540dev";
 
     public static final char EmptyCell = ' ';
 
@@ -32,7 +32,7 @@ public class GameResources {
 
     public static final char Vwall = '┃';
 
-    /*public static final char ShopWindow = '╎';*/
+    /* public static final char ShopWindow = '╎'; */
 
     public static final char LBCorner = '┗';
     public static final char RTCorner = '┓';

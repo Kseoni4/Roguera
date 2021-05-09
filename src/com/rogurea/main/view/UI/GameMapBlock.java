@@ -15,12 +15,8 @@ import com.rogurea.main.view.IViewBlock;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GameMapBlock implements IViewBlock {
 

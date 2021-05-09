@@ -11,7 +11,6 @@ import com.rogurea.Main;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.player.Player;
-import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
 
 import java.io.FileNotFoundException;

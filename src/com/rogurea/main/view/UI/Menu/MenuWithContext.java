@@ -1,14 +1,10 @@
 package com.rogurea.main.view.UI.Menu;
 
-import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.rogurea.main.input.CursorUI;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.view.Draw;
-import com.rogurea.main.view.TerminalView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MenuWithContext extends AbstractMenu {
