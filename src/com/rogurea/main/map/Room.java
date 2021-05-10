@@ -3,6 +3,7 @@ package com.rogurea.main.map;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobFactory;
 import com.rogurea.main.creatures.NPC;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 
@@ -46,7 +47,12 @@ public class Room implements Serializable {
     }
 
     private void MakeRoom(byte RoomCounter, byte x, byte y){
+
         this.NumberOfRoom = RoomCounter;
+
+        Debug.log("MAKE ROOM: #" + NumberOfRoom);
+
+        Debug.log("MAKE ROOM: SIZE X = " + x + "; Y = " + y + ";");
 
         this.X = x;
 
@@ -66,6 +72,8 @@ public class Room implements Serializable {
         RoomStructure = new char[y][x];
 
         RoomItems = new ArrayList<>();
+
+        Debug.log("MAKE ROOM: #" + NumberOfRoom + " IS ENDED");
     }
 
     public Mob getMobFromRoom(Position pos){

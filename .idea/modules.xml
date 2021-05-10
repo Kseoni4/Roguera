@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../Roguera/Roguera/Roguera.iml" filepath="$PROJECT_DIR$/../Roguera/Roguera/Roguera.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Roguera2.iml" filepath="$PROJECT_DIR$/Roguera2.iml" />
     </modules>
   </component>
 </project>

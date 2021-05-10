@@ -65,10 +65,10 @@ public class Shop implements Serializable {
     private char[][] DrawShopStructure(){
         char[][] bufferedStructure = MapEditor.DrawRectangle(3,3);
 
-        bufferedStructure[0][1] = GameResources.SWall;
+        bufferedStructure[0][1] = GameResources.GetModel("SWall");
         bufferedStructure[1][2] = GameResources.EmptyCell;
         bufferedStructure[1][1] = shopOwner.getCreatureSymbol();
-        bufferedStructure[2][1] = GameResources.SWall;
+        bufferedStructure[2][1] = GameResources.GetModel("SWall");
 
         return bufferedStructure;
     }

@@ -61,7 +61,7 @@ public class GameMapBlock implements IViewBlock {
                 } else if (Scans.CheckCreature(cell)) {
                     data = data.withForegroundColor(Colors.GetTextColor(Colors.RED_BRIGHT,"\u001b[38;5;"));
                     /*out.append(Colors.RED_BRIGHT);*/
-                } else if (!Scans.CheckWall(cell)){
+                  } else if (!Scans.CheckWall(cell)){
                     data = data.withForegroundColor(TextColor.ANSI.DEFAULT);
                     /*out.append(Colors.R);*/
                 } else if(Scans.CheckItems(cell)) {

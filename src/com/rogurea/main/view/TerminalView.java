@@ -5,6 +5,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.mapgenerate.MapEditor;
@@ -48,11 +49,15 @@ public class TerminalView {
 
             terminal.flush();
 
-            terminal.enterPrivateMode();
+            //terminal.enterPrivateMode();
 
-            terminal.clearScreen();
+            //terminal.clearScreen();
 
             terminal.setCursorVisible(false);
+
+            terminal.newTextGraphics().putString(new TerminalPosition(50, 50), "LOADING...");
+
+            terminal.flush();
 
             Debug.log("RENDERING: Terminal init");
 

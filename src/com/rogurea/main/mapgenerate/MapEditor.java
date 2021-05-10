@@ -272,7 +272,7 @@ public class MapEditor {
         if(room.NumberOfRoom > 1)
             CurrentRoom[0][CurrentRoom[0].length/2] = BackDoor;
         if(room.NumberOfRoom == (Dungeon.CurrentDungeonLenght-Dungeon.DungeonLenght)+1)
-            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.SWall;
+            CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.GetModel("SWall");
     }
 
 

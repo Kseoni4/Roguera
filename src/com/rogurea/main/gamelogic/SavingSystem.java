@@ -71,7 +71,7 @@ public class SavingSystem {
 
         Player.LoadPlayerDataFromFile(loadedFile);
 
-        Debug.log("Player name: " + Player.nickName);
+        Debug.log("layer name: " + Player.nickName);
 
         GameResources.UpdatePlayerName();
 

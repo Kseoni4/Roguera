@@ -59,16 +59,25 @@ public class Mob extends Creature {
 
     public Mob(String name, char mobSymbol, String _name, int roomnum) {
         super(name);
+        Debug.log("CREATING MOB: " + name);
         this.MobSymbol = mobSymbol;
+        Debug.log("CREATING MOB: Mob Symbol is good");
         this.MobLevel = (short) Formula.GetLvlForMob(roomnum);
+        Debug.log("CREATING MOB: MobLevel is good");
         this.GainXP = (short) Formula.GetXPForMob(_name, this.MobLevel);
+        Debug.log("CREATING MOB: GainXP is good");
         this.ATKm = (short) Formula.GetATKForMob(_name, this.MobLevel, roomnum);
+        Debug.log("CREATING MOB: ATKm is good");
         this.DEFm = (short) Formula.GetDEFForMob(_name, this.MobLevel, roomnum);
+        Debug.log("CREATING MOB: DEFm is good");
         this.Loot = MobFactory.GetLoot();
+        Debug.log("CREATING MOB: Loot is good");
         this.mobBehavior = Behavior.IDLE;
         this.mobBehavior.id = super.id;
         setHP((short) Formula.GetHPForMob(MobLevel));
+        Debug.log("CREATING MOB: HP is good");
         setCreatureType(CreatureType.MOB);
+        Debug.log("CREATING MOB: " + name + " IS CREATED");
     }
 
     public void setMobPosition(int y, int x){

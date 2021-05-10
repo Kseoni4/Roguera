@@ -14,7 +14,7 @@ import static com.rogurea.main.view.ViewObjects.logBlock;
 public class Scans {
 
     public static boolean CheckWall(char c){
-        for(char cell : GameResources.MapStructureAtlas){
+        for(char cell : GameResources.RoomStructureAtlas){
             if(cell == c)
                 return false;
         }

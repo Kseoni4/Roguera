@@ -1,5 +1,6 @@
 package com.rogurea.main.player;
 
+import com.googlecode.lanterna.TerminalPosition;
 import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Position;

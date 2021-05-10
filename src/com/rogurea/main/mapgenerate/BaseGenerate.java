@@ -114,9 +114,13 @@ public class BaseGenerate implements Serializable {
 
         RoomSize[] roomSizes = RoomSize.values();
 
+        Debug.log("GENERATE: DecadeRoom = " + DecadeRoom);
+
         for(byte i = (byte) Dungeon.Rooms.size(); i < Dungeon.CurrentDungeonLenght; i++){
 
             int RandomRoomSize = random.nextInt(3);
+
+            Debug.log("GENERATE: RandomRoomSize = " + RandomRoomSize);
 
             byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];

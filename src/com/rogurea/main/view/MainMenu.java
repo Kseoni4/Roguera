@@ -7,6 +7,7 @@ import com.googlecode.lanterna.graphics.*;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.rogurea.Main;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.SavingSystem;
@@ -36,9 +37,16 @@ public class MainMenu {
 
     private static int CorruptedSaveFile = 1;
 
+    private static String checkedResources = null;
+
     public static void start(int code){
         try {
+
+            GameResources.LoadFont();
+
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.version);
+
+            defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(GameResources.TerminalFont));
 
             GUIWindow = defaultTerminalFactory.createScreen();
 
@@ -101,15 +109,17 @@ public class MainMenu {
         })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NewGamePanel.addComponent(new Button("Start game", () -> {
-            WindowsGUI.getActiveWindow().close();
             if(nickname.getText().length() > 0) {
                 Debug.log("MAIN MENU: get input nickname: " + nickname.getText());
                 Player.nickName = nickname.getText();
                 GameResources.UpdatePlayerName();
                 Debug.log("MAIN MENU: Set nickname " + Player.nickName);
+            } else {
+                Debug.log("MAIN MENU: set random nickname");
             }
             try {
                 GUIWindow.close();
+                WindowsGUI.getActiveWindow().close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -117,8 +127,12 @@ public class MainMenu {
 
         NewGameWindow.setComponent(NewGamePanel);
     }
-
     private static void OpenMenuWindow() {
+
+        checkedResources = GameResources.CheckResourses();
+
+        Debug.log("CHECKING RESOURCES: \n" + checkedResources);
+
         if(BasePanel == null)
             ConstructMenuPanel();
 
@@ -167,6 +181,7 @@ public class MainMenu {
         BasePanel.addComponent(new Button("Quit", () -> {
             try {
                 Debug.log("=== Instance ended by quit from menu === ");
+                Player.nickName = "MenuLog";
                 Debug.SaveLogToFile();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.rogurea.main.gamelogic.rgs;
 
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.items.Potion;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.GameVariables;
@@ -62,7 +63,12 @@ public class Formula {
 
     public static int GetLvlForMob(int RoomNumber){
         if(RoomsForMobLevelUp.contains(RoomNumber)){
-            return GameVariables.BaseMobLevel = RoomsForMobLevelUp.indexOf(RoomNumber)+2;
+            Debug.log("GET LEVEL FOR MOB: RoomNumber = " + RoomNumber);
+
+            int BML = RoomsForMobLevelUp.indexOf(RoomNumber)+2;
+            Debug.log("GET LEVEL FOR MOB: BaseMobLevel = " + BML);
+
+            return GameVariables.BaseMobLevel = BML;
         }else{
             return GameVariables.BaseMobLevel;
         }
@@ -84,7 +90,7 @@ public class Formula {
     public static int GetATKForMob(String MobType, int LVLm, int RoomNumber){
         int BaseATKm = GameVariables.BaseMobDamageStat;
 
-        if(RoomNumber > 3){
+        if(RoomNumber >= 1){
             BaseATKm = CalculateBaseMobATK(LVLm, MobType);
         }
         return (int) Math.nextUp(BaseATKm + (Math.log10(LVLm) * GameVariables.N) * GameVariables.MobTypeEmpower.get(MobType));

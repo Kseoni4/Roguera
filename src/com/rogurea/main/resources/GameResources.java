@@ -6,19 +6,18 @@ import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.player.Player;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.beans.Encoder;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import static com.rogurea.main.view.ViewObjects.*;
 
 public class GameResources {
 
-    public static final Font TerminalFont = new Font("Px437 IBM VGA 9x16", Font.PLAIN, 24);
+    public static Font TerminalFont = null;
 
-    public static final String version = "0.1:0102:1540dev";
+    public static final String version = "0.1.1:1005:1200dev";
 
     public static final char EmptyCell = ' ';
 
@@ -26,26 +25,11 @@ public class GameResources {
 
     public static final char Gold = '$';
 
-    public static final char HWall = '━';
-
-    public static final char SWall = '─';
-
-    public static final char Vwall = '┃';
-
     /* public static final char ShopWindow = '╎'; */
 
-    public static final char LBCorner = '┗';
-    public static final char RTCorner = '┓';
-    public static final char LTCorner = '┏';
-    public static final char RBCorner = '┛';
-    public static final char LRCenter = '┣';
-    public static final char RLCenter = '┫';
-    public static final char TCenter  = '┳';
-    public static final char BCenter  = '┻';
+    public static ArrayList<Character> RoomStructureAtlas = new ArrayList<>();
 
-    public static final char[] MapStructureAtlas = {HWall, Vwall, SWall, LBCorner, RTCorner, LTCorner, RBCorner, LRCenter, RLCenter, TCenter, BCenter};
-
-    public static final char[] CornersAtlas = {LBCorner, RTCorner, LTCorner, RBCorner};
+    public static ArrayList<Character> CornersAtlas = new ArrayList<>();
 
     public static final char LongSword = '╁';
 
@@ -61,13 +45,28 @@ public class GameResources {
 
     public static final char[] RangeAtlas = {Bow};
 
-    public static final char Potion = '℗';
+    public static final char Potion = '₧';
 
     public static final char[] UsableAtlas = {Potion};
 
     public static final String[] SwordLenght = {"Long", "Short", "Medium"};
 
     public static final String[] MaterialName = {"Wood", "Stone", "Iron", "Copper", "Golden", "Diamond"};
+
+    public static final char HWall = '━';
+
+    public static final char SWall = '─';
+
+    public static final char Vwall = '┃';
+
+    public static final char LBCorner = '┗';
+    public static final char RTCorner = '┓';
+    public static final char LTCorner = '┏';
+    public static final char RBCorner = '┛';
+    public static final char LRCenter = '┣';
+    public static final char RLCenter = '┫';
+    public static final char TCenter  = '┳';
+    public static final char BCenter  = '┻';
 
     public static final HashMap<String, String> MaterialColor;
 
@@ -112,9 +111,7 @@ public class GameResources {
 
     public static String PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
 
-    public static void UpdatePlayerName(){
-        PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " ";
-    }
+    public static String UpdatePlayerName(){ return PlayerName = "Player: " + Colors.GREEN_BRIGHT + Player.nickName + " "; }
 
     public static StringBuilder getPlayerPositionInfo(){
         return  new StringBuilder("Player position "
@@ -146,7 +143,7 @@ public class GameResources {
 
     public static final HashMap<String, Character> ResourcesMap = new HashMap<>();
 
-    public static String Logo = " /$$$$$$$                                                            \n" +
+    public static String Logo = " /$$$$$$$\n" +
             "| $$__  $$                                                           \n" +
             "| $$  \\ $$  /$$$$$$   /$$$$$$  /$$   /$$  /$$$$$$   /$$$$$$  /$$$$$$ \n" +
             "| $$$$$$$/ /$$__  $$ /$$__  $$| $$  | $$ /$$__  $$ /$$__  $$|____  $$\n" +
@@ -165,20 +162,45 @@ public class GameResources {
             "Entity"
     };
 
+    private static final String FilePath = "csv/";
+    private static final String FileExtension = ".res";
+
+
+    public static void LoadFont(){
+        Debug.log("Loading font...");
+        try{
+            InputStream file_font = GameResources.class.getResourceAsStream("PxPlus_IBM_VGA_9x16.ttf");
+
+            TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
+
+            Debug.log("Font loaded successfully");
+        } catch (FontFormatException | IOException e) {
+            Debug.log("Error in loading font:" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public static void LoadResources() {
         int i = 0;
         for(String file : resources){
-            String showload = "= Loading resources from " + file + ".csv =";
+            String showload = "= Loading resources from " + file + ".res =";
             Debug.log(showload);
-            InputStream atlas_csv = GameResources.class.getResourceAsStream("csv/"+file+".csv");
             try {
-                String[] map = new String(atlas_csv.readAllBytes()).split(",|\r\n|\n");
+                InputStream atlas_csv = GameResources.class.getResourceAsStream(FilePath+file+FileExtension);
+
+                String[] map = new String(atlas_csv.readAllBytes(), StandardCharsets.UTF_8).split(",|\r\n|\n");
+
+                Debug.log("= Getting string: " + Arrays.toString(map));
+
                 PutStringsIntoMap(map);
             } catch (IOException e) {
                 Debug.log(e.getMessage());
             }
             i++;
         }
+
+        PutCharsIntoAtlas();
+
         Debug.log("= Loading resources is ended =");
     }
 
@@ -193,7 +215,7 @@ public class GameResources {
         }
     }
 
-    public static void MakeMap() {
+    public static void MakeMap() throws IOException {
 
         Debug.log("RESOURCE: Make char map from CharAtlas.csv");
 
@@ -202,7 +224,7 @@ public class GameResources {
         String[] CharName = null;
 
         try {
-            String maps = new String(csvfile.readAllBytes());
+            String maps = new String(csvfile.readAllBytes(), StandardCharsets.UTF_8);
             CharName = maps.split(",|\r\n");
         }
         catch (IOException e) {
@@ -217,13 +239,42 @@ public class GameResources {
         }
     }
 
+    private static int row = 0;
+
     private static void PutStringsIntoMap(String[] array){
         for(int i = 1; i < (array != null ? array.length : 0); i+=2){
+            String st = array[i];
+
             char s = array[i].charAt(0);
+
             String n = array[i-1];
             Debug.log("RESOURCE: Map ["+n+"-"+s+"]");
+/*            try {
+                Debug.DebugTerminal.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+
             ((Map<String, Character>) GameResources.ResourcesMap).put(n,s);
+            //Debug.DebugTG.putString(0,row+=i,"\"RESOURCE: " + n + " " + ResourcesMap.get(n).toString());
+            //Debug.DebugTG.putCSIStyledString(0,row+=i,"\"RESOURCE: " + n + " " + ResourcesMap.get(n).toString());
         }
+    }
+
+    private static void PutCharsIntoAtlas(){
+        Debug.log("Copy chars into atlas");
+        ResourcesMap.forEach((s, character) ->
+                {
+                    if(s.endsWith("er")){
+                        Debug.log("Char: " + character + " added into Corners atlas");
+                        CornersAtlas.add(character);
+                        RoomStructureAtlas.add(character);
+                    } else if(s.endsWith("ll")){
+                        Debug.log("Char: " + character + " added into RoomStructure atlas");
+                        RoomStructureAtlas.add(character);
+                    }
+                }
+        );
     }
 
     public static HashMap<Character, Runnable> GetKeyMap(){
@@ -234,5 +285,20 @@ public class GameResources {
         //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;
 
         return _keymap;
+    }
+
+    public static String CheckResourses(){
+
+        StringBuilder report = new StringBuilder();
+
+        for(String file : resources){
+            if(GameResources.class.getResourceAsStream(FilePath+file+FileExtension) == null){
+                report.append(file).append(FileExtension+" is not found on path ").append(FilePath).append("\n");
+            }
+            else{
+                report.append(file).append(FileExtension+" is found on path ").append(FilePath).append("\n");
+            }
+        }
+        return report.toString();
     }
 }

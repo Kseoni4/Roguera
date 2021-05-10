@@ -8,10 +8,12 @@ import com.rogurea.main.items.Weapon;
 import com.rogurea.main.map.Room;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
+import com.rogurea.main.resources.GameVariables;
 import com.rogurea.main.resources.GetRandom;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MobFactory {
 

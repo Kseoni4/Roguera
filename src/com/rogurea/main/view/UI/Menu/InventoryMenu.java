@@ -71,12 +71,16 @@ public class InventoryMenu extends MenuWithContext {
 
             KeyStroke key = Input.GetKey();
 
+            System.out.println(ContextCursor.CursorPosition.toString());
+            System.out.println(ContextCursor.IndexOfElement);
+
             ContextCursor.SelectElement(key.getKeyType());
 
             SetupElements();
 
             UpdateIndex();
         }
+        ContextCursor.IndexOfElement = 0;
         Draw.call(this);
     }
 
@@ -130,10 +134,15 @@ public class InventoryMenu extends MenuWithContext {
     }
 
     private boolean CheckUsable(){
-        return Arrays.stream(Player.Inventory.get(MenuCursor.IndexOfElement)
-                .getClass()
-                .getInterfaces())
-                .anyMatch(aClass -> aClass == Usable.class);
+        try {
+            return Arrays.stream(Player.Inventory.get(MenuCursor.IndexOfElement)
+                    .getClass()
+                    .getInterfaces())
+                    .anyMatch(aClass -> aClass == Usable.class);
+        } catch (IndexOutOfBoundsException e){
+            Debug.log(e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -193,15 +202,6 @@ public class InventoryMenu extends MenuWithContext {
 
     private void DrawInventoryBorders(){
 
-        char InvHWallDown = GameResources.GetModel("InvHWallDown");
-        char InvHWallUp = GameResources.GetModel("InvHWallUp");
-        char InvVWallRight = GameResources.GetModel("InvVWallRight");
-        char InvVWallLeft = GameResources.GetModel("InvVWallLeft");
-        char InvLPCorner = GameResources.GetModel("InvLPCorner");
-        char InvRPorner = GameResources.GetModel("InvRPorner");
-        char InvLDorner = GameResources.GetModel("InvLDorner");
-        char InvRDorner = GameResources.GetModel("InvRDorner");
-
         TerminalSize InventoryBordersSize = new TerminalSize(12,3);
 
         int UpperRow = 1;
@@ -212,19 +212,19 @@ public class InventoryMenu extends MenuWithContext {
 
         FillSpaceByEmpty(InnerTopLeftPoint, InventoryBordersSize);
 
-        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow), InnerTopLeftPoint.withRelative(RighterCol,UpperRow), InvHWallDown);
+        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow), InnerTopLeftPoint.withRelative(RighterCol,UpperRow), InvWall.HWallDown);
 
-        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow+2), InnerTopLeftPoint.withRelative(RighterCol,UpperRow+2), InvHWallUp);
+        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow+2), InnerTopLeftPoint.withRelative(RighterCol,UpperRow+2), InvWall.HWallUp);
 
-        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow+1), InnerTopLeftPoint.withRelativeRow(UpperRow+1), InvVWallRight);
+        DrawCustomLine(InnerTopLeftPoint.withRelativeRow(UpperRow+1), InnerTopLeftPoint.withRelativeRow(UpperRow+1), InvWall.VWallRight);
 
         DrawCustomLine(InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow+1),
-                InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow+1), InvVWallLeft);
+                InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow+1), InvWall.VWallLeft);
 
-        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(0,UpperRow), InvLPCorner);
-        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow), InvRPorner);
-        PutCharacterOnPosition(InnerTopLeftPoint.withRelativeRow(UpperRow+2), InvLDorner);
-        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow+2), InvRDorner);
+        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(0,UpperRow), InvWall.LPCorner);
+        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow), InvWall.RPorner);
+        PutCharacterOnPosition(InnerTopLeftPoint.withRelativeRow(UpperRow+2), InvWall.LDorner);
+        PutCharacterOnPosition(InnerTopLeftPoint.withRelative(RighterCol+1,UpperRow+2), InvWall.RDorner);
 
         InnerInventoryPosition = new Position(InnerTopLeftPoint.getColumn()+1, InnerTopLeftPoint.getRow()+1);
     }
@@ -296,5 +296,16 @@ public class InventoryMenu extends MenuWithContext {
             return (item instanceof Equipment ? GameResources.MaterialColor.get(
                     ((Equipment) item).Material) : item.getMaterialColor()) + item._model;
         }
+    }
+
+    private static class InvWall{
+        static char HWallDown = GameResources.GetModel("InvHWallDown");
+        static char HWallUp = GameResources.GetModel("InvHWallUp");
+        static char VWallRight = GameResources.GetModel("InvVWallRight");
+        static char VWallLeft = GameResources.GetModel("InvVWallLeft");
+        static char LPCorner = GameResources.GetModel("InvLPCorner");
+        static char RPorner = GameResources.GetModel("InvRPorner");
+        static char LDorner = GameResources.GetModel("InvLDorner");
+        static char RDorner = GameResources.GetModel("InvRDorner");
     }
 }

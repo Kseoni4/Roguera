@@ -15,7 +15,7 @@ import com.rogurea.main.view.MainMenu;
 import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.TerminalView;
 
-import java.awt.*;
+import java.io.Console;
 import java.io.IOException;
 
 public class Main{
@@ -48,11 +48,17 @@ public class Main{
 
         TerminalView.InitTerminal();
 
+        Debug.log("== STARTING AUTOSAVE LOG THREAD ==");
+
         Debug.AutoSaveLog autoSaveLog = new Debug.AutoSaveLog();
 
         autoSaveLog.start();
 
         Debug.log("== LOADING GAME RESOURCES ==");
+
+/*        Debug.InitDebugWindow();
+
+        Debug.TestFontUnicode();*/
 
         GameResources.LoadResources();
 
@@ -113,7 +119,7 @@ public class Main{
 
             Dungeon.CurrentRoom = Dungeon.SavedRoom.RoomStructure;
 
-            MapEditor.setIntoCell(GameResources.SWall,new Position(Dungeon.SavedRoom.RoomStructure[0].length/2,0));
+            MapEditor.setIntoCell(GameResources.GetModel("SWall"),new Position(Dungeon.SavedRoom.RoomStructure[0].length/2,0));
 
             BaseGenerate.PutPlayerInDungeon((byte) Player.GetPlayerPosition().x,
                     (byte) Player.GetPlayerPosition().y,
