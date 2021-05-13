@@ -1,6 +1,7 @@
 package com.rogurea.main;
 
 import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.Main;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
 import com.rogurea.main.gamelogic.Debug;
@@ -13,6 +14,7 @@ import com.rogurea.main.player.KeyController;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.player.PlayerMoveController;
 import com.rogurea.main.resources.Colors;
+import com.rogurea.main.view.MainMenu;
 import com.rogurea.main.view.TerminalView;
 
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class GameLoop {
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public boolean isGameOver = false;
+    public boolean isGameOver = true;
 
     public void RestartThread(){
 
@@ -80,6 +82,7 @@ public class GameLoop {
     }
 
     public void Start(){
+        isGameOver = false;
         try{
             InLoop();
         } catch (IOException e) {
@@ -93,10 +96,12 @@ public class GameLoop {
                     for(Thread t : ActiveThreads){
                         t.join();
                     }
+                    TerminalView.keyStroke = null;
                     TerminalView.terminal.close();
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
+                MainMenu.start(0);
             }
         }
     }
@@ -131,10 +136,11 @@ public class GameLoop {
         }
 
         MapEditor.clearCell(Player.GetPlayerPosition());
-
-        SavingSystem.saveGame();
+        if(Player.HP > 0)
+            SavingSystem.saveGame();
 
         Debug.log("Ending game loop");
+        Player.PlayerReset();
     }
 
     public void GameEndByDead(){
@@ -150,6 +156,13 @@ public class GameLoop {
             Player.playerStatistics.PlayerDead += 1;
 
             lock.unlock();
+        }
+        try {
+            TerminalView.keyStroke = TerminalView.terminal.readInput();
+            if(SavingSystem.DeleteSaveFile())
+                Debug.log("SYSTEM: Save file has been deleted");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

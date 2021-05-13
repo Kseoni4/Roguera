@@ -42,7 +42,9 @@ public class MainMenu {
     public static void start(int code){
         try {
 
-            GameResources.LoadFont();
+            Debug.log("MAIN MENU: Loading main menu");
+            if(GameResources.TerminalFont == null)
+                GameResources.LoadFont();
 
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.version);
 
@@ -72,10 +74,11 @@ public class MainMenu {
 
     private static void CheckErrorCode(int code){
         switch (code){
-            case 0 -> {Debug.log("MAIN: All good");}
-            case 1 -> {
+            case 0: {Debug.log("MAIN: All good"); break;}
+            case 1: {
                 Label errormessage = new Label("Saving file has been corrupted");
                 BasePanel.addComponent(errormessage);
+                break;
             }
         }
     }
@@ -123,6 +126,12 @@ public class MainMenu {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            try {
+                BasePanel = null;
+                Main.GameStart();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
         })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NewGameWindow.setComponent(NewGamePanel);
@@ -156,16 +165,17 @@ public class MainMenu {
                 try {
                     SavingSystem.loadGame(SavingSystem.GetSaveFileName());
 
-                    Main.NewGame = !Main.NewGame;
+                    Main.NewGame = false;
 
                     CheckErrorCode(Normal);
 
                     WindowsGUI.getActiveWindow().close();
 
                     GUIWindow.close();
-                } catch (IOException | ClassNotFoundException e) {
-                    Debug.log("ERROR: Saving file has been obsoleted.");
 
+                    Main.GameStart();
+                } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                    Debug.log("ERROR: Saving file has been obsoleted.");
                     CheckErrorCode(CorruptedSaveFile);
                 }
             }));

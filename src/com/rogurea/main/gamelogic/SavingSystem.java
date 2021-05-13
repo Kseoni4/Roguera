@@ -11,12 +11,16 @@ import java.io.*;
 
 public class SavingSystem {
 
+    private static File CurrentSaveFile;
+
     public static void saveGame() throws IOException {
+
+        CurrentSaveFile = new File(Player.nickName+".sav");
 
         Debug.log("SAVE: Saving game...");
 
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-                new FileOutputStream(Player.nickName+".sav")
+                new FileOutputStream(CurrentSaveFile)
         );
 
         PlayerContainer savePlayerFile = GetPlayerContainer();
@@ -58,7 +62,7 @@ public class SavingSystem {
         );
     }
 
-    public static void loadGame(String SaveFileName) throws IOException, ClassNotFoundException, StreamCorruptedException, InvalidClassException {
+    public static void loadGame(String SaveFileName) throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(
                 new FileInputStream(SaveFileName)
         );
@@ -86,12 +90,17 @@ public class SavingSystem {
         Debug.log("Save file is loaded");
     }
 
-    public static String GetSaveFileName(){
+    public static String GetSaveFileName() {
         File directory = new File("./");
 
         File[] files = directory.listFiles(((dir, name) -> name.endsWith(".sav")));
 
-        return files[files.length-1].getName();
+        try {
+            return files[files.length - 1].getName();
+        } catch (NullPointerException e) {
+            Debug.log("ERROR: Save file exist but not found");
+            return "";
+        }
     }
 
     public static boolean SaveFileExists(){
@@ -100,5 +109,8 @@ public class SavingSystem {
         File[] files = directory.listFiles((dir, name) -> name.endsWith(".sav"));
 
         return files.length > 0;
+    }
+    public static boolean DeleteSaveFile(){
+        return CurrentSaveFile.delete();
     }
 }

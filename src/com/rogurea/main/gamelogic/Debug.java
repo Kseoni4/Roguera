@@ -26,7 +26,6 @@ public class Debug {
 
     public static void InitDebugWindow(){
 
-
         DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 
         defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.version);
@@ -44,7 +43,6 @@ public class Debug {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         log("Debug window has been initialized");
     }

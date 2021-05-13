@@ -1,6 +1,9 @@
 package com.rogurea.main.player;
 
 import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.Main;
+import com.rogurea.main.GameLoop;
+import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.SavingSystem;
 import com.rogurea.main.gamelogic.Scans;
@@ -27,25 +30,25 @@ public class PlayerMoveController {
 
     public static void MovePlayer(KeyType key) {
         switch (key) {
-            case ArrowUp -> Move(Player.Pos.y + 1, Player.Pos.x);
-            case ArrowLeft -> Move(Player.Pos.y, Player.Pos.x-1);
-            case ArrowDown -> Move(Player.Pos.y - 1, Player.Pos.x);
-            case ArrowRight -> Move(Player.Pos.y, Player.Pos.x + 1);
+            case ArrowUp : Move(Player.Pos.y - 1, Player.Pos.x); break;
+            case ArrowLeft : Move(Player.Pos.y, Player.Pos.x-1); break;
+            case ArrowDown : Move(Player.Pos.y + 1, Player.Pos.x); break;
+            case ArrowRight : Move(Player.Pos.y, Player.Pos.x + 1); break;
         }
     }
     public static void Move(int NewY, int NewX){
+    try {
+        char cell = MapEditor.getFromCell(NewY, NewX);
 
-        char cell = MapEditor.getFromCell(NewY,NewX);
+        pos.setPosition(NewY, NewX);
 
-        pos.setPosition(NewY,NewX);
-
-        if(!Scans.CheckWall(cell)
-        /*|| Scans.CheckProps(cell)*/){
+        if (!Scans.CheckWall(cell)
+            /*|| Scans.CheckProps(cell)*/) {
             return;
         }
 
-        if(Scans.CheckRoomExit(cell)){
-            if(Dungeon.GetCurrentRoom().RoomCreatures.size() <= 0){
+        if (Scans.CheckRoomExit(cell)) {
+            if (Dungeon.GetCurrentRoom().RoomCreatures.size() <= 0) {
                 try {
                     SavingSystem.saveGame();
                 } catch (IOException e) {
@@ -60,15 +63,14 @@ public class PlayerMoveController {
 
                 logBlock.Action("enter the room");
 
-            } else{
-                new Message("You need to kill all mobs in the room", new Position(10,10));
+            } else {
+                new Message("You need to kill all mobs in the room", new Position(10, 10));
 
             }
             return;
         }
 
-        if(Scans.CheckBack(cell))
-        {
+        if (Scans.CheckBack(cell)) {
             Player.CurrentRoom--;
 
             MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
@@ -79,15 +81,15 @@ public class PlayerMoveController {
             return;
         }
 
-        if(Scans.CheckDungeonExit(cell)){
+        if (Scans.CheckDungeonExit(cell)) {
             ExitDungeonMenu exitDungeonMenu = new ExitDungeonMenu();
             exitDungeonMenu.Init();
             exitDungeonMenu.show();
             return;
         }
 
-        if(Scans.CheckItems(cell)){
-            if(Player.Inventory.size() >= 10 && cell != GameResources.Gold) {
+        if (Scans.CheckItems(cell)) {
+            if (Player.Inventory.size() >= 10 && cell != GameResources.Gold) {
                 logBlock.Event("Your inventory is full!");
                 return;
             }
@@ -101,19 +103,19 @@ public class PlayerMoveController {
 
             Dungeon.GetCurrentRoom().RoomItems.remove(ItemForTake);
 
-            if(ItemForTake instanceof Gold){
+            if (ItemForTake instanceof Gold) {
                 Player.GetGold((Gold) ItemForTake);
-            }else{
+            } else {
                 Player.PutInInventory(ItemForTake);
             }
         }
 
-        if(Scans.CheckCreature(cell)){
+        if (Scans.CheckCreature(cell)) {
             Fight.HitMobByPlayer(Dungeon.GetCurrentRoom().getMobFromRoom(pos));
             return;
         }
 
-        if(Scans.CheckNPC(pos)){
+        if (Scans.CheckNPC(pos)) {
             Dungeon.GetCurrentRoom().RoomNPC.NPCAction.run();
             return;
         }
@@ -124,5 +126,11 @@ public class PlayerMoveController {
         Player.Pos.y = (byte) NewY;
         Draw.call(gameMapBlock);
         Draw.call(playerInfoBlock);
+    }   catch (ArrayIndexOutOfBoundsException | NullPointerException e){
+            new Message("You have been eaten by dragons", new Position(10,10));
+            Player.HP = 0;
+            Debug.log("ERROR: " + e.getMessage());
+            Main.gameLoop.GameEndByDead();
+        }
     }
 }

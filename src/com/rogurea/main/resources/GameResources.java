@@ -17,7 +17,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String version = "0.1.1:1005:1200dev";
+    public static final String version = "0.1.2:1305:1901dev";
 
     public static final char EmptyCell = ' ';
 
@@ -188,7 +188,13 @@ public class GameResources {
             try {
                 InputStream atlas_csv = GameResources.class.getResourceAsStream(FilePath+file+FileExtension);
 
-                String[] map = new String(atlas_csv.readAllBytes(), StandardCharsets.UTF_8).split(",|\r\n|\n");
+                byte[] buffer = new byte[1024];
+
+                int len = atlas_csv.read(buffer);
+
+                byte[] inputstring = Arrays.copyOf(buffer, len);
+
+                String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
 
                 Debug.log("= Getting string: " + Arrays.toString(map));
 
@@ -215,7 +221,7 @@ public class GameResources {
         }
     }
 
-    public static void MakeMap() throws IOException {
+    public static void MakeMap() {
 
         Debug.log("RESOURCE: Make char map from CharAtlas.csv");
 
@@ -224,7 +230,12 @@ public class GameResources {
         String[] CharName = null;
 
         try {
-            String maps = new String(csvfile.readAllBytes(), StandardCharsets.UTF_8);
+
+            byte[] inputchar = new byte[1024];
+
+            csvfile.read(inputchar);
+
+            String maps = new String(inputchar, StandardCharsets.UTF_8);
             CharName = maps.split(",|\r\n");
         }
         catch (IOException e) {

@@ -28,21 +28,26 @@ public class Main{
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        Debug.log("=== Game instance has started ===");
+        Debug.log("=== Main instance has started ===");
 
         Debug.log("SYSTEM PROPERTIES: \n\t"
-                + "OS: " +             System.getProperties().getProperty("os.name")+"\n\t"
-                + "Architecture: " +   System.getProperties().getProperty("os.arch")+"\n\t"
-                + "System version: " + System.getProperties().getProperty("os.version")+"\n\t"
-                + "Java version: " +   System.getProperties().getProperty("java.version")+"\n\t"
-                + "Java RNE: " + System.getProperties().getProperty("java.runtime.version")+"\n\t" +
-                "Java VM Version: " + System.getProperties().getProperty("java.vm.specification.version"));
+                + "OS: " + System.getProperties().getProperty("os.name") + "\n\t"
+                + "Architecture: " + System.getProperties().getProperty("os.arch") + "\n\t"
+                + "System version: " + System.getProperties().getProperty("os.version") + "\n\t"
+                + "Java version: " + System.getProperties().getProperty("java.version") + "\n\t"
+                + "Java RNE: " + System.getProperties().getProperty("java.runtime.version") + "\n\t"
+                + "Java VM Version: " + System.getProperties().getProperty("java.vm.specification.version") + "\n\t"
+                + "Java Сompiler Version: " + System.getProperties().getProperty("java.compiler") + "\n\t"
+                + "Java Сlass version: " + System.getProperties().getProperty("java.class.version")
+        );
 
         System.out.println(System.getProperties());
 
         Debug.log("GAME VERSION: " + GameResources.version);
 
         MainMenu.start(Normal);
+    }
+    public static void GameStart() throws IOException, InterruptedException {
 
         Debug.log("== INITIALIZING TERMINAL INSTANCE ==");
 
@@ -56,9 +61,9 @@ public class Main{
 
         Debug.log("== LOADING GAME RESOURCES ==");
 
-/*        Debug.InitDebugWindow();
+/*      Debug.InitDebugWindow();
 
-        Debug.TestFontUnicode();*/
+        Debug.TestFontUnicode(); */
 
         GameResources.LoadResources();
 

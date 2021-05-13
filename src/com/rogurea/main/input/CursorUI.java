@@ -22,9 +22,9 @@ public class CursorUI {
 
     public void SelectElement(KeyType Key){
         switch (Key){
-            case ArrowLeft -> Move(Left);
-            case ArrowRight -> Move(Right);
-            case Enter -> Elements.get(IndexOfElement).ElementAction.run();
+            case ArrowLeft: {Move(Left); break;}
+            case ArrowRight: {Move(Right); break;}
+            case Enter: {Elements.get(IndexOfElement).ElementAction.run();break;}
         }
         try {
             setCursorPositionByIndex();

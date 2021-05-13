@@ -184,29 +184,33 @@ public class MapEditor {
         char[] shape = DrawLine(drawDirection, Length);
 
         switch (drawDirection){
-            case UP -> {
+            case UP: {
                 for(char c : shape){
                     InsertLine(CurrentRoom, c, X_a, Y_a);
                     Y_a--;
                 }
+                break;
             }
-            case DOWN -> {
+            case DOWN: {
                 for(char c : shape){
                     InsertLine(CurrentRoom, c, X_a, Y_a);
                     Y_a++;
                 }
+                break;
             }
-            case LEFT -> {
+            case LEFT: {
                 for(char c : shape){
                     InsertLine(CurrentRoom, c, X_a, Y_a);
                     X_a--;
                 }
+                break;
             }
-            case RIGHT -> {
+            case RIGHT: {
                 for(char c : shape){
                     InsertLine(CurrentRoom, c, X_a, Y_a);
                     X_a++;
                 }
+                break;
             }
         }
     }
@@ -337,10 +341,10 @@ public class MapEditor {
 
     static int CheckSize(BaseGenerate.RoomSize roomSize) {
         switch (roomSize) {
-            case MIDDLE -> {
+            case MIDDLE: {
                 return 6;
             }
-            case BIG -> {
+            case BIG: {
                 return 16;
             }
         }
@@ -362,14 +366,19 @@ public class MapEditor {
 
         for(Mob mob : room.RoomCreatures){
 
-            Position SpawnPosition = SpawnPositions.get(rnd.nextInt(SpawnPositions.size()));
+            boolean NotPlaced = true;
 
-            int y = SpawnPosition.y, x = SpawnPosition.x;
+            while(NotPlaced) {
+                Position SpawnPosition = SpawnPositions.get(rnd.nextInt(SpawnPositions.size()));
 
-            if(!Scans.CheckCreature(CurrentRoom[y][x])) {
-                if(Scans.CheckWall(CurrentRoom[y][x])) {
-                    CurrentRoom[y][x] = mob.getCreatureSymbol();
-                    mob.setMobPosition(y, x);
+                int y = SpawnPosition.y, x = SpawnPosition.x;
+
+                if (!Scans.CheckCreature(CurrentRoom[y][x])) {
+                    if (Scans.CheckWall(CurrentRoom[y][x])) {
+                        CurrentRoom[y][x] = mob.getCreatureSymbol();
+                        mob.setMobPosition(y, x);
+                        NotPlaced = false;
+                    }
                 }
             }
         }

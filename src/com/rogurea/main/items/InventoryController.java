@@ -2,10 +2,15 @@ package com.rogurea.main.items;
 
 import com.rogurea.main.gamelogic.Scans;
 import com.rogurea.main.map.Dungeon;
+import com.rogurea.main.map.Position;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.player.Player;
 import com.rogurea.main.resources.Colors;
+import com.rogurea.main.resources.GetRandom;
 import com.rogurea.main.view.Draw;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 import static com.rogurea.main.view.ViewObjects.*;
 
@@ -23,16 +28,26 @@ public class InventoryController {
 
     public static void DropItem(Item dropingItem){
 
+        Random rndPos = new Random();
+
         if (Scans.CheckItems(Dungeon.CurrentRoom[Player.Pos.y+1][Player.Pos.x])) {
             logBlock.Event("There already lying something ");
             return;
         }
 
+        ArrayList<Position> dropPositions = new ArrayList<>();
+
+        dropPositions.add(new Position(Player.Pos.x+1, Player.Pos.y+1));
+        dropPositions.add(new Position(Player.Pos.x-1, Player.Pos.y+1));
+        dropPositions.add(new Position(Player.Pos.x+1, Player.Pos.y-1));
+        dropPositions.add(new Position(Player.Pos.x-1, Player.Pos.y-1));
+
+
         Player.GetFromInventory(item -> dropingItem.id == item.id);
 
-        dropingItem.ItemPosition.setPosition(Player.Pos.y+1, Player.Pos.x);
+        dropingItem.ItemPosition = new Position(dropPositions.get(rndPos.nextInt(dropPositions.size())));
 
-        MapEditor.setIntoCell(dropingItem._model, Player.GetPlayerPosition().getRelative(0,1));
+        MapEditor.setIntoCell(dropingItem._model, dropingItem.ItemPosition);
 
         Dungeon.GetCurrentRoom().RoomItems.add(dropingItem);
 

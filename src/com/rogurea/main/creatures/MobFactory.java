@@ -52,9 +52,9 @@ public class MobFactory {
         int MinMobs = 0;
 
         switch (room.roomSize){
-            case SMALL -> {MaxMobs = 2; }
-            case MIDDLE -> {MaxMobs = 3; MinMobs = 1;}
-            case BIG -> {MaxMobs = 6; MinMobs = 3;}
+            case SMALL : {MaxMobs = 2; break;}
+            case MIDDLE : {MaxMobs = 3; MinMobs = 1; break;}
+            case BIG : {MaxMobs = 6; MinMobs = 3; break;}
         }
 
         for(int i = 0; i < random.nextInt(MaxMobs)+MinMobs;i++){

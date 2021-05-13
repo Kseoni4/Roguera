@@ -35,14 +35,14 @@ public class GetRandom {
         StringBuilder name = new StringBuilder();
 
         switch (type){
-            case "MELEE" -> {
+            case "MELEE":{
                 return name.append(Lenght())
                         .append(" ")
                         .append("%mat%")
                         .append(" ")
                         .append("%name%").toString();
             }
-            case "RANGE" -> {
+            case "RANGE": {
                 return name
                         .append("%mat%")
                         .append(" ")

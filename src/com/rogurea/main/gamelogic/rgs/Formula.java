@@ -116,12 +116,12 @@ public class Formula {
 
     public static int GetPotionPointsByType(Potion.PotionType potionType, int potionLevel){
         switch (potionType){
-            case HEAL -> {
+            case HEAL: {
                 return GetHealingPoints(potionLevel);
             }
-            case BUF_ATK -> {}
+            case BUF_ATK: {}
 
-            case BUF_DEF -> {}
+            case BUF_DEF: {}
         }
         return 1;
     }

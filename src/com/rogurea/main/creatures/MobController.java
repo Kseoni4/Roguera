@@ -84,24 +84,28 @@ public class MobController extends Thread {
 
     private void CheckBehaviorState() {
         switch (mob.getMobBehavior().currentState){
-            case "IDLE" -> {
+            case "IDLE" : {
                 if (MobsScan())
                     mob.SetMobBehavior(Mob.Behavior.CHASE);
+                break;
             }
-            case "CHASE" -> {
+            case "CHASE" : {
                 if (Move())
                     mob.SetMobBehavior(Mob.Behavior.FIGHT);
                 else
                     mob.SetMobBehavior(Mob.Behavior.IDLE);
+                break;
             }
-            case "FIGHT" -> {
+            case "FIGHT" : {
                 if(DoFight())
                     mob.SetMobBehavior(Mob.Behavior.IDLE);
+                break;
             }
-            case "DEAD" -> {
+            case "DEAD" : {
                 DropLoot();
                 GiveXPToPlayer();
                 RemoveMob();
+                break;
             }
         }
     }

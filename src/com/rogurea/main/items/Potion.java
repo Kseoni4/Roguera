@@ -50,13 +50,13 @@ public class Potion extends Item implements Usable {
     @Override
     public String getMaterialColor() {
         switch (this.potionType){
-            case HEAL -> {
+            case HEAL: {
                 return GameResources.MaterialColor.get("HEAL");
             }
-            case BUF_ATK -> {
+            case BUF_ATK: {
                 return GameResources.MaterialColor.get("BUF_ATK");
             }
-            case BUF_DEF -> {
+            case BUF_DEF: {
                 return GameResources.MaterialColor.get("BUF_DEF");
             }
         }
@@ -70,9 +70,9 @@ public class Potion extends Item implements Usable {
 
     private void getEffectByType(){
         switch (potionType){
-            case HEAL    -> Player.HP   = (short) Math.min(potionType.points + Player.HP, 100);
-            case BUF_ATK -> Player.ATK  += potionType.points;
-            case BUF_DEF -> Player.DEF  += potionType.points;
+            case HEAL    :Player.HP   = (short) Math.min(potionType.points + Player.HP, 100); break;
+            case BUF_ATK : Player.ATK  += potionType.points; break;
+            case BUF_DEF : Player.DEF  += potionType.points; break;
         }
         Player.playerStatistics.DrinkedPotions += 1;
     }

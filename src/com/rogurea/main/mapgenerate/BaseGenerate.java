@@ -161,10 +161,11 @@ public class BaseGenerate implements Serializable {
 
     public static Room GetRoom(Dungeon.Direction direction) {
         switch (direction) {
-            case NEXT, BACK -> {
+            case NEXT:
+            case BACK: {
                 return GetFromSet(ByPlayerCurrentRoom);
             }
-            case FIRST -> {
+            case FIRST: {
                 return GetFromSet(ByFirstRoom);
             }
         }
