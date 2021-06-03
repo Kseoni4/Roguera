@@ -1,11 +1,12 @@
 package com.rogurea.main.creatures;
 
 import com.rogurea.main.items.Item;
+import com.rogurea.dev.base.GameObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Creature implements Serializable {
+public abstract class Creature extends GameObject implements Serializable {
 
     public String Name = "";
 

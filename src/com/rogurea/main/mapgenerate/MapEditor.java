@@ -5,7 +5,7 @@ import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.GameResources;
-import com.rogurea.main.map.Room;
+import com.rogurea.main.map.Room_old;
 import com.rogurea.main.gamelogic.Scans;
 
 import java.util.ArrayList;
@@ -245,7 +245,7 @@ public class MapEditor {
         setIntoCell(CurrentRoom, c, new Position(x,y));
     }
 
-    static void PlaceDoors(Room room, char[][] CurrentRoom, Position ExitPoint){
+    static void PlaceDoors(Room_old roomOld, char[][] CurrentRoom, Position ExitPoint){
 
         int ExitPointX = ExitPoint.x, ExitPointY = ExitPoint.y;
 
@@ -257,7 +257,7 @@ public class MapEditor {
 
         char ExitDoor = GameResources.GetModel("DungeonExit");
 
-        if(!room.IsEndRoom) {
+        if(!roomOld.IsEndRoom) {
             if (Scans.CheckCorner(cell))
                 setIntoCell(CurrentRoom, NextDoor, ExitPoint);
             else{
@@ -273,9 +273,9 @@ public class MapEditor {
                 setIntoCell(CurrentRoom, ExitDoor, ExitPoint.getRelative(x_shift,0));
             }
         }
-        if(room.NumberOfRoom > 1)
+        if(roomOld.NumberOfRoom > 1)
             CurrentRoom[0][CurrentRoom[0].length/2] = BackDoor;
-        if(room.NumberOfRoom == (Dungeon.CurrentDungeonLenght-Dungeon.DungeonLenght)+1)
+        if(roomOld.NumberOfRoom == (Dungeon.CurrentDungeonLenght-Dungeon.DungeonLenght)+1)
             CurrentRoom[0][CurrentRoom[0].length/2] = GameResources.GetModel("SWall");
     }
 
@@ -362,9 +362,9 @@ public class MapEditor {
         );
     }
 
-    static void PlaceMobs(Room room, char[][] CurrentRoom, ArrayList<Position> SpawnPositions){
+    static void PlaceMobs(Room_old roomOld, char[][] CurrentRoom, ArrayList<Position> SpawnPositions){
 
-        for(Mob mob : room.RoomCreatures){
+        for(Mob mob : roomOld.RoomCreatures){
 
             boolean NotPlaced = true;
 

@@ -2,7 +2,6 @@ package com.rogurea.main.player;
 
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.Main;
-import com.rogurea.main.GameLoop;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.gamelogic.Fight;
 import com.rogurea.main.gamelogic.SavingSystem;
@@ -11,7 +10,7 @@ import com.rogurea.main.items.Gold;
 import com.rogurea.main.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
-import com.rogurea.main.map.Room;
+import com.rogurea.main.map.Room_old;
 import com.rogurea.main.mapgenerate.BaseGenerate;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
@@ -58,7 +57,7 @@ public class PlayerMoveController {
                 MapEditor.clearCell(Player.Pos.y, Player.Pos.x);
 
                 Dungeon.ChangeRoom(
-                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoom
+                        Objects.requireNonNull(BaseGenerate.GetRoom(Dungeon.Direction.NEXT)).nextRoomOld
                 );
 
                 logBlock.Action("enter the room");
@@ -93,7 +92,7 @@ public class PlayerMoveController {
                 logBlock.Event("Your inventory is full!");
                 return;
             }
-            Room rm = Dungeon.GetCurrentRoom();
+            Room_old rm = Dungeon.GetCurrentRoom();
 
             Item ItemForTake = rm.RoomItems.stream()
                     .filter(

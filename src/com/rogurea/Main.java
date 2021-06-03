@@ -15,7 +15,6 @@ import com.rogurea.main.view.MainMenu;
 import com.rogurea.main.view.ViewObjects;
 import com.rogurea.main.view.TerminalView;
 
-import java.io.Console;
 import java.io.IOException;
 
 public class Main{
@@ -117,14 +116,14 @@ public class Main{
 
             Dungeon.Generate();
 
-            Dungeon.Rooms.set(Player.CurrentRoom-1, Dungeon.SavedRoom);
+            Dungeon.roomOlds.set(Player.CurrentRoom-1, Dungeon.savedRoomOld);
 
-            if(!Dungeon.SavedRoom.IsEndRoom)
-                Dungeon.Rooms.get(Player.CurrentRoom - 1).nextRoom = Dungeon.Rooms.get(Player.CurrentRoom);
+            if(!Dungeon.savedRoomOld.IsEndRoom)
+                Dungeon.roomOlds.get(Player.CurrentRoom - 1).nextRoomOld = Dungeon.roomOlds.get(Player.CurrentRoom);
 
-            Dungeon.CurrentRoom = Dungeon.SavedRoom.RoomStructure;
+            Dungeon.CurrentRoom = Dungeon.savedRoomOld.RoomStructure;
 
-            MapEditor.setIntoCell(GameResources.GetModel("SWall"),new Position(Dungeon.SavedRoom.RoomStructure[0].length/2,0));
+            MapEditor.setIntoCell(GameResources.GetModel("SWall"),new Position(Dungeon.savedRoomOld.RoomStructure[0].length/2,0));
 
             BaseGenerate.PutPlayerInDungeon((byte) Player.GetPlayerPosition().x,
                     (byte) Player.GetPlayerPosition().y,

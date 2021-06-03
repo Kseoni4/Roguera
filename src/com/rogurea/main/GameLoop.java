@@ -1,7 +1,6 @@
 package com.rogurea.main;
 
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.Main;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.creatures.MobController;
 import com.rogurea.main.gamelogic.Debug;
@@ -22,7 +21,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -169,7 +167,7 @@ public class GameLoop {
     private void RestartGame() throws IOException {
         TerminalView.terminal.flush();
 
-        Dungeon.Rooms = new ArrayList<>();
+        Dungeon.roomOlds = new ArrayList<>();
 
         Player.PlayerReset();
 

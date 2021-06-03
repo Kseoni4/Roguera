@@ -1,10 +1,11 @@
 package com.rogurea.main.items;
 
+import com.rogurea.dev.base.GameObject;
 import com.rogurea.main.map.Position;
 
 import java.io.Serializable;
 
-public class Item implements Serializable {
+public class Item extends GameObject implements Serializable {
 
     public String name;
 

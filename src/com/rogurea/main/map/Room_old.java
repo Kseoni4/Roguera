@@ -10,7 +10,7 @@ import com.rogurea.main.mapgenerate.BaseGenerate;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Room implements Serializable {
+public class Room_old implements Serializable {
     public byte NumberOfRoom;
 
     public byte X = 1;
@@ -31,16 +31,16 @@ public class Room implements Serializable {
 
     public boolean IsRoomStructureGenerate = false;
 
-    public transient Room nextRoom;
+    public transient Room_old nextRoomOld;
 
     public Shop dungeonShop;
 
-    public Room(byte RoomCounter, byte x, byte y, BaseGenerate.RoomSize roomSize){
+    public Room_old(byte RoomCounter, byte x, byte y, BaseGenerate.RoomSize roomSize){
         this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);
     }
 
-    public Room(byte RoomCounter, boolean IsEndRoom, byte x, byte y, BaseGenerate.RoomSize roomSize){
+    public Room_old(byte RoomCounter, boolean IsEndRoom, byte x, byte y, BaseGenerate.RoomSize roomSize){
         this.IsEndRoom = IsEndRoom;
         this.roomSize = roomSize;
         MakeRoom(RoomCounter, x, y);

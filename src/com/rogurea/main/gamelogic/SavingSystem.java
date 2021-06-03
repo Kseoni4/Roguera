@@ -31,9 +31,9 @@ public class SavingSystem {
 
         Debug.log("SAVE: Current dungeon length " + savePlayerFile.CurrentDungeonLenght);
 
-        savePlayerFile.CurrentRoomObject = Dungeon.GetCurrentRoom();
+        savePlayerFile.currentRoomOldObject = Dungeon.GetCurrentRoom();
 
-        Debug.log("SAVE: room " + savePlayerFile.CurrentRoomObject.NumberOfRoom + " has saved");
+        Debug.log("SAVE: room " + savePlayerFile.currentRoomOldObject.NumberOfRoom + " has saved");
 
         objectOutputStream.writeObject(savePlayerFile);
 
@@ -81,9 +81,9 @@ public class SavingSystem {
 
         Dungeon.CurrentDungeonLenght = loadedFile.CurrentDungeonLenght;
 
-        Dungeon.SavedRoom = loadedFile.CurrentRoomObject;
+        Dungeon.savedRoomOld = loadedFile.currentRoomOldObject;
 
-        Dungeon.SavedRoom.roomSize = BaseGenerate.RoomSize.BIG;
+        Dungeon.savedRoomOld.roomSize = BaseGenerate.RoomSize.BIG;
 
         GetRandom.SetRNGSeed(loadedFile.RandomSeed);
 

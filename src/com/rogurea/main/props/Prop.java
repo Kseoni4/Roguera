@@ -1,6 +1,8 @@
 package com.rogurea.main.props;
 
-public abstract class Prop {
+import com.rogurea.dev.base.GameObject;
+
+public abstract class Prop extends GameObject {
 
     public final String name;
 
@@ -13,6 +15,4 @@ public abstract class Prop {
         this.isUsable = isUsable;
         this.model = model;
     }
-
-    public abstract char getModel();
 }

@@ -8,7 +8,7 @@ import com.rogurea.main.gamelogic.rgs.Formula;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.player.Player;
-import com.rogurea.main.map.Room;
+import com.rogurea.main.map.Room_old;
 import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
 import com.rogurea.main.view.Draw;
@@ -87,9 +87,9 @@ public class BaseGenerate implements Serializable {
         }
     }
 
-    static final Predicate<Room> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == Player.CurrentRoom;
+    static final Predicate<Room_old> ByPlayerCurrentRoom = R_Room -> R_Room.NumberOfRoom == Player.CurrentRoom;
 
-    static final Predicate<Room> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
+    static final Predicate<Room_old> ByFirstRoom = R_Room -> R_Room.NumberOfRoom == 1;
 
     public static void GenerateDungeon(int DungeonLenght){
 
@@ -97,7 +97,7 @@ public class BaseGenerate implements Serializable {
 
         AtomicInteger RoomNum = new AtomicInteger(1);
 
-        if(Dungeon.Rooms.size() >= Dungeon.CurrentDungeonLenght){
+        if(Dungeon.roomOlds.size() >= Dungeon.CurrentDungeonLenght){
             Dungeon.CurrentDungeonLenght += DungeonLenght;
         }
 
@@ -116,7 +116,7 @@ public class BaseGenerate implements Serializable {
 
         Debug.log("GENERATE: DecadeRoom = " + DecadeRoom);
 
-        for(byte i = (byte) Dungeon.Rooms.size(); i < Dungeon.CurrentDungeonLenght; i++){
+        for(byte i = (byte) Dungeon.roomOlds.size(); i < Dungeon.CurrentDungeonLenght; i++){
 
             int RandomRoomSize = random.nextInt(3);
 
@@ -125,12 +125,12 @@ public class BaseGenerate implements Serializable {
             byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
             if(i == Dungeon.CurrentDungeonLenght-1){
-                Dungeon.Rooms.add(new Room((byte) (i+1), true, Widght, Height,roomSizes[RandomRoomSize]));
+                Dungeon.roomOlds.add(new Room_old((byte) (i+1), true, Widght, Height,roomSizes[RandomRoomSize]));
             }
             else
-                Dungeon.Rooms.add(new Room((byte) (i+1), Widght, Height, roomSizes[RandomRoomSize]));
+                Dungeon.roomOlds.add(new Room_old((byte) (i+1), Widght, Height, roomSizes[RandomRoomSize]));
 
-            MapEditor.FillSpaceWithEmpty(Dungeon.Rooms.get(i).RoomStructure);
+            MapEditor.FillSpaceWithEmpty(Dungeon.roomOlds.get(i).RoomStructure);
 
             String message = "Create Room " + i + " Height: " + Height + " Width: " + Widght;
             Debug.log("GENERATE: Make Dungeon: " + message);
@@ -142,14 +142,14 @@ public class BaseGenerate implements Serializable {
 
         int i = 2;
 
-        Dungeon.Rooms.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
+        Dungeon.roomOlds.sort(Comparator.comparingInt(value -> value.NumberOfRoom));
 
         Debug.log("GENERATE: Connecting rooms");
 
-        for(Room room : Dungeon.Rooms){
-            if(!room.IsEndRoom) {
+        for(Room_old roomOld : Dungeon.roomOlds){
+            if(!roomOld.IsEndRoom) {
                 int finalI = i;
-                room.nextRoom = Dungeon.Rooms
+                roomOld.nextRoomOld = Dungeon.roomOlds
                         .stream()
                         .filter(r_room -> r_room.NumberOfRoom == finalI)
                         .findFirst()
@@ -159,7 +159,7 @@ public class BaseGenerate implements Serializable {
         }
     }
 
-    public static Room GetRoom(Dungeon.Direction direction) {
+    public static Room_old GetRoom(Dungeon.Direction direction) {
         switch (direction) {
             case NEXT:
             case BACK: {
@@ -172,21 +172,21 @@ public class BaseGenerate implements Serializable {
         return null;
     }
 
-    public static Room GetFromSet(Predicate<Room> predicate){
-        return Dungeon.Rooms.stream().filter(predicate).findAny().orElse(null);
+    public static Room_old GetFromSet(Predicate<Room_old> predicate){
+        return Dungeon.roomOlds.stream().filter(predicate).findAny().orElse(null);
     }
 
-    public static void GenerateRoom(Room room) {
+    public static void GenerateRoom(Room_old roomOld) {
 
         PGP pgp = new PGP();
 
-        char[][] CurrentRoom = room.RoomStructure;
+        char[][] CurrentRoom = roomOld.RoomStructure;
 
         MapEditor.FillAllSpaceWithEmpty(CurrentRoom);
 
-        Player.CurrentRoom = room.NumberOfRoom;
+        Player.CurrentRoom = roomOld.NumberOfRoom;
 
-        Debug.log("GENERATE: " + "Room " + room.NumberOfRoom + " is not generate, processing...");
+        Debug.log("GENERATE: " + "Room " + roomOld.NumberOfRoom + " is not generate, processing...");
 
         try {
             if(TerminalView.terminal != null) {
@@ -199,7 +199,7 @@ public class BaseGenerate implements Serializable {
             e.printStackTrace();
         }
 
-        room.IsRoomStructureGenerate = true;
+        roomOld.IsRoomStructureGenerate = true;
 
 /*        if(room.roomSize == RoomSize.BIG) {
         }*/
@@ -208,25 +208,25 @@ public class BaseGenerate implements Serializable {
 
         ArrayList<Position> positions = getPositionsList(CurrentRoom, pgp.ExitPoint);
 
-        MapEditor.PlaceDoors(room, CurrentRoom, pgp.ExitPoint);
+        MapEditor.PlaceDoors(roomOld, CurrentRoom, pgp.ExitPoint);
 
-        if(room.roomSize == RoomSize.BIG)
-            BuildSubRooms(CurrentRoom, (byte) (pgp.ExitPoint.y/2), room.roomSize);
+        if(roomOld.roomSize == RoomSize.BIG)
+            BuildSubRooms(CurrentRoom, (byte) (pgp.ExitPoint.y/2), roomOld.roomSize);
 
-        MapEditor.PlaceMobs(room, CurrentRoom, positions);
+        MapEditor.PlaceMobs(roomOld, CurrentRoom, positions);
 
         Dungeon.CurrentRoom = CurrentRoom;
 
-        room.RoomStructure = CurrentRoom;
+        roomOld.RoomStructure = CurrentRoom;
 
-        if(room.dungeonShop != null)
-            MapEditor.InsertShapeFlat(room.RoomStructure, room.dungeonShop.getShopStructure(), room.dungeonShop.ShopPosition);
+        if(roomOld.dungeonShop != null)
+            MapEditor.InsertShapeFlat(roomOld.RoomStructure, roomOld.dungeonShop.getShopStructure(), roomOld.dungeonShop.ShopPosition);
 
-        for(Mob mob : room.RoomCreatures){
+        for(Mob mob : roomOld.RoomCreatures){
             mob.GetAllInfo();
         }
 
-        Debug.log("GENERATE: " + " Room " + room.NumberOfRoom + " generate has completed");
+        Debug.log("GENERATE: " + " Room " + roomOld.NumberOfRoom + " generate has completed");
 
     }
 
@@ -253,8 +253,8 @@ public class BaseGenerate implements Serializable {
         TerminalView.ReDrawAll(new IViewBlock[]{});
     }
 
-    public static int GetCenterOfRoom(Room room){
-        return Math.floorDiv(room.RoomStructure[0].length, 2);
+    public static int GetCenterOfRoom(Room_old roomOld){
+        return Math.floorDiv(roomOld.RoomStructure[0].length, 2);
     }
 
     private static ArrayList<Position> getPositionsList(char[][] CurrentRoom, Position ExitPoint) {

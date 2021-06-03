@@ -2,6 +2,7 @@ package com.rogurea.main.player;
 
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.main.items.*;
+import com.rogurea.dev.base.GameObject;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.resources.Colors;
 import com.rogurea.main.resources.GameResources;
@@ -18,7 +19,7 @@ import java.util.function.Predicate;
 import static com.rogurea.main.view.ViewObjects.logBlock;
 import static com.rogurea.main.view.ViewObjects.playerInfoBlock;
 
-public class Player implements Serializable {
+public class Player extends GameObject implements Serializable {
     public final static char PlayerModel = GameResources.PlayerModel;
 
     public static class Pos{
@@ -41,7 +42,6 @@ public class Player implements Serializable {
     public static short DEF = GameVariables.BasePlayerDEF; //Defence
     public static byte DEX = GameVariables.BasePlayerDEX; //Dexterity
     public static short ReqXPForNextLevel = (short) GameVariables.BaseReqXP;
-
     public static ArrayList<Item> Inventory = new ArrayList<>();
 
     public static HashMap<String, Equipment> Equip;

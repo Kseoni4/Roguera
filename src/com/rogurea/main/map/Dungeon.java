@@ -26,9 +26,9 @@ public class Dungeon {
 
     public static final byte DungeonLenght = 10;
 
-    public static Room SavedRoom;
+    public static Room_old savedRoomOld;
 
-    public static ArrayList<Room> Rooms = new ArrayList<>();
+    public static ArrayList<Room_old> roomOlds = new ArrayList<>();
 
     public static char[][] CurrentRoom = new char[Height][Widght];
 
@@ -57,7 +57,7 @@ public class Dungeon {
 
     private static void CleanRooms(){
         Debug.log("GENERATE: Clean previous rooms");
-        Dungeon.Rooms.forEach(room -> {
+        Dungeon.roomOlds.forEach(room -> {
             Debug.log("GENERATE: Clean room " + room.NumberOfRoom);
             Debug.log("CLEAN: Removing all creatures");
             room.RoomCreatures.removeAll(room.RoomCreatures);
@@ -69,28 +69,28 @@ public class Dungeon {
         Debug.log("GENERATE: Rooms cleaned");
     }
 
-    public static void ChangeRoom(Room room) {
+    public static void ChangeRoom(Room_old roomOld) {
 
         Debug.log("GAME: Change room");
 
-        if (!room.IsRoomStructureGenerate) {
+        if (!roomOld.IsRoomStructureGenerate) {
             try {
-                BaseGenerate.GenerateRoom(Objects.requireNonNull(room));
+                BaseGenerate.GenerateRoom(Objects.requireNonNull(roomOld));
             } catch (NullPointerException e) {
                 Debug.log(Arrays.toString(e.getStackTrace()));
                 e.getStackTrace();
                 MapEditor.setIntoCell(PlayerModel, 1, 1);
             } finally {
                 BaseGenerate.PutPlayerInDungeon(
-                        BaseGenerate.GetCenterOfRoom(room), (byte) 1,
+                        BaseGenerate.GetCenterOfRoom(roomOld), (byte) 1,
                         Dungeon.CurrentRoom);
                 }
             }
         else {
-            Player.CurrentRoom = room.NumberOfRoom;
-            Dungeon.CurrentRoom = room.RoomStructure;
-            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(room), (byte) 1,
-                    room.RoomStructure);
+            Player.CurrentRoom = roomOld.NumberOfRoom;
+            Dungeon.CurrentRoom = roomOld.RoomStructure;
+            BaseGenerate.PutPlayerInDungeon(BaseGenerate.GetCenterOfRoom(roomOld), (byte) 1,
+                    roomOld.RoomStructure);
             }
         Debug.log("THREADS: Restart mob threads");
         gameLoop.RestartThread();
@@ -99,7 +99,7 @@ public class Dungeon {
     public static void RegenRoom() {
 
         System.out.flush();
-        BaseGenerate.GenerateRoom(Objects.requireNonNull(Dungeon.Rooms.stream().filter(
+        BaseGenerate.GenerateRoom(Objects.requireNonNull(Dungeon.roomOlds.stream().filter(
                 room -> room.NumberOfRoom == Player.CurrentRoom
         ).findAny().orElse(null)));
         BaseGenerate.PutPlayerInDungeon(((byte)(Dungeon.CurrentRoom[0].length/2)), (byte) 1, Dungeon.CurrentRoom);
@@ -107,8 +107,8 @@ public class Dungeon {
         gameLoop.RestartThread();
     }
 
-    public static Room GetCurrentRoom(){
-        return Rooms.stream().filter(
+    public static Room_old GetCurrentRoom(){
+        return roomOlds.stream().filter(
                 room -> room.NumberOfRoom == Player.CurrentRoom
         ).findAny().orElse(null);
     }
