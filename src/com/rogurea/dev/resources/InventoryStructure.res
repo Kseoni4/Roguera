@@ -1,0 +1,10 @@
+InvHWallDown,┬
+InvHWallUp,┴
+InvVWallRight,├
+InvVWallLeft,┤
+InvLPCorner,┌
+InvLDorner,└
+InvRPorner,┐
+InvRDorner,┘
+PointerUp,▲
+PointerRight,»

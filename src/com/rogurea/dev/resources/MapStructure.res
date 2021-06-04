@@ -1,0 +1,11 @@
+Hwall,─
+SWall,═
+Vwall,│
+LBCorner,└
+RTCorner,┐
+LTCorner,┌
+RBCorner,┘
+LRCenter,├
+RLCenter,┤
+TCenter,┬
+BCenter,┴

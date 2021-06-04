@@ -39,6 +39,11 @@ public class Cell implements Serializable {
         return gatedObject;
     }
 
+    public void clear(){
+        gameObjects.clear();
+        UpdateLastItemCounter();
+    }
+
     public boolean isWall(){
         return this.isWall;
     }
