@@ -48,11 +48,11 @@ public class Colors {
     public static final String B_GREYSCALE_233 =   "\u001b[48;5;233m";
 
 
-    public static TextColor GetTextColor(String color, String target){
-
-        color = color.replace(target, "#");
-        color = color.replace("m", "");
-        color = color.replace(";", "");
+    public static TextColor GetTextColor(String color){
+        //System.out.println("Color was: " + color);
+        color = color.replaceFirst("\\u001b\\[\\d{2};\\d{1};", "#");
+        color = color.replace('m', ' ');
+        //System.out.println("Color is: " + color);
        return TextColor.Factory.fromString(color);
     }
 }

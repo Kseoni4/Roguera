@@ -1,15 +1,15 @@
 package com.rogurea.dev.gamemap;
 
-import com.rogurea.dev.mapgenerate.MapEditor;
 import com.rogurea.dev.mapgenerate.RoomGenerate;
-import com.rogurea.dev.view.Draw;
-import com.rogurea.dev.view.ViewObjects;
-import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.view.*;
 import com.rogurea.dev.player.Player;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import static com.rogurea.dev.view.ViewObjects.logView;
+import static com.rogurea.dev.view.ViewObjects.mapView;
 
 public class Dungeon {
 
@@ -38,7 +38,7 @@ public class Dungeon {
         return rooms.stream().filter(RoomFilter).findFirst().orElse(null);
     }
 
-    public static Room GetCurrentRoom(){
+    public static Room getCurrentRoom(){
         return rooms.stream().filter(ByPlayer).findFirst().orElse(null);
     }
 
@@ -48,11 +48,11 @@ public class Dungeon {
         RoomGenerate.GenerateRoomStructure(Objects.requireNonNull(Dungeon.rooms.stream().filter(
                 room -> room.RoomNumber == player.getCurrentRoom()
         ).findAny().orElse(null)));
-        PutPlayerOnMap(Dungeon.GetCurrentRoom(), new Position(3,3));
+        PutPlayerOnMap(Dungeon.getCurrentRoom(), new Position(3,3));
 
         ViewObjects.mapView.setRoom(GetRoom(ByPlayer));
 
-        Draw.call(ViewObjects.mapView);
+        TerminalView.reDrawAll(IViewBlock.empty);
         //BaseGenerate.PutPlayerInDungeon(((byte)(Dungeon.CurrentRoom[0].length/2)), (byte) 1, Dungeon.CurrentRoom);
 
         //gameLoop.RestartThread();
@@ -65,11 +65,13 @@ public class Dungeon {
 
     public static void ChangeRoom(Room nextRoom) {
 
-        Draw.clear();
+        Draw.reset(ViewObjects.mapView);
 
-        Dungeon.GetCurrentRoom().getCell(Dungeon.player.PlayerPosition).removeFromCell();
+        Dungeon.getCurrentRoom().getCell(Dungeon.player.playerPosition).removeFromCell();
 
         //Debug.log("GAME: Change room");
+
+        logView.putLog("You entered the room ".concat(String.valueOf(player.getCurrentRoom())));
 
         if (nextRoom.Perimeter.isEmpty()) {
             try {
@@ -80,7 +82,8 @@ public class Dungeon {
                 //MapEditor.setIntoCell(player, 1, 1);
             } finally {
                 player.setCurrentRoom((byte) nextRoom.RoomNumber);
-                PutPlayerOnMap(nextRoom, nextRoom.getTopCenterCellPosition().getRelative(0,1));
+                PutPlayerOnMap(nextRoom, nextRoom.getBackDoor().cellPosition.getRelative(0,1));
+                logView.putLog("You have nothing to see here...");
             }
         }
         else {
@@ -92,6 +95,9 @@ public class Dungeon {
         ViewObjects.mapView.setRoom(GetRoom(ByPlayer));
 
         Draw.call(ViewObjects.mapView);
+        Draw.call(ViewObjects.infoGrid.getFirstBlock());
+
+        //Draw.call(ViewObjects.mapView);
         //Debug.log("THREADS: Restart mob threads");
         //gameLoop.RestartThread();
     }

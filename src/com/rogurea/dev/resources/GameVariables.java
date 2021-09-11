@@ -6,23 +6,23 @@ public class GameVariables {
 
     /* Variables for Thread.sleep(). In milliseconds */
 
-    public static final int Fast = 300;
+    public static final int THREAD_FAST = 300;
 
-    public static final int VeryFast = 200;
+    public static final int THREAD_VERY_FAST = 200;
 
-    public static final int Instantly = 50;
+    public static final int THREAD_INSTANT = 50;
 
-    public static final int Normal = 500;
+    public static final int THREAD_NORMAL = 500;
 
-    public static final int FightSpeed = 350;
+    public static final int FIGHT_SPEED = 350;
 
-    public static final int Second = 1000;
+    public static final int THREAD_SECOND = 1000;
 
-    public static final int DCI = 20;
+    public static final int THREAD_DCI = 20;
 
     /* Variables for items */
 
-    public static final int WeaponBaseDmg = 2;
+    public static final int WEAPON_BASE_DMG = 2;
 
     public static final HashMap<String, Float> WeaponMaterialPower;
     static {
@@ -38,15 +38,15 @@ public class GameVariables {
     }
     /* Variables for mob */
 
-    public static final int BaseMobDamageStat = 2;
+    public static final int BASE_MOB_ATK = 2;
 
-    public static final int BaseMobDefence = 1;
+    public static final int BASE_MOB_DEF = 1;
 
     public static final int N = 5;
 
-    public static int BaseMobLevel = 1;
+    public static final int BASE_MOB_LEVEL = 1;
 
-    public static final int BaseMobHP = 10;
+    public static final int BASE_MOB_HP = 10;
 
     public static HashMap<String, Float> MobTypeEmpower = new HashMap<>();
 

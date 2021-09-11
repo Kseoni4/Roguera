@@ -4,19 +4,18 @@ import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class Model implements Serializable {
-    String modelName;
+    String modelName = "unnamed_model";
 
-    char modelSymbol;
+    char modelSymbol = '?';
 
-    String modelColor;
+    String modelColor = Colors.GREY;
 
     TextCharacter _model = new TextCharacter(' ');
 
     public TextColor getTextColor(String modelColor){
-        return Colors.GetTextColor(modelColor, "\u001b[38;5;");
+        return Colors.GetTextColor(modelColor);
     }
 
     private void settingModel(){
@@ -30,18 +29,28 @@ public class Model implements Serializable {
         settingModel();
     }
 
+    public Model(String modelName, char modelSymbol){
+        this.modelName = modelName;
+        this.modelSymbol = modelSymbol;
+        settingModel();
+    }
+
+    public Model(){}
+
     public String getModelName(){
         return this.modelName;
     }
 
-    public void changeColor(String modelColor){
+    public Model changeColor(String modelColor){
         this.modelColor = modelColor;
         settingModel();
+        return this;
     }
 
-    public void changeModel(char modelSymbol){
+    public Model changeModel(char modelSymbol){
         this.modelSymbol = modelSymbol;
         settingModel();
+        return this;
     }
 
     public TextCharacter get(){

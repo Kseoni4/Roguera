@@ -1,5 +1,6 @@
 package com.rogurea.dev.resources;
 
+import com.rogurea.dev.gamemap.Position;
 import com.rogurea.main.items.Armor;
 import com.rogurea.main.items.Equipment;
 import com.rogurea.main.items.Weapon;
@@ -13,6 +14,10 @@ public class GetRandom {
 
     public static void SetRNGSeed(byte[] seed){
         RNGenerator.setSeed(seed);
+    }
+
+    public static Position getPosition(){
+        return new Position(RNGenerator.nextInt(5), RNGenerator.nextInt(6));
     }
 
     public static char WeaponModel(String type){

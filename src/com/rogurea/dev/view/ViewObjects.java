@@ -10,6 +10,14 @@ public class ViewObjects {
 
     public static MapView mapView;
 
+    public static BordersView bordersView;
+
+    public static PlayerInfoView playerInfoView;
+
+    public static LogView logView;
+
+    public static InfoGrid infoGrid;
+
     /*public static LogBlock logBlock;
 
     public static GameMapBlock gameMapBlock;
@@ -26,6 +34,9 @@ public class ViewObjects {
         ViewBlocks = new ArrayList<>();
 
         mapView = new MapView();
+
+        infoGrid = new InfoGrid();
+
         /*inventoryMenu = new InventoryMenu();
 
         shopMenu = new ShopMenu();

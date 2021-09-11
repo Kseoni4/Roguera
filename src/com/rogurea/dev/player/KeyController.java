@@ -6,11 +6,11 @@ import java.util.HashMap;
 
 public class KeyController {
 
-    private static final HashMap<Character, Runnable> KeyMap = GameResources.GetKeyMap();
+    private static final HashMap<Character, Runnable> KEY_MAP = GameResources.getKeyMap();
 
-    public static void GetKey (Character key){
+    public static void getKey(Character key){
             try {
-               KeyMap.get(key).run();
+               KEY_MAP.get(key).run();
             }catch (NullPointerException e){
                 System.out.printf("Binding for '%s' key has not found\n", key);
                 Debug.log("Binding for " + key + " has not found");

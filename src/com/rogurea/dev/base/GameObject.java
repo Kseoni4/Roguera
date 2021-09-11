@@ -20,8 +20,8 @@ public abstract class GameObject implements Serializable {
         return model.get();
     }
 
-    public void setModel(Model model){
-        this.model = model;
+    public Model setModel(Model model){
+        return this.model = model;
     }
 
     public void placeObject(Cell cell){

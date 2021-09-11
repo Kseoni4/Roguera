@@ -46,6 +46,7 @@ public class Colors {
 
     public static TextColor GetTextColor(String color, String target){
 
+        color = color.replaceFirst("\\[\\d{2};\\d{1};m", "#");
         color = color.replace(target, "#");
         color = color.replace("m", "");
         color = color.replace(";", "");

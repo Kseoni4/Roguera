@@ -1,21 +1,13 @@
 package com.rogurea.dev.view;
 
-import com.googlecode.lanterna.TextCharacter;
-import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Room;
-import com.rogurea.dev.player.Player;
-import com.rogurea.main.gamelogic.Scans;
-import com.rogurea.main.items.Item;
-import com.rogurea.dev.gamemap.Position;
-import com.rogurea.main.mapgenerate.MapEditor;
-import com.rogurea.main.resources.Colors;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.function.Predicate;
 
 public class MapView implements IViewBlock {
 
@@ -31,6 +23,8 @@ public class MapView implements IViewBlock {
         this.currentRoom = room;
     }
 
+    public TerminalSize size = new TerminalSize(25,30);
+
     @Override
     public void Init() {
         try{
@@ -43,25 +37,24 @@ public class MapView implements IViewBlock {
     @Override
     public void Draw() {
         currentRoom.getCells().forEach(
-                cell -> TerminalView.PutCharInTerminal(MapViewGraphics, cell.getFromCell().getModel(), cell.position)
+                cell -> TerminalView.putCharInTerminal(MapViewGraphics, cell.getFromCell().getModel(), cell.position)
         );
     }
 
-    public void DrawAround(){
+    public void drawAround(){
         for(Cell cell : Dungeon.player.lookAround()){
             try {
-                TerminalView.PutCharInTerminal(MapViewGraphics, cell.getFromCell().getModel(), cell.position);
-            } catch (NullPointerException e){
-                continue;
+                TerminalView.putCharInTerminal(MapViewGraphics, cell.getFromCell().getModel(), cell.position);
+            } catch (NullPointerException ignored){
             }
         }
-        TerminalView.PutCharInTerminal(MapViewGraphics, Dungeon.player.getModel(), Dungeon.player.PlayerPosition);
+        TerminalView.putCharInTerminal(MapViewGraphics, Dungeon.player.getModel(), Dungeon.player.playerPosition);
         Draw.flush();
     }
 
     @Override
     public void Reset() {
-
+        MapViewGraphics.fillRectangle(new TerminalPosition(0,0), size, ' ');
     }
     /*
     private TextGraphics MapDrawGraphics = null;

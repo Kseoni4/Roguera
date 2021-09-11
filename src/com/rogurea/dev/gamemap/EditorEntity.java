@@ -8,7 +8,7 @@ public class EditorEntity extends GameObject {
 
     private static int EditorEntityCounter = 0;
 
-    public static GameObject emptyCell = new EditorEntity(new Model("empty_cell", Colors.BLACK, ' '));
+    public static final GameObject EMPTY_CELL = new EditorEntity(new Model("empty_cell", Colors.BLACK, ' '));
 
     public EditorEntity(Model model) {
         this.tag = "editor_entity";

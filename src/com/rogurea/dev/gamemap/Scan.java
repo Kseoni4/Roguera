@@ -3,68 +3,70 @@ package com.rogurea.dev.gamemap;
 import com.rogurea.dev.base.GameObject;
 import com.rogurea.main.creatures.Mob;
 import com.rogurea.main.gamelogic.Debug;
-import com.rogurea.main.items.Item;
+import com.rogurea.dev.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
 import com.rogurea.main.mapgenerate.MapEditor;
 import com.rogurea.main.resources.GameResources;
 
+import java.util.Calendar;
 import java.util.NoSuchElementException;
 
+import static com.rogurea.dev.view.ViewObjects.logView;
 import static com.rogurea.main.view.ViewObjects.logBlock;
 
 public class Scan {
 
-    public static boolean CheckWall(Cell cell){
+    /**
+     * Проверяет клетку на наличие флага isWall(), который явно указывает,
+     * является ли эта клетка стеной.
+     * @param cell проверяемая клетка
+     * @return true, если эта клетка - стена, false, если что-то нет.
+     */
+    public static boolean checkWall(Cell cell){
         return  cell.isWall();
     }
 
-    public static boolean CheckFogPart(GameObject gameObject){
+    /**
+     * Проверяет игровой объект на клетке на принадлежность к части тумана (к классу @code FogPart)
+     * @param gameObject игровой объект на клетке
+     * @return true, если объект - часть тумана, false, если нет.
+     */
+    public static boolean checkFogPart(GameObject gameObject){
         return gameObject instanceof FogPart;
     }
 
-    public static boolean CheckCorner(Cell cell){
+
+    /**
+     * Проверяет клетку на наличие модельки "угла", просматривая в названии модели окончание "ner".
+     * Модели визуальных углов имеют название XYCorner, где XY - местоположение (например, RTCorner = Right Top Corner)
+     * @param cell проверяемая клетка
+     * @return true, если объект на клетке является моделькой "угла", false, если нет.
+     */
+    public static boolean checkCorner(Cell cell){
         return cell.getFromCell().model.getModelName().endsWith("ner");
     }
 
-    public static boolean CheckCorner(Cell cell, String CornerAlign){
+
+    /**
+     * Проверяет клетку на наличие модельки "угла".
+     * Модели визуальных углов имеют название XYCorner, где XY - местоположение (например, RTCorner = Right Top Corner)
+     * @param cell проверяемая клетка
+     * @param CornerAlign местоположение вида XY (например, RTCorner = Right Top Corner)
+     * @return true, если объект на клетке является углом, false, если нет.
+     */
+    public static boolean checkCorner(Cell cell, String CornerAlign){
         return cell.getFromCell().model.getModelName().startsWith(CornerAlign);
     }
 
-    /*public static boolean CheckWall(char c){
-        for(char cell : GameResources.RoomStructureAtlas){
-            if(cell == c)
-                return false;
+    public static void checkPlayerSee(Cell cell){
+        if(cell.getFromCell() instanceof Item){
+            logView.playerActionSee(((Item) cell.getFromCell()).getName());
+            System.out.println("["+Calendar.getInstance().getTime()+"]"+"Player sees "+((Item) cell.getFromCell()).getName());
         }
-        return true;
     }
 
-    public static boolean CheckCorner(char c){
-        for(char cell : GameResources.CornersAtlas){
-            if(cell == c)
-                return false;
-        }
-        return true;
-    }*/
 
-   /* public static boolean CheckRoomExit(char c){
-            return c == GameResources.GetModel("NextDoor");
-    }
-
-    public static boolean CheckDungeonExit(char c){
-        return c == GameResources.GetModel("DungeonExit");
-    }
-
-    public static boolean CheckBack(char c){
-            return c == GameResources.GetModel("BackDoor");
-    }
-*/
-    /**
-     * Return true if current symbol on cell position is an item;
-     * Return false if it is not;
-     * @param c cell
-     * @return boolean
-     */
     /*public static boolean CheckItems(char c) {
         return CheckInResourceMap(c);
     }

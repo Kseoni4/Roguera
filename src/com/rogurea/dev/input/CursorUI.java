@@ -16,7 +16,7 @@ public class CursorUI {
 
     public char CursorPonter;
 
-    private int Left = -1;
+    private final int Left = -1;
 
     private final int Right = 1;
 

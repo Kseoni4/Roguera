@@ -3,7 +3,6 @@ package com.rogurea.dev.gamemap;
 import com.rogurea.dev.base.Entity;
 import com.rogurea.dev.base.GameObject;
 import com.rogurea.dev.mapgenerate.RoomGenerate;
-import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.GameResources;
 import com.rogurea.dev.resources.Model;
@@ -15,7 +14,7 @@ public class Room implements Serializable {
 
     public int RoomNumber;
 
-    int Wight;
+    int Width;
 
     int Height;
 
@@ -39,12 +38,12 @@ public class Room implements Serializable {
         return Cells.stream().filter(cell -> cell.position.equals(new Position(x,y))).findFirst().orElse(null);
     }
 
-    public ArrayList<Cell> getCells(){
-        return Cells;
-    }
-
     public Cell getCell(Position position){
         return getCell(position.x, position.y);
+    }
+
+    public ArrayList<Cell> getCells(){
+        return Cells;
     }
 
     private void makeCells(){
@@ -52,7 +51,7 @@ public class Room implements Serializable {
 
         Perimeter = new ArrayList<>();
 
-        for(int x = 0; x < Wight; x++) {
+        for(int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
                 Cells.add(new Cell(new Position(x, y)));
             }
@@ -68,7 +67,7 @@ public class Room implements Serializable {
 
         Cells = new ArrayList<>();
 
-        for(int x = 0; x < Wight; x++){
+        for(int x = 0; x < Width; x++){
             for(int y = 0; y < Height; y++){
                 Cells.add(new Cell(new Position(x,y)));
                 Cells.get(i).putIntoCell(new Border(new Model("wall", Colors.WHITE_BRIGHT, '*')));
@@ -81,7 +80,7 @@ public class Room implements Serializable {
         return Cells.stream()
                 .filter(
                         cell -> cell.position.y == this.Height
-                                & cell.position.x == this.Wight/2
+                                & cell.position.x == this.Width /2
                 ).findFirst().get().position;
     }
 
@@ -89,7 +88,7 @@ public class Room implements Serializable {
         return Cells.stream()
                 .filter(
                         cell -> cell.position.y == 0
-                                & cell.position.x == this.Wight/2
+                                & cell.position.x == this.Width /2
                 ).findFirst().get().position;
     }
 
@@ -121,17 +120,17 @@ public class Room implements Serializable {
         return gameObjects.stream().filter(gameObject -> gameObject.id == id).findAny().orElse(null);
     }
 
-    public Room(int roomNumber, int wight, int height, RoomGenerate.RoomSize roomSize) {
+    public Room(int roomNumber, int width, int height, RoomGenerate.RoomSize roomSize) {
         this.RoomNumber = roomNumber;
-        this.Wight = wight;
+        this.Width = width;
         this.Height = height;
         this.roomSize = roomSize;
         makeCells();
         /*makeCells_test();*/
     }
 
-    public Room(int roomNumber, int wight, int height, RoomGenerate.RoomSize roomSize, boolean isEndRoom){
-        this(roomNumber, wight, height, roomSize);
+    public Room(int roomNumber, int width, int height, RoomGenerate.RoomSize roomSize, boolean isEndRoom){
+        this(roomNumber, width, height, roomSize);
         this.isEndRoom = isEndRoom;
     }
 
@@ -147,16 +146,12 @@ public class Room implements Serializable {
 
     private void buildDoors(){
         this.nextDoor = new Entity(
-                new Model("next_door", Colors.CYAN, GameResources.GetModel("NextDoor")),
-                () -> {
-                    Dungeon.ChangeRoom(this.nextRoom);
-                });
+                GameResources.getModel("NextDoor").changeColor(Colors.CYAN),
+                () ->   Dungeon.ChangeRoom(this.nextRoom));
 
         this.backDoor = new Entity(
-                new Model("back_door", Colors.CYAN, GameResources.GetModel("BackDoor")),
-                () -> {
-                    Dungeon.ChangeRoom(this.prevRoom);
-                });
+                GameResources.getModel("BackDoor").changeColor(Colors.CYAN),
+                () -> Dungeon.ChangeRoom(this.prevRoom));
     }
 
     public void initFogController(){

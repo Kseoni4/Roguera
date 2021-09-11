@@ -18,20 +18,22 @@ public class FogController {
             for(Cell cell : nearFogParts){
                 if(cell == null)
                     continue;
-                if(Scan.CheckFogPart(cell.getFromCell())){
+                if(Scan.checkFogPart(cell.getFromCell())){
                     cell.getFromCell().model.changeColor(Colors.GREY_243);
-                    //cell.getFromCell().model.changeModel('.');
                 }
             }
     }
 
-    public void RemoveFogParts(Cell[] cells, int depth){
+    public void removeFogParts(Cell[] cells, int depth){
         for(Cell cell : cells){
             int __depth = depth;
-            if(Scan.CheckFogPart(cell.getFromCell())) {
-                if(__depth > 0)
-                    RemoveFogParts(cell.getCellsAround(), --__depth);
-                cell.removeFromCell();
+            try {
+                if (Scan.checkFogPart(cell.getFromCell())) {
+                    cell.removeFromCell();
+                }
+                if (__depth > 0)
+                    removeFogParts(cell.getCellsAround(), --__depth);
+            } catch (NullPointerException ignored){
             }
         }
     }

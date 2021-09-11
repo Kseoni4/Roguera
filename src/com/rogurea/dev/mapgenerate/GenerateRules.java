@@ -6,7 +6,6 @@ import com.rogurea.dev.gamemap.Position;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public class GenerateRules {
 
@@ -21,7 +20,7 @@ public class GenerateRules {
     }
 
     public static boolean IsNotObstaclesRule(Position point, ArrayList<Cell> CurrentRoomCells){
-        return !Scan.CheckWall(Objects.requireNonNull(CurrentRoomCells.stream()
+        return !Scan.checkWall(Objects.requireNonNull(CurrentRoomCells.stream()
                                     .filter(
                                             cell -> cell.position.equals(point))
                                     .findFirst()

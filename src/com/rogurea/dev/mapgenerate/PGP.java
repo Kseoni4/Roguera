@@ -1,13 +1,11 @@
 package com.rogurea.dev.mapgenerate;
 
-import com.rogurea.dev.base.GameObject;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.EditorEntity;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.dev.gamemap.Position;
-import com.rogurea.main.resources.GameResources;
 import com.rogurea.main.resources.GetRandom;
 
 import java.util.ArrayList;
@@ -73,21 +71,21 @@ public class PGP {
     private void MainSequence(){
         FirstPlace();
 
-        System.out.printf("FirstPoint:\n" +
+       /* System.out.printf("FirstPoint:\n" +
                 "\t x0 = %d\n" +
                 "\t y0 = %d\n",
-                FirstPoint.x, FirstPoint.y);
+                FirstPoint.x, FirstPoint.y);*/
 
         //Debug.log("PGP: Induction Place ");
 
-        System.out.println("[Induction Place]");
+        //System.out.println("[Induction Place]");
         while (true) {
             try {
                 InductionPlace();
-                System.out.printf("FirstPoint:\n" +
+                /*System.out.printf("FirstPoint:\n" +
                                 "\t x0 = %d\n" +
                                 "\t y0 = %d\n",
-                        FirstPoint.x, FirstPoint.y);
+                        FirstPoint.x, FirstPoint.y);*/
             } catch (ArrayIndexOutOfBoundsException e) {
                 SecondPoint = new Position(FirstPoint);
                 break;
@@ -97,20 +95,20 @@ public class PGP {
         //Debug.log("PGP: Induction place ended ");
 
         ExitPoint = new Position(FirstPoint);
-        System.out.printf("ExitPoint: x:%d y:%d\n", ExitPoint.x, ExitPoint.y);
+        //System.out.printf("ExitPoint: x:%d y:%d\n", ExitPoint.x, ExitPoint.y);
 
         //Debug.log("PGP: Exit Point: " + ExitPoint.toString());
 
         //Debug.log("PGP: Deduction Place");
 
-        System.out.println("[Deduction Place]");
+        //System.out.println("[Deduction Place]");
         while (FirstPoint.y >= 0 && FirstPoint.x >= 0){
             try {
                 DeductionPlace();
-                System.out.printf("FirstPoint:\n" +
+                /*System.out.printf("FirstPoint:\n" +
                                 "\t x0 = %d\n" +
                                 "\t y0 = %d\n",
-                        FirstPoint.x, FirstPoint.y);
+                        FirstPoint.x, FirstPoint.y);*/
             }catch (ArrayIndexOutOfBoundsException e){
                 break;
             }
@@ -139,14 +137,14 @@ public class PGP {
 
     private void FinalPlace(){
 
-        System.out.println("[Final Place]");
+        //System.out.println("[Final Place]");
 
         Debug.log("PGP: Final Place");
 
         int y0 = FirstPoint.y;
 
         if(y0 == 0){
-            System.out.println("y0 = 0");
+            //System.out.println("y0 = 0");
             SecondPoint.setPosition(0,0);
 
             ConnectPoint(FirstPoint, SecondPoint, OnlyOne);
@@ -154,7 +152,7 @@ public class PGP {
             setIntoCell(CRBuffer, MapEditor.BorderObjects.LTCorner, SecondPoint);
         }
         else{
-            System.out.println("y0 = " + y0);
+            //System.out.println("y0 = " + y0);
             SecondPoint.setPosition(0,0);
 
             CrossPoint = SearchCrossPoint();
@@ -169,10 +167,10 @@ public class PGP {
         if(PlacePoint(XBound,YBound,isReverse)){
             CrossPoint = SearchCrossPoint();
 
-            System.out.printf("CrossPoint set in:\n" +
-                    "\t xCP = %d\n" +
-                    "\t yCP = %d\n",
-                    CrossPoint.x, CrossPoint.y);
+            /*System.out.printf("CrossPoint set in:\n" +
+                            "\t xCP = %d\n" +
+                            "\t yCP = %d\n",
+                    CrossPoint.x, CrossPoint.y);*/
             ConnectPoint(FirstPoint, CrossPoint, None);
         }
     }
@@ -191,10 +189,10 @@ public class PGP {
 
         SecondPoint.setPosition(y1, x1);
 
-        System.out.printf("Trying to place point into\n" +
+        /*System.out.printf("Trying to place point into\n" +
                         "\t x1 = %d\n" +
                         "\t y1 = %d\n",
-                SecondPoint.x, SecondPoint.y);
+                SecondPoint.x, SecondPoint.y);*/
 
         if(GenerateRules.IsNotOutOfBoundsRule(SecondPoint, CRBuffer)
            && GenerateRules.IsNotObstaclesRule(SecondPoint, CRBuffer)
@@ -202,10 +200,10 @@ public class PGP {
         ){
             setIntoCell(CRBuffer, Dot, SecondPoint);
 
-            System.out.printf("Placed new point into\n" +
+            /*System.out.printf("Placed new point into\n" +
                     "\t x1 = %d\n" +
                     "\t y1 = %d\n",
-                    SecondPoint.x, SecondPoint.y);
+                    SecondPoint.x, SecondPoint.y);*/
 
             return true;
         }
@@ -253,7 +251,7 @@ public class PGP {
     private void ConnectPoint(Position firstPoint, Position secondPoint, byte n){
         byte ConnectedPoints = n;
 
-        System.out.printf("Connecting points" +
+        /*System.out.printf("Connecting points" +
                         "\n\t from:\n" +
                             "\t\t x0 = %d\n" +
                             "\t\t y0 = %d\n" +
@@ -262,23 +260,23 @@ public class PGP {
                             "\t\t y1 = %d\n",
                         firstPoint.x, firstPoint.y,
                         secondPoint.x, secondPoint.y
-        );
+        );*/
 
         CurrentDirection = GetDirection(firstPoint, secondPoint);
 
-        System.out.printf("pD = %s\n", PreviousDirection);
-        System.out.printf("cD = %s\n", CurrentDirection);
+        /*System.out.printf("pD = %s\n", PreviousDirection);
+        System.out.printf("cD = %s\n", CurrentDirection);*/
 
         if(GenerateRules.IsNotOutOfBoundsRule(secondPoint, CRBuffer))
             MapEditor.InsertShapeLine(CRBuffer, CurrentDirection, LenghtOfLine, firstPoint);
 
         if(PreviousDirection != null){
             PlaceCorner(PreviousDirection, CurrentDirection, firstPoint);
-            System.out.printf("Corner placing in:\n" +
+            /*System.out.printf("Corner placing in:\n" +
                     "\t x1 = %d\n" +
                     "\t y1 = %d\n",
                     firstPoint.x, firstPoint.y
-            );
+            );*/
         }
 
         PreviousDirection = MapEditor.DrawDirection.valueOf(CurrentDirection.toString());

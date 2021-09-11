@@ -1,7 +1,6 @@
 package com.rogurea.dev.gamemap;
 
 import com.rogurea.dev.base.GameObject;
-import com.rogurea.dev.gamemap.Position;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class Cell implements Serializable {
 
     boolean isWall = false;
 
-    private int lastItem;
+    private int lastObjectIndex;
 
     public boolean isEmpty(){
         return this.gameObjects.isEmpty() && !isWall;
@@ -22,19 +21,19 @@ public class Cell implements Serializable {
 
     public GameObject getFromCell(){
         if(!isEmpty())
-            return this.gameObjects.get(lastItem);
+            return this.gameObjects.get(lastObjectIndex);
         else{
-            return EditorEntity.emptyCell;
+            return EditorEntity.EMPTY_CELL;
         }
     }
 
     public void removeFromCell(){
-            gameObjects.remove(lastItem);
+            gameObjects.remove(lastObjectIndex);
             UpdateLastItemCounter();
     }
 
     public GameObject getAndRemoveFromCell(){
-        GameObject gatedObject = gameObjects.get(lastItem);
+        GameObject gatedObject = gameObjects.get(lastObjectIndex);
         removeFromCell();
         return gatedObject;
     }
@@ -65,9 +64,9 @@ public class Cell implements Serializable {
         int size = gameObjects.size();
 
         if(size > 0)
-            lastItem = gameObjects.size()-1;
+            lastObjectIndex = gameObjects.size()-1;
         else
-            lastItem = 0;
+            lastObjectIndex = 0;
     }
 
     public Cell(Position position){
@@ -79,7 +78,7 @@ public class Cell implements Serializable {
         Cell[] cells = new Cell[8];
         int i = 0;
         for(Position direction : Position.AroundPositions){
-            cells[i] = Dungeon.GetCurrentRoom().getCell(this.position.getRelative(direction));
+            cells[i] = Dungeon.getCurrentRoom().getCell(this.position.getRelative(direction));
             i++;
         }
         return cells;
