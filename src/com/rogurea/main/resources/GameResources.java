@@ -236,7 +236,7 @@ public class GameResources {
             csvfile.read(inputchar);
 
             String maps = new String(inputchar, StandardCharsets.UTF_8);
-            CharName = maps.split(",|\r\n");
+            CharName = maps.split(",|\r|\n");
         }
         catch (IOException e) {
             Debug.log(e.getMessage());
