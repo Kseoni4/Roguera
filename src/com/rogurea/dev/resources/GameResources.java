@@ -109,7 +109,8 @@ public class GameResources {
         return _keymap;
     }
 /*
-    public static String Logo = " /$$$$$$$\n" +
+    public static String Logo =
+            " /$$$$$$$\n" +
             "| $$__  $$                                                           \n" +
             "| $$  \\ $$  /$$$$$$   /$$$$$$  /$$   /$$  /$$$$$$   /$$$$$$  /$$$$$$ \n" +
             "| $$$$$$$/ /$$__  $$ /$$__  $$| $$  | $$ /$$__  $$ /$$__  $$|____  $$\n" +
