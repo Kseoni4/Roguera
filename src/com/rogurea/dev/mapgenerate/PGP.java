@@ -4,13 +4,14 @@
 
 package com.rogurea.dev.mapgenerate;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.EditorEntity;
 import com.rogurea.dev.resources.Colors;
+import com.rogurea.dev.resources.GetRandom;
 import com.rogurea.dev.resources.Model;
-import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.dev.gamemap.Position;
-import com.rogurea.main.resources.GetRandom;
+
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -63,11 +64,11 @@ public class PGP {
 
         CRBuffer.addAll(CurrentRoomCells);
 
-        Debug.log("GENERATE: Starting a main sequence of the Point Generating Procedure");
+        Debug.toLog("GENERATE: Starting a main sequence of the Point Generating Procedure");
 
         MainSequence();
 
-        Debug.log("GENERATE: Main sequence of the Point Generating Procedure has completed");
+        Debug.toLog("GENERATE: Main sequence of the Point Generating Procedure has completed");
 
         return CRBuffer;
     }
@@ -143,7 +144,7 @@ public class PGP {
 
         //System.out.println("[Final Place]");
 
-        Debug.log("PGP: Final Place");
+        Debug.toLog("PGP: Final Place");
 
         int y0 = FirstPoint.y;
 

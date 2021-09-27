@@ -14,12 +14,12 @@ import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.rogurea.dev.base.Debug;
+import com.rogurea.dev.mapgenerate.MapEditor;
 import com.rogurea.dev.resources.GameResources;
 import com.rogurea.dev.view.ui.InventoryView;
 import com.rogurea.dev.view.ui.LogView;
 import com.rogurea.dev.view.ui.PlayerInfoView;
 import com.rogurea.dev.gamemap.Position;
-import com.rogurea.main.mapgenerate.MapEditor;
 
 import java.io.IOException;
 import java.util.Arrays;

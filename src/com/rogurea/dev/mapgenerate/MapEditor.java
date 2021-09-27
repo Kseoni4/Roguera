@@ -4,10 +4,10 @@
 
 package com.rogurea.dev.mapgenerate;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.base.GameObject;
 import com.rogurea.dev.gamemap.Border;
 import com.rogurea.dev.gamemap.Cell;
-import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.dev.gamemap.Scan;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.gamemap.Room;
@@ -210,7 +210,7 @@ public class MapEditor {
         try {
             CurrentRoom.replaceCell(cell, position);
         } catch (ArrayIndexOutOfBoundsException e){
-            Debug.log("ERROR: generation was failed, index " +position.toString()+" is outer of bounds");
+            Debug.toLog("ERROR: generation was failed, index " +position.toString()+" is outer of bounds");
         }
     }
 

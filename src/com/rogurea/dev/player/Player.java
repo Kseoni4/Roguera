@@ -17,7 +17,6 @@ import com.rogurea.dev.items.Equipment;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.ViewObjects;
-import com.rogurea.main.player.PlayerStatistics;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -91,8 +90,6 @@ public class Player extends GameObject {
         this.playerPosition = cell.position;
         cell.gameObjects.add(this);
     }
-
-    public PlayerStatistics playerStatistics = new PlayerStatistics();
 
     {
         Equipment.put("FirstWeapon", com.rogurea.dev.items.Equipment.BLANK);

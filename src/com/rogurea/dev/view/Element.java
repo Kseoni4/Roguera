@@ -5,7 +5,7 @@
 package com.rogurea.dev.view;
 
 import com.googlecode.lanterna.TerminalPosition;
-import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Position;
 
 public class Element {
@@ -28,7 +28,7 @@ public class Element {
     public Position ElementPointerPosition;
 
     public void setElementPointerPosition(Position elementPointerPosition) {
-        Debug.log("CURSOR UI: Pointer position" + elementPointerPosition.toString());
+        Debug.toLog("CURSOR UI: Pointer position" + elementPointerPosition.toString());
         ElementPointerPosition = elementPointerPosition;
     }
 

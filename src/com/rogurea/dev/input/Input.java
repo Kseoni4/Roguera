@@ -5,7 +5,7 @@
 package com.rogurea.dev.input;
 
 import com.googlecode.lanterna.input.KeyStroke;
-import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class Input {
         try {
             return TerminalView.terminal.readInput();
         } catch (IOException e) {
-            Debug.log(e.getMessage());
+            Debug.toLog(e.getMessage());
         }
         return KeyStroke.fromString("");
     }

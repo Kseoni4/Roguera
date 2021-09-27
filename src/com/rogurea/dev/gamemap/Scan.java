@@ -7,18 +7,11 @@ package com.rogurea.dev.gamemap;
 import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.base.Entity;
 import com.rogurea.dev.base.GameObject;
-import com.rogurea.main.creatures.Mob;
 import com.rogurea.dev.items.Item;
-import com.rogurea.main.map.Dungeon;
-import com.rogurea.main.map.Position;
-import com.rogurea.main.mapgenerate.MapEditor;
-import com.rogurea.main.resources.GameResources;
 
 import java.util.Calendar;
-import java.util.NoSuchElementException;
 
 import static com.rogurea.dev.view.ViewObjects.logView;
-import static com.rogurea.main.view.ViewObjects.logBlock;
 
 public class Scan {
 

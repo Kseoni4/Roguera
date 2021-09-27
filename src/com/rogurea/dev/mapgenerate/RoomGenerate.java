@@ -7,9 +7,8 @@ package com.rogurea.dev.mapgenerate;
 
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Room;
+import com.rogurea.dev.player.Player;
 import com.rogurea.dev.resources.GetRandom;
-import com.rogurea.dev.view.TerminalView;
-import com.rogurea.main.player.Player;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -117,7 +116,7 @@ public class RoomGenerate implements Serializable {
 
         PGP pgp = new PGP();
 
-        Player.CurrentRoom = (byte) room.RoomNumber;
+        Dungeon.player.setCurrentRoom((byte) room.RoomNumber);
 
         MapEditor.SetRoomForEdit(room);
 

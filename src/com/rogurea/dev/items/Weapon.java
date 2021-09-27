@@ -4,9 +4,8 @@
 
 package com.rogurea.dev.items;
 
+import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
-import com.rogurea.main.resources.Colors;
-
 public class Weapon extends Equipment{
 
     private double _damage = 1.0d;

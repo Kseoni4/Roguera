@@ -4,8 +4,7 @@
 
 package com.rogurea.dev.view;
 
-import com.rogurea.main.gamelogic.Debug;
-import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.base.Debug;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,7 +37,7 @@ public class Draw {
         try {
             TerminalView.terminal.flush();
         } catch (IOException e) {
-            Debug.log(Arrays.toString(e.getStackTrace()));
+            Debug.toLog(Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -46,7 +45,7 @@ public class Draw {
         try{
             TerminalView.terminal.clearScreen();
         } catch (IOException e){
-            Debug.log(Arrays.toString(e.getStackTrace()));
+            Debug.toLog(Arrays.toString(e.getStackTrace()));
         }
     }
 
