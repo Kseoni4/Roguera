@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.view;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -65,6 +69,6 @@ public class Element {
         ElementPosition = elementPosition;
         ElementAction = elementAction;
         ElementSize = elementTitle.length();
-        ElementPointerPosition = elementPosition.getRelative(-1, 0);
+        ElementPointerPosition = elementPosition.getRelative(-elementPosition.x*2,   0);
     }
 }

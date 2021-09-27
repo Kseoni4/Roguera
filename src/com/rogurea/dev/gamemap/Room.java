@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.gamemap;
 
 import com.rogurea.dev.base.Entity;
@@ -6,6 +10,7 @@ import com.rogurea.dev.mapgenerate.RoomGenerate;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.GameResources;
 import com.rogurea.dev.resources.Model;
+import com.rogurea.devMain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -155,7 +160,8 @@ public class Room implements Serializable {
     }
 
     public void initFogController(){
-        fogController = new FogController(Cells);
+        if(!devMain.isClearMap)
+            fogController = new FogController(Cells);
     }
 
     public FogController getFogController(){

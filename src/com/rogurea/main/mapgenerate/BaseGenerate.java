@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.mapgenerate;
 
 import com.rogurea.main.creatures.Mob;

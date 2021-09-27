@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.input;
 
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.main.gamelogic.Debug;
-import com.rogurea.main.map.Position;
-import com.rogurea.main.view.UI.Menu.Element;
+import com.rogurea.dev.base.Debug;
+import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.view.Element;
 
 import java.util.ArrayList;
 
@@ -14,27 +18,38 @@ public class CursorUI {
 
     public ArrayList<Element> Elements;
 
-    public char CursorPonter;
+    public char CursorPointer = '>';
 
     private final int Left = -1;
+    private final int Up = -1;
 
+    private final int Down = 1;
     private final int Right = 1;
 
-    public void SelectElement(KeyType Key){
+    public void SelectElementH(KeyType Key){
         switch (Key){
             case ArrowLeft: {Move(Left); break;}
             case ArrowRight: {Move(Right); break;}
             case Enter: {Elements.get(IndexOfElement).ElementAction.run();break;}
         }
-        try {
-            setCursorPositionByIndex();
-        } catch (IndexOutOfBoundsException e){
-            Debug.log("UI ERROR: Index of element " + IndexOfElement + " is out of bounds." );
+        setCursorPositionByIndex();
+    }
+
+    public void SelectElementV(KeyType key){
+        switch (key){
+            case ArrowDown: {Move(Down); break;}
+            case ArrowUp: {Move(Up); break;}
+            case Enter: {Elements.get(IndexOfElement).ElementAction.run(); break;}
         }
+        setCursorPositionByIndex();
     }
 
     private void setCursorPositionByIndex(){
-        CursorPosition = Elements.get(IndexOfElement).ElementPointerPosition;
+        try {
+            CursorPosition = Elements.get(IndexOfElement).ElementPointerPosition;
+        }catch (IndexOutOfBoundsException e){
+            Debug.toLog("UI ERROR: Index of element " + IndexOfElement + " is out of bounds." );
+        }
     }
 
     public void setElements(ArrayList<Element> elements){

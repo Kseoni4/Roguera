@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.gamemap;
 
 import com.rogurea.dev.mapgenerate.RoomGenerate;
@@ -9,7 +13,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.rogurea.dev.view.ViewObjects.logView;
-import static com.rogurea.dev.view.ViewObjects.mapView;
 
 public class Dungeon {
 
@@ -71,7 +74,7 @@ public class Dungeon {
 
         //Debug.log("GAME: Change room");
 
-        logView.putLog("You entered the room ".concat(String.valueOf(player.getCurrentRoom())));
+        logView.playerAction("entered the room ".concat(String.valueOf(player.getCurrentRoom())));
 
         if (nextRoom.Perimeter.isEmpty()) {
             try {
@@ -83,7 +86,7 @@ public class Dungeon {
             } finally {
                 player.setCurrentRoom((byte) nextRoom.RoomNumber);
                 PutPlayerOnMap(nextRoom, nextRoom.getBackDoor().cellPosition.getRelative(0,1));
-                logView.putLog("You have nothing to see here...");
+                logView.playerAction("have nothing to see here...");
             }
         }
         else {

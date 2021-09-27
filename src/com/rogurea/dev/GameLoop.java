@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -29,6 +33,8 @@ public class GameLoop {
         win.show(); */
 
         Events.putTestItemIntoPos.action(new Position(1,2));
+
+        Events.putChestIntoPos.action(new Position(4,3));
 
         ViewObjects.logView.putLog("log init_2");
 

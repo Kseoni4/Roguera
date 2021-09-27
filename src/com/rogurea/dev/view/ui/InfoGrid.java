@@ -1,15 +1,23 @@
-package com.rogurea.dev.view;
+/*
+ * Copyright (c) Ksenofontov N. 2020-2021.
+ */
+
+package com.rogurea.dev.view.ui;
 
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.resources.Model;
+import com.rogurea.dev.view.Draw;
+import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.view.TerminalView;
+import com.rogurea.dev.view.ViewObjects;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class InfoGrid implements IViewBlock{
+public class InfoGrid implements IViewBlock {
 
     private ArrayList<IViewBlock> _viewBlocks;
 
@@ -44,7 +52,6 @@ public class InfoGrid implements IViewBlock{
     private TextGraphics _infoGridGraphics;
 
     public InfoGrid() {
-
         _viewBlocks = new ArrayList<>();
         ViewObjects.ViewBlocks.add(this);
     }
@@ -160,11 +167,11 @@ public class InfoGrid implements IViewBlock{
         System.out.println(_pointYX.toString());*/
         //TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('1'), _zeroPointBlock1);
         //TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('2'), _zeroPointBlock2);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('3'), _zeroPointBlock3);
+        /*TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('3'), _zeroPointBlock3);
         TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('0'), _startPointXY);
         TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _pointXY);
         TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _pointYX);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _zeroPointBlock3.getRelative(0,-1));
+        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _zeroPointBlock3.getRelative(0,-1));*/
         drawBorders();
         if(!_viewBlocks.isEmpty()){
             _viewBlocks.forEach(Draw::call);

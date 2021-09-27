@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.gamelogic;
 
 import com.googlecode.lanterna.TerminalSize;

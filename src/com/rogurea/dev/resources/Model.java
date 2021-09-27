@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.resources;
 
 import com.googlecode.lanterna.TextCharacter;
@@ -6,11 +10,16 @@ import com.googlecode.lanterna.TextColor;
 import java.io.Serializable;
 
 public class Model implements Serializable {
+
+    public static final Model BLANK = new Model("", ' ');
+
     String modelName = "unnamed_model";
 
     char modelSymbol = '?';
 
     String modelColor = Colors.GREY;
+
+    String modelBColor =  Colors.B_GREYSCALE_237;
 
     TextCharacter _model = new TextCharacter(' ');
 
@@ -22,11 +31,22 @@ public class Model implements Serializable {
         this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor));
     }
 
+    private void settingModelWithBColor(){
+        this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(getTextColor(modelBColor));
+    }
+
     public Model(String modelName, String modelColor, char modelSymbol){
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
         this.modelColor = modelColor;
         settingModel();
+    }
+
+    public Model(String modelName, String modelFColor, String modelBColor, char modelSymbol){
+        this(modelName, modelSymbol);
+        this.modelColor = modelFColor;
+        this.modelBColor = modelBColor;
+        settingModelWithBColor();
     }
 
     public Model(String modelName, char modelSymbol){
@@ -55,5 +75,10 @@ public class Model implements Serializable {
 
     public TextCharacter get(){
         return this._model;
+    }
+
+    @Override
+    public String toString(){
+        return ""+this.modelColor+this._model.getCharacter()+Colors.R;
     }
 }

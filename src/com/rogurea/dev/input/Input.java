@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.input;
 
 import com.googlecode.lanterna.input.KeyStroke;
 import com.rogurea.main.gamelogic.Debug;
-import com.rogurea.main.view.TerminalView;
+import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
 

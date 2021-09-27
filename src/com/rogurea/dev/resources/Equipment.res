@@ -1,5 +1,5 @@
 LongSword,╁
-ShortSword,╈
+ShortSword,┼
 Knife,╽
 ArmorChest,₼
 Bow,⟭

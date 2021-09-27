@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.player;
 
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.dev.base.Entity;
 import com.rogurea.dev.gamemap.*;
 import com.rogurea.dev.items.Item;
+import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.ViewObjects;
 
 import static com.rogurea.dev.gamemap.Dungeon.player;
+import static com.rogurea.dev.view.ViewObjects.inventoryView;
 import static com.rogurea.dev.view.ViewObjects.logView;
 
 public class MoveController {
@@ -66,7 +72,8 @@ public class MoveController {
                 nextCell.clear();
             }
             player.putUpItem(_item);
-            logView.putLog("You get the ".concat(_item.getName()).concat("!"));
+            logView.playerActionPickUp(_item.getName());
+            Draw.call(inventoryView);
         }
 
         Scan.checkPlayerSee(nextCell);

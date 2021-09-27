@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.player;
 
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.resources.Colors;
+
+import java.util.ArrayList;
 
 public class PlayerData {
     private String PlayerName;
@@ -10,6 +16,10 @@ public class PlayerData {
     private byte Level = 1;
     private short Money = 0;
     private byte attempt = 0;
+    private int _atk = 1;
+    private int _baseAtk = 1;
+    private int _def = 1;
+
 
     public String getPlayerName() {
         return PlayerName;
@@ -20,13 +30,15 @@ public class PlayerData {
     }
 
     public String[] formPlayerData(){
+
         return new String[]{
                 "Room: ".concat(Colors.MAGENTA).concat(String.valueOf(Dungeon.getCurrentRoom().RoomNumber)),
                 "Name: ".concat(Colors.GREEN_BRIGHT).concat(PlayerName),
                 "Health: " + Colors.RED_BRIGHT.concat(String.valueOf(HP)),
                 "Mana: "+Colors.BLUE_BRIGHT.concat(String.valueOf(MP)),
                 "Level: "+Colors.CYAN.concat(String.valueOf(Level)),
-                "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money))
+                "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money)),
+                "ATK: "+Colors.ORANGE.concat(String.valueOf(_atk))
         };
     }
 
@@ -78,5 +90,25 @@ public class PlayerData {
 
     public void setRandomSeed(byte[] randomSeed) {
         RandomSeed = randomSeed;
+    }
+
+    public int get_atk() {
+        return _atk;
+    }
+
+    public int get_baseAtk(){
+        return _baseAtk;
+    }
+
+    public void set_atk(int _atk) {
+        this._atk = _atk;
+    }
+
+    public int get_def() {
+        return _def;
+    }
+
+    public void set_def(int _def) {
+        this._def = _def;
     }
 }

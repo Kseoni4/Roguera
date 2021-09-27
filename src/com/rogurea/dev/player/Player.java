@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.player;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.base.GameObject;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.Dungeon;
@@ -10,6 +15,8 @@ import com.rogurea.dev.resources.GameResources;
 import com.rogurea.dev.resources.Model;
 import com.rogurea.dev.items.Equipment;
 import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.view.Draw;
+import com.rogurea.dev.view.ViewObjects;
 import com.rogurea.main.player.PlayerStatistics;
 
 import java.util.ArrayList;
@@ -44,21 +51,39 @@ public class Player extends GameObject {
     public ArrayList<Item> Inventory = new ArrayList<>();
 
     public void putUpItem(Item item){
-        if(item instanceof Equipment){
+        Debug.toLog("Picked up item: "+item.getFullInfo());
+        if(item instanceof Equipment && isGreaterStats(item)){
             autoEquip((Equipment) item);
         }
         else {
+            Debug.toLog("\ninto inventory");
             Inventory.add(item);
         }
+        Draw.call(ViewObjects.infoGrid.getThirdBlock());
+    }
+
+    private boolean isGreaterStats(Item item){
+       return ((Equipment) item).getStats().intValue() > Equipment.get("FirstWeapon").getStats().intValue();
     }
 
     private void autoEquip(Equipment equipment){
+        removeBlank();
         if(equipment instanceof Weapon){
+
+            if(Equipment.get("FirstWeapon") != null)
+                Inventory.add(Equipment.remove("FirstWeapon"));
+
             Equipment.put("FirstWeapon", equipment);
+            playerData.set_atk(playerData.get_baseAtk()+Equipment.get("FirstWeapon").getStats().intValue());
         }
         else {
             Inventory.add(equipment);
         }
+    }
+
+    private void removeBlank(){
+        if(Equipment.get("FirstWeapon").getName().equals("blank"))
+            Equipment.remove("FirstWeapon");
     }
 
     @Override
@@ -68,11 +93,12 @@ public class Player extends GameObject {
     }
 
     public PlayerStatistics playerStatistics = new PlayerStatistics();
+
     {
-        Equipment.put("FirstWeapon", null);
-        Equipment.put("SecondWeapon", null);
-        Equipment.put("Armor", null);
-        Equipment.put("Amulet", null);
+        Equipment.put("FirstWeapon", com.rogurea.dev.items.Equipment.BLANK);
+        Equipment.put("SecondWeapon", com.rogurea.dev.items.Equipment.BLANK);
+        Equipment.put("Armor", com.rogurea.dev.items.Equipment.BLANK);
+        Equipment.put("Amulet", com.rogurea.dev.items.Equipment.BLANK);
     }
 
     public Cell getFrontCell(){

@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.resources;
 import com.googlecode.lanterna.TextColor;
+
+import java.awt.*;
 
 public class Colors {
 

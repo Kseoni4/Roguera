@@ -1,6 +1,10 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.view;
 
-import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.view.ui.*;
 
 import java.util.ArrayList;
 
@@ -10,11 +14,11 @@ public class ViewObjects {
 
     public static MapView mapView;
 
-    public static BordersView bordersView;
-
     public static PlayerInfoView playerInfoView;
 
     public static LogView logView;
+
+    public static InventoryView inventoryView;
 
     public static InfoGrid infoGrid;
 

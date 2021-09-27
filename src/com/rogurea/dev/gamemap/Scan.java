@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.gamemap;
 
+import com.rogurea.dev.base.Debug;
+import com.rogurea.dev.base.Entity;
 import com.rogurea.dev.base.GameObject;
 import com.rogurea.main.creatures.Mob;
-import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.dev.items.Item;
 import com.rogurea.main.map.Dungeon;
 import com.rogurea.main.map.Position;
@@ -62,7 +67,9 @@ public class Scan {
     public static void checkPlayerSee(Cell cell){
         if(cell.getFromCell() instanceof Item){
             logView.playerActionSee(((Item) cell.getFromCell()).getName());
-            System.out.println("["+Calendar.getInstance().getTime()+"]"+"Player sees "+((Item) cell.getFromCell()).getName());
+            Debug.toLog("["+Calendar.getInstance().getTime()+"]"+"Player sees "+((Item) cell.getFromCell()).getName());
+        } else if(cell.getFromCell() instanceof Entity){
+            logView.playerActionSee(cell.getFromCell().model.getModelName());
         }
     }
 

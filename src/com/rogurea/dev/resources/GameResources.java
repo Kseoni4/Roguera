@@ -1,10 +1,12 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.resources;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Dungeon;
-import com.rogurea.dev.player.Player;
 import com.rogurea.dev.view.PlayerInfoWindow;
-import com.rogurea.dev.view.ViewObjects;
-import com.rogurea.main.gamelogic.Debug;
 
 import java.awt.*;
 import java.io.*;
@@ -15,7 +17,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "0.2.1:1109:1709dev";
+    public static final String VERSION = "0.2.2:2709:2353dev";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -31,16 +33,16 @@ public class GameResources {
     };
 
     public static void loadFont(){
-        Debug.log("Loading font...");
+        Debug.toLog("Loading font...");
         try{
             InputStream file_font = GameResources.class.getResourceAsStream("PxPlus_IBM_VGA_9x16.ttf");
 
             assert file_font != null;
             TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
 
-            Debug.log("Font loaded successfully");
+            Debug.toLog("Font loaded successfully");
         } catch (FontFormatException | IOException e) {
-            Debug.log("Error in loading font:" + e.getMessage());
+            Debug.toLog("Error in loading font:" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -51,7 +53,7 @@ public class GameResources {
     public static void loadResources() {
         for(String file : resources){
             String showload = "= Loading resources from " + file + ".res =";
-            Debug.log(showload);
+            Debug.toLog(showload);
             try {
                 InputStream atlas_csv = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
 
@@ -64,14 +66,14 @@ public class GameResources {
 
                 String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
 
-                Debug.log("= Getting string: " + Arrays.toString(map));
+                Debug.toLog("= Getting string: " + Arrays.toString(map));
 
                 putStringsIntoMap(map);
             } catch (IOException e) {
-                Debug.log(e.getMessage());
+                Debug.toLog(e.getMessage());
             }
         }
-        Debug.log("= Loading resources is ended =");
+        Debug.toLog("= Loading resources is ended =");
     }
 
     public static Model getModel(String modelname){
@@ -79,7 +81,7 @@ public class GameResources {
             return MODEL_HASH_MAP.get(modelname);
         }
         catch (NullPointerException e){
-            Debug.log("RESOURCE: Get model error: no such symbol for name " + modelname);
+            Debug.toLog("RESOURCE: Get model error: no such symbol for name " + modelname);
             System.out.printf("Get model error: no such symbol for name \"%s\"\n",modelname);
             return new Model();
         }
@@ -90,7 +92,7 @@ public class GameResources {
             char model = array[i].charAt(0);
 
             String name = array[i-1];
-            Debug.log("RESOURCE: Map ["+name+"-"+model+"]");
+            Debug.toLog("RESOURCE: Map ["+name+"-"+model+"]");
             MODEL_HASH_MAP.put(name, new Model(name, model));
         }
     }

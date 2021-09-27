@@ -1,16 +1,27 @@
-package com.rogurea.dev.view;
+/*
+ * Copyright (c) Ksenofontov N. 2020-2021.
+ */
+
+package com.rogurea.dev.view.ui;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.resources.Colors;
+import com.rogurea.dev.view.Draw;
+import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class LogView implements IViewBlock {
+
+    private final String PREFIX_YOU = Colors.GREEN_BRIGHT.concat("You").concat(Colors.R);
+    private final String SEE_THE = " see the ";
+    private final String GET_THE = " get the ";
 
     private TextGraphics logTextGraphics;
 
@@ -63,9 +74,18 @@ public class LogView implements IViewBlock {
         putLog(message);
     }
 
+    public void playerAction(String message){
+        putLog(PREFIX_YOU.concat(" "+message));
+    }
+
     public void playerActionSee(String message){
-        String prefixSee = Colors.GREEN_BRIGHT.concat("You").concat(Colors.R).concat(" see the ");
+        String prefixSee = PREFIX_YOU.concat(SEE_THE);
         putLog(prefixSee.concat(message));
+    }
+
+    public void playerActionPickUp(String message){
+        String prefixPickUp = PREFIX_YOU.concat(GET_THE);
+        putLog(prefixPickUp.concat(message).concat("!"));
     }
 
     public void putLog(String message){
@@ -99,7 +119,7 @@ public class LogView implements IViewBlock {
         for (String log : logHistory_buffer) {
             //colorFadeDecrement(log);
             int substr = logHistory_buffer.indexOf(log) < 10 ? 1 : 2;
-            System.out.println("write log (index): (" + logHistory_buffer.indexOf(log) + ")" + log);
+            Debug.toLog("write log (index): (" + logHistory_buffer.indexOf(log) + ")" + log);
             writeLog(colorFade.concat(log.substring(substr)), logHistory_buffer.indexOf(log));
         }
     }
@@ -119,13 +139,11 @@ public class LogView implements IViewBlock {
 
         int i = 0;
 
-        System.out.println("remove "+getTrimString(message)+"("+logHistory.removeIf(s -> s.endsWith(getTrimString(message))));
+        Debug.toLog("remove "+getTrimString(message)+"("+logHistory.removeIf(s -> s.endsWith(getTrimString(message))));
         if(logLineIndex > 1)
             logLineIndex--;
 
-
         logMessage = new StringBuilder();
-
 
         recurrentPrint(longMessage, i);
     }
@@ -148,25 +166,11 @@ public class LogView implements IViewBlock {
     }
 
     private void incResetLog(){
-
         logHistory.add(logLineIndex+logMessage.toString());
-
 
         logLineIndex++;
 
-
         logMessage = new StringBuilder();
-    }
-
-    private void clearLog(){
-        logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, logHeightsize+1), ' ');
-    }
-
-    private void colorFadeDecrement(String log){
-        colorFade = "\u001b[38;5;_fade_m";
-        colorFade = colorFade.replaceFirst("_fade_", String.valueOf(Math.max(
-                232, 232 + (10 - (logHistory.size() - logHistory.indexOf(log)))
-        )));
     }
 
     private void writeLog(String msg, int line){
@@ -177,16 +181,22 @@ public class LogView implements IViewBlock {
         else{
             TerminalView.drawBlockInTerminal(logTextGraphics, msg, logPosition.x, logPosition.y+line);
         }
-/*        else {
-            writeLog(logMessage.toString(), logLineIndex);
+    }
 
-            incResetLog();
-        }*/
+    private void colorFadeDecrement(String log){
+        colorFade = "\u001b[38;5;_fade_m";
+        colorFade = colorFade.replaceFirst("_fade_", String.valueOf(Math.max(
+                232, 232 + (10 - (logHistory.size() - logHistory.indexOf(log)))
+        )));
     }
 
     @Override
     public void Reset() {
         clearLog();
         Draw.flush();
+    }
+
+    private void clearLog(){
+        logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, logHeightsize+1), ' ');
     }
 }

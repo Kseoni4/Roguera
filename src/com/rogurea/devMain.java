@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea;
 
 import com.rogurea.dev.GameLoop;
@@ -11,7 +15,18 @@ import java.io.IOException;
 
 public class devMain {
 
+    public static boolean isDebug = false;
+
+    public static boolean isSaveToLogFile = false;
+
+    public static boolean isClearMap = false;
+
     public static void main(String[] args) throws IOException {
+
+        checkCLI(args);
+
+        GameResources.loadFont();
+
         TerminalView.initTerminal();
 
         GameResources.loadResources();
@@ -27,5 +42,19 @@ public class devMain {
         GameLoop gameLoop = new GameLoop();
 
         gameLoop.start();
+    }
+
+    private static void checkCLI(String[] args){
+        for(String argument : args){
+            if(argument.equals("--debug")){
+                isDebug = true;
+            }
+            if(argument.equals("--savelog")){
+                isSaveToLogFile = true;
+            }
+            if(argument.equals("--clearmap")){
+                isClearMap = true;
+            }
+        }
     }
 }

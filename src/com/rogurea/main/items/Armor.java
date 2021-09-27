@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.items;
 
 import com.rogurea.main.resources.GameResources;

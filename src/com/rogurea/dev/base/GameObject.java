@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.base;
 
 import com.googlecode.lanterna.TextCharacter;

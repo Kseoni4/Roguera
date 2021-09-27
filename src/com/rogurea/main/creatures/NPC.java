@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.creatures;
 
 import com.rogurea.main.items.Gold;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.props;
 
 import com.rogurea.dev.base.GameObject;

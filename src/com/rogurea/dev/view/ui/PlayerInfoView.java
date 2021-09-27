@@ -1,8 +1,14 @@
-package com.rogurea.dev.view;
+/*
+ * Copyright (c) Ksenofontov N. 2020-2021.
+ */
+
+package com.rogurea.dev.view.ui;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
 

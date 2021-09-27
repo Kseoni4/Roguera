@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.player;
 import com.rogurea.main.gamelogic.Debug;
 import com.rogurea.dev.resources.GameResources;

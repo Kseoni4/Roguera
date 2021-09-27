@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.base;
 
 import com.rogurea.dev.resources.Model;
@@ -12,5 +16,9 @@ public class Entity extends GameObject {
         this.action = action;
         this.id = EntityCounter++;
         setModel(model);
+    }
+
+    public Entity(Model model){
+        this(model, ()->{});
     }
 }

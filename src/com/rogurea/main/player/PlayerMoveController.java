@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.main.player;
 
 import com.googlecode.lanterna.input.KeyType;

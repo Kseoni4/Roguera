@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.view;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -7,9 +11,13 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.TerminalResizeListener;
+import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.resources.GameResources;
-import com.rogurea.main.gamelogic.Debug;
+import com.rogurea.dev.view.ui.InventoryView;
+import com.rogurea.dev.view.ui.LogView;
+import com.rogurea.dev.view.ui.PlayerInfoView;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.main.mapgenerate.MapEditor;
 
@@ -36,7 +44,7 @@ public class TerminalView {
 
     public static void setGameScreen() throws IOException {
 
-        Debug.log("RENDERING: Setting view blocks");
+        //Debug.log("RENDERING: Setting view blocks");
 
         ViewBlocks.forEach(Draw::init);
 
@@ -56,11 +64,17 @@ public class TerminalView {
 
         logView.Init();
 
+        inventoryView = new InventoryView();
+
+        inventoryView.inventoryPosition = infoGrid.placeNewBlock(inventoryView, 3);
+
+        inventoryView.Init();
+
         terminal.addResizeListener((terminal, terminalSize) -> {
             try {
                 terminal.clearScreen();
                 updateWindowSize(terminalSize);
-                System.out.println("Window size: ".concat(windowSize.toString()));
+                Debug.toLog("Window size: ".concat(windowSize.toString()));
 
                 ViewBlocks.forEach(Draw::reset);
 
@@ -74,7 +88,7 @@ public class TerminalView {
 
                 ViewBlocks.forEach(Draw::init);
 
-                System.out.println("[RESIZE] Redraw all after resize");
+                Debug.toLog("[RESIZE] Redraw all after resize");
 
                 ViewBlocks.forEach(Draw::call);
             } catch (IOException e) {
@@ -89,13 +103,20 @@ public class TerminalView {
         try {
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera build: " + GameResources.VERSION);
 
-            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(86,24));
+            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(90
+                    ,24));
+
+            if(GameResources.TerminalFont != null){
+                defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(
+                        GameResources.TerminalFont
+                ));
+            }
 
             terminal = defaultTerminalFactory.createTerminal();
 
             updateWindowSize(terminal.getTerminalSize());
 
-            System.out.println("Window size: ".concat(windowSize.toString()));
+            Debug.toLog("Window size: ".concat(windowSize.toString()));
 
             terminal.flush();
 
@@ -109,10 +130,10 @@ public class TerminalView {
 
             terminal.flush();
 
-            Debug.log("RENDERING: Terminal init");
+            //Debug.log("RENDERING: Terminal init");
 
         } catch (IOException e) {
-            Debug.log(e.getMessage());
+            //Debug.log(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -139,7 +160,7 @@ public class TerminalView {
 
     public static void reDrawAll(IViewBlock[] except){
 
-        Debug.log("RENDERING: Redraw blocks");
+        //Debug.log("RENDERING: Redraw blocks");
 
         /*try {
             terminal.clearScreen();
@@ -155,7 +176,7 @@ public class TerminalView {
         ViewBlocks.forEach(
                 viewBlock -> {
                     if (Arrays.stream(except).noneMatch(viewBlock::equals)){
-                        Debug.log("RENDERING: draw call block " + viewBlock.getClass().getSimpleName());
+                        //Debug.log("RENDERING: draw call block " + viewBlock.getClass().getSimpleName());
                         viewBlock.Draw();
                     }
                 });
@@ -164,11 +185,11 @@ public class TerminalView {
 
     private static void resetPositions(IViewBlock[] except){
 
-        Debug.log("RENDERING: reset view blocks position");
+        //Debug.log("RENDERING: reset view blocks position");
 
         ViewBlocks.forEach(viewBlock -> {
                 if(Arrays.stream(except).noneMatch(viewBlock::equals))
-                    Debug.log("RENDERING: reset block " + viewBlock.getClass().getSimpleName());
+                    //Debug.log("RENDERING: reset block " + viewBlock.getClass().getSimpleName());
                     viewBlock.Reset();
             });
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.items;
 
 import com.rogurea.dev.base.GameObject;
@@ -5,6 +9,9 @@ import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
 
 public class Item extends GameObject {
+
+    public static final Materials BLANK_MATERIAL = Materials.IRON;
+
     public enum Materials{
         WOOD{
             @Override
@@ -63,7 +70,6 @@ public class Item extends GameObject {
         };
         public abstract String getColor();
         public abstract float getDurability();
-
     }
 
     private static int itemCounter = 0;
@@ -100,5 +106,27 @@ public class Item extends GameObject {
 
     public void setSellPrice(int amount){
         this.sellPrice = amount;
+    }
+
+    public String getFullInfo(){
+        return "Item ".concat(getName()).concat("\n")
+                .concat("\t")
+                .concat("ID: ")
+                .concat(String.valueOf(this.id))
+                .concat("\n\t")
+                .concat("Model: ")
+                .concat(model.toString())
+                .concat("\n\t")
+                .concat("Tag: ")
+                .concat(this.tag)
+                .concat("\n\t")
+                .concat("Material: ")
+                .concat(getItemMaterial().name())
+                .concat("\n\t")
+                .concat("Is extend: ")
+                .concat(getClass().getName())
+                .concat("\n\t")
+                .concat("@ID: ")
+                .concat(String.valueOf(this.hashCode()).concat(" "+this.getClass().hashCode()));
     }
 }

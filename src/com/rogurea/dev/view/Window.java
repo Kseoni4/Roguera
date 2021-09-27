@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Kseno 2021.
+ */
+
 package com.rogurea.dev.view;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -23,11 +27,11 @@ public abstract class Window implements IViewBlock {
 
     private static int _idCounter = 0;
 
-    protected final TerminalSize _windowSize;
+    protected TerminalSize _windowSize;
 
-    private final TerminalPosition _localZeroPoint;
+    private TerminalPosition _localZeroPoint;
 
-    private final TerminalPosition _positionOnScreen;
+    private TerminalPosition _positionOnScreen;
 
     private TextGraphics _windowGraphics;
 
@@ -60,7 +64,10 @@ public abstract class Window implements IViewBlock {
     }
 
     protected void putElementIntoWindow(Element element){
-        _windowGraphics.putCSIStyledString(element.getTerminalPosition(), element.ElementTitle);
+        TerminalView.drawBlockInTerminal(_windowGraphics,
+                element.ElementTitle,
+                _localZeroPoint.withRelative(element.getTerminalPosition().getColumn(),
+                element.getTerminalPosition().getRow()));
     }
 
     protected void setBackgroundColor(String color){
@@ -92,9 +99,23 @@ public abstract class Window implements IViewBlock {
 
     protected Window(TerminalPosition _positionOnScreen, TerminalSize _windowSize) {
         _windowID = ++_idCounter;
+        makeWindow(_positionOnScreen, _windowSize);
+    }
+
+    protected Window(){
+        _windowID = ++_idCounter;
+    }
+
+    protected void makeWindow(TerminalPosition _positionOnScreen, TerminalSize _windowSize){
         this._positionOnScreen = _positionOnScreen;
         this._windowSize = _windowSize;
         _localZeroPoint = _positionOnScreen.withRelative(1,1);
+    }
+
+    protected void setPointerToElement(Element element, char pointer){
+        TerminalView.setPointerIntoPosition(_windowGraphics, pointer, _localZeroPoint.withRelative(
+                element.getTerminalPosition().withRelative(element.ElementPointerPosition.x, 0))
+        );
     }
 
     @Override

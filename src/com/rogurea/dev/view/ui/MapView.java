@@ -1,4 +1,8 @@
-package com.rogurea.dev.view;
+/*
+ * Copyright (c) Ksenofontov N. 2020-2021.
+ */
+
+package com.rogurea.dev.view.ui;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -6,6 +10,10 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Room;
+import com.rogurea.dev.view.Draw;
+import com.rogurea.dev.view.IViewBlock;
+import com.rogurea.dev.view.TerminalView;
+import com.rogurea.dev.view.ViewObjects;
 
 import java.io.IOException;
 
