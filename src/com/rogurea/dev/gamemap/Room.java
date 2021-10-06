@@ -14,14 +14,15 @@ import com.rogurea.devMain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Room implements Serializable {
 
     public int RoomNumber;
 
-    int Width;
+    public int Width;
 
-    int Height;
+    public int Height;
 
     public boolean isEndRoom;
 
@@ -30,6 +31,8 @@ public class Room implements Serializable {
     private FogController fogController;
 
     ArrayList<Cell> Cells;
+
+    public ArrayList<Position> positionsInsidePerimeter;
 
     ArrayList<GameObject> gameObjects;
 
@@ -102,6 +105,19 @@ public class Room implements Serializable {
             if(cell.isWall)
                 Perimeter.add(cell);
         });
+    }
+
+    public void setPositionsInsidePerimeter(){
+        positionsInsidePerimeter = new ArrayList<>();
+        Cell maxCellOnX = Perimeter.stream().max(Comparator.comparingInt(cell -> cell.position.x)).get();
+        Cell maxCellOnY = Perimeter.stream().max(Comparator.comparingInt(cell -> cell.position.y)).get();
+        Cells.forEach(cell -> Perimeter.forEach(cellPerimeter ->{
+            if((cell.position.x > cellPerimeter.position.x && cell.position.y < cellPerimeter.position.y)
+                    && (cell.position.x < maxCellOnX.position.x && cell.position.y < maxCellOnY.position.y) && !cell.isWall()){
+                    positionsInsidePerimeter.add(cell.position);
+                }
+            })
+        );
     }
 
     public void setCells(ArrayList<Cell> cells){

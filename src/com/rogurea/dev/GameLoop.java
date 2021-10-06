@@ -11,9 +11,11 @@ import com.rogurea.dev.gamelogic.Events;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.gamemap.Scan;
+import com.rogurea.dev.items.Item;
 import com.rogurea.dev.player.KeyController;
 import com.rogurea.dev.player.MoveController;
 import com.rogurea.dev.resources.Colors;
+import com.rogurea.dev.resources.Model;
 import com.rogurea.dev.view.Message;
 import com.rogurea.dev.view.TerminalView;
 import com.rogurea.dev.view.ViewObjects;
@@ -31,6 +33,8 @@ public class GameLoop {
         /* Message win = new Message(Colors.RED_BRIGHT,"teststtssstst\nfsddsds");
 
         win.show(); */
+
+        Item item = new Item("", Model.BLANK, Item.Materials.IRON);
 
         Events.putTestItemIntoPos.action(new Position(1,2));
 

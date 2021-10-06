@@ -18,7 +18,6 @@ import com.rogurea.dev.items.Item;
 import com.rogurea.dev.resources.Colors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class InventoryWindow extends Window{
 
@@ -60,6 +59,7 @@ public class InventoryWindow extends Window{
                             cursorUI = new CursorUI(elements);
                     }
             ));
+            elements.get(this.itemCollection.indexOf(item)).ElementPointerPosition.x--;
         }
     }
 
@@ -70,11 +70,11 @@ public class InventoryWindow extends Window{
         }
         if(!elements.isEmpty())
             try {
-                setPointerToElement(elements.get(cursorUI.IndexOfElement), cursorUI.CursorPointer);
-                Debug.toLog("Point to element: ".concat(elements.get(cursorUI.IndexOfElement).ElementTitle));
+                setPointerToElement(elements.get(cursorUI.indexOfElement), cursorUI.cursorPointer);
+                Debug.toLog("Point to element: ".concat(elements.get(cursorUI.indexOfElement).ElementTitle));
             } catch (IndexOutOfBoundsException e){
-                cursorUI.IndexOfElement = Math.abs(cursorUI.IndexOfElement - elements.size());
-                setPointerToElement(elements.get(cursorUI.IndexOfElement), cursorUI.CursorPointer);
+                cursorUI.indexOfElement = Math.abs(cursorUI.indexOfElement - elements.size());
+                setPointerToElement(elements.get(cursorUI.indexOfElement), cursorUI.cursorPointer);
             }
         else
             putStringIntoWindow("Chest is empty!", new Position(0,0));

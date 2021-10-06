@@ -203,6 +203,10 @@ public class TerminalView {
         textgui.putCSIStyledString(position, data);
     }
 
+    public static void drawBlockInTerminal(TextGraphics textgui, String data, Position position){
+        textgui.putCSIStyledString(new TerminalPosition(position.x, position.y), data);
+    }
+
     public static void drawBlockInTerminal(TextGraphics textgui, String data, int x, int y) {
         textgui.putCSIStyledString(x, y, data);
     }
@@ -217,5 +221,8 @@ public class TerminalView {
 
     public static void setPointerIntoPosition(TextGraphics textgui, char pointer, TerminalPosition position) {
         textgui.setCharacter(position, pointer);
+    }
+    public static void setPointerIntoPosition(TextGraphics textgui, char pointer, Position position) {
+        textgui.setCharacter(new TerminalPosition(position.x, position.y), pointer);
     }
 }

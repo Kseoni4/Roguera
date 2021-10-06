@@ -1,4 +1,4 @@
-LongSword,╁
+LongSword,†
 ShortSword,┼
 Knife,╽
 ArmorChest,₼

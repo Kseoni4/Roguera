@@ -72,7 +72,6 @@ public class MoveController {
                 nextCell.clear();
             }
             player.putUpItem(_item);
-            logView.playerActionPickUp(_item.getName());
             Draw.call(inventoryView);
         }
 

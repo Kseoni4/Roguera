@@ -12,76 +12,82 @@ import com.rogurea.dev.view.Element;
 import java.util.ArrayList;
 
 public class CursorUI {
-    public Position CursorPosition;
+    public Position cursorPosition;
 
-    public int IndexOfElement;
+    public Position previousCursorPosition;
 
-    public ArrayList<Element> Elements;
+    public int indexOfElement;
 
-    public char CursorPointer = '>';
+    public ArrayList<Element> elements;
 
-    private final int Left = -1;
-    private final int Up = -1;
+    public char cursorPointer = '>';
 
-    private final int Down = 1;
-    private final int Right = 1;
+    private final int LEFT = -1;
+    private final int UP = -1;
+
+    private final int DOWN = 1;
+    private final int RIGHT = 1;
 
     public void SelectElementH(KeyType Key){
         switch (Key){
-            case ArrowLeft: {Move(Left); break;}
-            case ArrowRight: {Move(Right); break;}
-            case Enter: {Elements.get(IndexOfElement).ElementAction.run();break;}
+            case ArrowLeft: {Move(LEFT); break;}
+            case ArrowRight: {Move(RIGHT); break;}
+            case Enter: {
+                elements.get(indexOfElement).ElementAction.run();break;}
         }
         setCursorPositionByIndex();
     }
 
     public void SelectElementV(KeyType key){
+        previousCursorPosition = new Position(cursorPosition);
         switch (key){
-            case ArrowDown: {Move(Down); break;}
-            case ArrowUp: {Move(Up); break;}
-            case Enter: {Elements.get(IndexOfElement).ElementAction.run(); break;}
+            case ArrowDown: {Move(DOWN); break;}
+            case ArrowUp: {Move(UP); break;}
+            case Enter: {
+                elements.get(indexOfElement).ElementAction.run(); break;}
         }
         setCursorPositionByIndex();
     }
 
     private void setCursorPositionByIndex(){
         try {
-            CursorPosition = Elements.get(IndexOfElement).ElementPointerPosition;
+            cursorPosition = elements.get(indexOfElement).ElementPointerPosition;
         }catch (IndexOutOfBoundsException e){
-            Debug.toLog("UI ERROR: Index of element " + IndexOfElement + " is out of bounds." );
+            Debug.toLog("UI ERROR: Index of element " + indexOfElement + " is out of bounds." );
         }
     }
 
     public void setElements(ArrayList<Element> elements){
-        this.Elements = elements;
-        if(Elements.isEmpty()){
+        this.elements = elements;
+        if(this.elements.isEmpty()){
             setDefaultCursorPosition();
-        }else if (Elements.size() == 1){
+        }else if (this.elements.size() == 1){
             setFirstElementCursorPosition();
-        } else if(IndexOfElement < Elements.size()){
+        } else if(indexOfElement < this.elements.size()){
             setCursorPositionByIndex();
         } else{
-            IndexOfElement = 0;
+            indexOfElement = 0;
         }
     }
 
     private void Move(int Direction){
-        if((IndexOfElement+Direction) < 0 || (IndexOfElement+Direction) >= Elements.size()){
+        if((indexOfElement +Direction) < 0 || (indexOfElement +Direction) >= elements.size()){
             return;
         }
-        IndexOfElement += Direction;
+        indexOfElement += Direction;
     }
 
     public void setFirstElementCursorPosition(){
-        CursorPosition = Elements.get(0).ElementPointerPosition;
+        cursorPosition = elements.get(0).ElementPointerPosition;
+        previousCursorPosition = new Position(cursorPosition);
     }
 
     public void setDefaultCursorPosition(){
-        CursorPosition = new Position(0, 0);
+        cursorPosition = new Position(0, 0);
     }
 
     public CursorUI(ArrayList<Element> MenuElements){
         setElements(MenuElements);
-        this.IndexOfElement = 0;
+        this.indexOfElement = 0;
     }
 }

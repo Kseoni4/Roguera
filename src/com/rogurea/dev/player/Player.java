@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import static com.rogurea.dev.view.ViewObjects.logView;
+
 public class Player extends GameObject {
 
     private final String defaultName = "Player" + Calendar.getInstance().getTimeInMillis();
@@ -36,15 +38,6 @@ public class Player extends GameObject {
         return super.setModel(model);
     }
 
-
-
-/*    public static short XP = 0; //Experience Points
-    public static short ATK = GameVariables.BasePlayerATK; //Attack
-    public static short DEF = GameVariables.BasePlayerDEF; //Defence
-    public static byte DEX = GameVariables.BasePlayerDEX; //Dexterity
-    public static short ReqXPForNextLevel = (short) GameVariables.BaseReqXP;
-    public static ArrayList<Item> Inventory = new ArrayList<>();*/
-
     public HashMap<String, Equipment> Equipment = new HashMap<>();
 
     public ArrayList<Item> Inventory = new ArrayList<>();
@@ -58,6 +51,7 @@ public class Player extends GameObject {
             Debug.toLog("\ninto inventory");
             Inventory.add(item);
         }
+        logView.playerActionPickUp(item.getName());
         Draw.call(ViewObjects.infoGrid.getThirdBlock());
     }
 
@@ -68,7 +62,6 @@ public class Player extends GameObject {
     private void autoEquip(Equipment equipment){
         removeBlank();
         if(equipment instanceof Weapon){
-
             if(Equipment.get("FirstWeapon") != null)
                 Inventory.add(Equipment.remove("FirstWeapon"));
 

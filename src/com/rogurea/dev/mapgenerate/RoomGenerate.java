@@ -7,10 +7,9 @@ package com.rogurea.dev.mapgenerate;
 
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Room;
-import com.rogurea.dev.player.Player;
+import com.rogurea.dev.items.Chest;
 import com.rogurea.dev.resources.GetRandom;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Random;
@@ -106,6 +105,8 @@ public class RoomGenerate implements Serializable {
         Dungeon.rooms.forEach(room -> {
             if(!room.isEndRoom)
                 room.LinkRooms(Dungeon.rooms.get(room.RoomNumber));
+            else
+                room.LinkRooms(Dungeon.rooms.get(0));
         });
 
     }
@@ -133,7 +134,16 @@ public class RoomGenerate implements Serializable {
 
        room.makePerimeter();
 
+       room.setPositionsInsidePerimeter();
+
        MapEditor.PlaceDoors(room, room.getCells(), pgp.ExitPoint);
+
+       MapEditor.setIntoCell(new Chest(),
+               room.positionsInsidePerimeter.get(
+                       random.nextInt(room.positionsInsidePerimeter.size()
+                       )
+               )
+       );
 
        room.initFogController();
     }

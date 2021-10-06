@@ -158,14 +158,6 @@ public class MapEditor {
                 setIntoCell(room.getNextDoor(), ExitPoint.getRelative(x_shift,0));
             }
         }
-        /*else{
-            if (Scans.CheckCorner(cell))
-                setIntoCell(CurrentRoom, ExitDoor, ExitPoint);
-            else{
-                int x_shift = FindWall(CurrentRoom, ExitPoint);
-                setIntoCell(CurrentRoom, ExitDoor, ExitPoint.getRelative(x_shift,0));
-            }
-        }*/
         if(room.RoomNumber > 1) {
             int x_shift = FindWall(room.getCell(room.getTopCenterCellPosition()));
             setIntoCell(room.getCells(), room.getBackDoor(), room.getTopCenterCellPosition().getRelative(x_shift,0));

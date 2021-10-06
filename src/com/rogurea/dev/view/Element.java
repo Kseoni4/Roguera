@@ -69,6 +69,6 @@ public class Element {
         ElementPosition = elementPosition;
         ElementAction = elementAction;
         ElementSize = elementTitle.length();
-        ElementPointerPosition = elementPosition.getRelative(-elementPosition.x*2,   0);
+        ElementPointerPosition = elementPosition.getRelative(-1,   0);
     }
 }

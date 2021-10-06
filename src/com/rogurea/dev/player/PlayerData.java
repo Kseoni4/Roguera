@@ -6,8 +6,7 @@ package com.rogurea.dev.player;
 
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.resources.Colors;
-
-import java.util.ArrayList;
+import com.rogurea.dev.resources.GameVariables;
 
 public class PlayerData {
     private String PlayerName;
@@ -17,7 +16,7 @@ public class PlayerData {
     private short Money = 0;
     private byte attempt = 0;
     private int _atk = 1;
-    private int _baseAtk = 1;
+    private int _baseAtk = GameVariables.BASE_PLAYER_ATK;
     private int _def = 1;
 
 

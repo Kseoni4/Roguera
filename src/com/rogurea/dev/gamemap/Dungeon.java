@@ -4,6 +4,7 @@
 
 package com.rogurea.dev.gamemap;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.mapgenerate.RoomGenerate;
 import com.rogurea.dev.view.*;
 import com.rogurea.dev.player.Player;
@@ -67,6 +68,10 @@ public class Dungeon {
     }
 
     public static void ChangeRoom(Room nextRoom) {
+
+        if(nextRoom.isEndRoom){
+            Debug.toLog(nextRoom.RoomNumber + " is final room!");
+        }
 
         Draw.reset(ViewObjects.mapView);
 

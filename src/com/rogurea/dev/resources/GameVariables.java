@@ -28,17 +28,17 @@ public class GameVariables {
 
     public static final int WEAPON_BASE_DMG = 2;
 
-    public static final HashMap<String, Float> WeaponMaterialPower;
+    public static final HashMap<String, Float> WEAPON_MATERIAL_POWER;
     static {
-        WeaponMaterialPower = new HashMap<>();
+        WEAPON_MATERIAL_POWER = new HashMap<>();
 
-        WeaponMaterialPower.put("Wood",0.3f);
-        WeaponMaterialPower.put("Stone",0.6f);
-        WeaponMaterialPower.put("Copper",0.8f);
-        WeaponMaterialPower.put("Iron",1f);
-        WeaponMaterialPower.put("Golden",1.3f);
-        WeaponMaterialPower.put("Steel",0.5f);
-        WeaponMaterialPower.put("Diamond",2f);
+        WEAPON_MATERIAL_POWER.put("wood",1.1f);
+        WEAPON_MATERIAL_POWER.put("stone",1.3f);
+        WEAPON_MATERIAL_POWER.put("copper",2f);
+        WEAPON_MATERIAL_POWER.put("iron",2.5f);
+        WEAPON_MATERIAL_POWER.put("gold",3f);
+        WEAPON_MATERIAL_POWER.put("steel",3.2f);
+        WEAPON_MATERIAL_POWER.put("diamond",5f);
     }
     /* Variables for mob */
 
@@ -65,11 +65,11 @@ public class GameVariables {
 
     public static int BaseReqXP = 50;
 
-    public static final double ProgressionCoefficient = 1.3;
+    public static final double PROGRESSION_COEFFICIENT = 1.3;
 
-    public static final short BasePlayerATK = 1;
+    public static final short BASE_PLAYER_ATK = 1;
 
-    public static final short BasePlayerDEF = 1;
+    public static final short BASE_PLAYER_DEF = 1;
 
-    public static final short BasePlayerDEX = 1;
+    public static final short BASE_PLAYER_DEX = 1;
 }

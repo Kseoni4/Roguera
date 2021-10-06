@@ -5,6 +5,8 @@
 package com.rogurea.dev.items;
 
 import com.rogurea.dev.resources.Colors;
+import com.rogurea.dev.resources.GameVariables;
+import com.rogurea.dev.resources.GetRandom;
 import com.rogurea.dev.resources.Model;
 public class Weapon extends Equipment{
 
@@ -12,13 +14,14 @@ public class Weapon extends Equipment{
 
     public Weapon(String name, Model model, Materials itemMaterial) {
         super(name, model, itemMaterial);
+        this._damage = GetRandom.RNGenerator.nextInt(10) + (GameVariables.WEAPON_BASE_DMG * itemMaterial.getStrenght());
         System.out.println("W:"+name+" C:"+itemMaterial.getColor()+"color"+ Colors.R);
         System.out.println("Created weapon with color " + model.toString());
     }
 
     public Weapon(String name, Model model, Materials itemMaterial, double damage){
         super(name, model, itemMaterial);
-        this._damage = damage;
+        this._damage = damage * itemMaterial.getStrenght();
     }
 
     public void setDamage(double dmg){

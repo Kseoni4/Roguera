@@ -7,6 +7,7 @@ package com.rogurea.dev.resources;
 import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.view.PlayerInfoWindow;
+import com.rogurea.dev.view.ViewObjects;
 
 import java.awt.*;
 import java.io.*;
@@ -102,6 +103,7 @@ public class GameResources {
         HashMap<Character, Runnable> _keymap = new HashMap<>();
         _keymap.put('r', Dungeon::RegenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
+        _keymap.put('i', () -> ViewObjects.inventoryView.openToInput());
         //_keymap.put('c', logBlock::Clear);
         //_keymap.put('i', () -> inventoryMenu.show());
         //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;

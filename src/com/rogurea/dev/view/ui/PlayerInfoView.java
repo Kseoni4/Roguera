@@ -4,9 +4,12 @@
 
 package com.rogurea.dev.view.ui;
 
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.IViewBlock;
 import com.rogurea.dev.view.TerminalView;
 
@@ -33,6 +36,7 @@ public class PlayerInfoView implements IViewBlock {
 
     @Override
     public void Draw() {
+        Draw.reset(this);
         int i = 0;
         for(String info : Dungeon.player.getPlayerData().formPlayerData()) {
             TerminalView.drawBlockInTerminal(PlayerInfoViewGraphics, info, infoPosition.x, infoPosition.y+i);
@@ -42,6 +46,6 @@ public class PlayerInfoView implements IViewBlock {
 
     @Override
     public void Reset() {
-
+        PlayerInfoViewGraphics.fillRectangle(new TerminalPosition(infoPosition.x, infoPosition.y), new TerminalSize(10,10), ' ');
     }
 }
