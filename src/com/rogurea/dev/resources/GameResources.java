@@ -18,7 +18,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "0.2.2:2709:2353dev";
+    public static final String VERSION = "0.2.2:0610:1930dev";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -41,9 +41,9 @@ public class GameResources {
             assert file_font != null;
             TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
 
-            Debug.toLog("Font loaded successfully");
+            Debug.toLog(Colors.GREEN_BRIGHT+"Font loaded successfully");
         } catch (FontFormatException | IOException e) {
-            Debug.toLog("Error in loading font:" + e.getMessage());
+            Debug.toLog(Colors.RED_BRIGHT+"Error in loading font:" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -82,8 +82,8 @@ public class GameResources {
             return MODEL_HASH_MAP.get(modelname);
         }
         catch (NullPointerException e){
-            Debug.toLog("RESOURCE: Get model error: no such symbol for name " + modelname);
-            System.out.printf("Get model error: no such symbol for name \"%s\"\n",modelname);
+            Debug.toLog(Colors.ORANGE+"RESOURCE: Get model error: no such symbol for name " + modelname);
+            System.out.printf(Colors.ORANGE+"Get model error: no such symbol for name \"%s\"\n",modelname);
             return new Model();
         }
     }

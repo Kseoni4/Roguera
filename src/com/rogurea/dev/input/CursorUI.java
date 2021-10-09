@@ -29,6 +29,7 @@ public class CursorUI {
     private final int RIGHT = 1;
 
     public void SelectElementH(KeyType Key){
+        previousCursorPosition = new Position(cursorPosition);
         switch (Key){
             case ArrowLeft: {Move(LEFT); break;}
             case ArrowRight: {Move(RIGHT); break;}

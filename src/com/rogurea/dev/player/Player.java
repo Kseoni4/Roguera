@@ -62,15 +62,21 @@ public class Player extends GameObject {
     private void autoEquip(Equipment equipment){
         removeBlank();
         if(equipment instanceof Weapon){
-            if(Equipment.get("FirstWeapon") != null)
-                Inventory.add(Equipment.remove("FirstWeapon"));
-
-            Equipment.put("FirstWeapon", equipment);
+            if(Equipment.get("FirstWeapon") != null) {
+                switchEquipment(equipment, "FirstWeapon");
+            }else{
+                Equipment.put("FirstWeapon", equipment);
+            }
             playerData.set_atk(playerData.get_baseAtk()+Equipment.get("FirstWeapon").getStats().intValue());
         }
         else {
             Inventory.add(equipment);
         }
+    }
+
+    private void switchEquipment(Equipment toEquip, String place){
+        Inventory.add(Equipment.remove(place));
+        Equipment.put(place,toEquip);
     }
 
     private void removeBlank(){
