@@ -24,6 +24,7 @@ import com.rogurea.dev.view.TerminalView;
 import com.rogurea.dev.view.ViewObjects;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -38,12 +39,15 @@ public class GameLoop {
 
     public void start() throws InterruptedException {
 
+        Dungeon.player.getPlayerData().setScore(100);
+
         /* Message win = new Message(Colors.RED_BRIGHT,"teststtssstst\nfsddsds");
 
         win.show(); */
 
         Item item = new Item("", Model.BLANK, Item.Materials.IRON);
 
+        
         Events.putTestItemIntoPos.action(new Position(1,2));
 
         Events.putChestIntoPos.action(new Position(4,3));

@@ -4,9 +4,16 @@
 
 package com.rogurea.dev.player;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.GameVariables;
+import com.rogurea.dev.view.Draw;
+import com.rogurea.dev.view.ViewObjects;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class PlayerData {
     private String PlayerName;
@@ -15,10 +22,50 @@ public class PlayerData {
     private byte Level = 1;
     private short Money = 0;
     private byte attempt = 0;
+    private int score = 0;
     private int _atk = 1;
     private int _baseAtk = GameVariables.BASE_PLAYER_ATK;
     private int _def = 1;
+    private byte[] scoreHashMD5;
+    private static MessageDigest md;
 
+    static {
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public PlayerData() throws NoSuchAlgorithmException {
+        scoreHashMD5 = md.digest(String.valueOf(this.score).getBytes());
+        Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
+    }
+
+    public void setScore(int score) {
+        if(checkScoreHash()){
+            Debug.toLog(Colors.GREEN_BRIGHT+"Score is not compromised!");
+            Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
+            this.score += score;
+            updateHash();
+            Debug.toLog("New hash\n"+ Arrays.toString(scoreHashMD5));
+        } else {
+            Debug.toLog(Colors.RED_BRIGHT+"Score is compromised!");
+            this.score = 0;
+            updateHash();
+        }
+        Draw.call(ViewObjects.infoGrid.getFirstBlock());
+    }
+
+    private void updateHash(){
+        md.update(String.valueOf(this.score).getBytes());
+        scoreHashMD5 = md.digest();
+    }
+
+    private boolean checkScoreHash(){
+        byte[] currentScoreHashInMemory = md.digest(String.valueOf(this.score).getBytes());
+        return Arrays.equals(scoreHashMD5, currentScoreHashInMemory);
+    }
 
     public String getPlayerName() {
         return PlayerName;
@@ -31,6 +78,7 @@ public class PlayerData {
     public String[] formPlayerData(){
 
         return new String[]{
+                "Score: ".concat(Colors.VIOLET).concat(String.valueOf(score)),
                 "Room: ".concat(Colors.MAGENTA).concat(String.valueOf(Dungeon.getCurrentRoom().RoomNumber)),
                 "Name: ".concat(Colors.GREEN_BRIGHT).concat(PlayerName),
                 "Health: " + Colors.RED_BRIGHT.concat(String.valueOf(HP)),

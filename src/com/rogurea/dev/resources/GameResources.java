@@ -19,7 +19,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "0.2.3:2410:1311dev";
+    public static final String VERSION = "0.2.3:2410:1920dev";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -151,6 +151,7 @@ public class GameResources {
         _keymap.put('r', Dungeon::RegenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         _keymap.put('i', () -> ViewObjects.inventoryView.openToInput());
+        _keymap.put('p', () -> Dungeon.player.getPlayerData().setScore(100));
         //_keymap.put('c', logBlock::Clear);
         //_keymap.put('i', () -> inventoryMenu.show());
         //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;

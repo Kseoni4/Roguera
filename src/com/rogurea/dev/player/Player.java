@@ -18,6 +18,7 @@ import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.ViewObjects;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -131,7 +132,11 @@ public class Player extends Creature {
     public Player(){
         super();
         this.tag += ".player";
-        playerData = new PlayerData();
+        try {
+            playerData = new PlayerData();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         playerData.setPlayerName(defaultName);
         setModel(new Model("Player", Colors.GREEN_BRIGHT, GameResources.PLAYER_MODEL));
         playerData.setHP(100);
