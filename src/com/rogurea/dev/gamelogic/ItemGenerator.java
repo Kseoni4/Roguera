@@ -4,6 +4,7 @@
 
 package com.rogurea.dev.gamelogic;
 
+import com.rogurea.dev.items.Armor;
 import com.rogurea.dev.items.Equipment;
 import com.rogurea.dev.items.Item;
 import com.rogurea.dev.items.Weapon;
@@ -16,12 +17,23 @@ public class ItemGenerator {
 
     private static String[] weapons = {"ShortSword", "LongSword"};
 
-    public static Equipment getItemEquipment() {
+    private static String[] armors = {"Chest", "Hat", "Leg"};
+
+    public static Equipment getRandomWeaponEquipment() {
         Model wp = GameResources.getModel(weapons[GetRandom.RNGenerator.nextInt(weapons.length)]);
         Model _wp = new Model(wp.getModelName(), wp.get().getCharacter());
         return new Weapon(_wp.getModelName(),
                 _wp,
                 Item.Materials.values()[GetRandom.RNGenerator.nextInt(Item.Materials.values().length)]);
     }
+    public static Equipment getRandomArmorEquipment() {
+        Model ar = GameResources.getModel("ArmorChest");
+        Model _ar = new Model(ar.getModelName(), ar.get().getCharacter());
+        return new Armor(_ar.getModelName(),
+                _ar,
+                Item.Materials.values()[GetRandom.RNGenerator.nextInt(Item.Materials.values().length)]);
+    }
+
+
 
 }

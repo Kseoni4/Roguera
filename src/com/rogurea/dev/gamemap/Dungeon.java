@@ -31,11 +31,13 @@ public class Dungeon {
     private static final Predicate<Room> ByPlayer = Room -> Room.RoomNumber == player.getCurrentRoom();
 
     public static void Generate(){
+        Debug.toLog("[Generate] Start generate sequence");
         player = new Player();
         RoomGenerate.GenerateRoomSequence(DungeonRooms);
         RoomGenerate.GenerateRoomStructure(GetRoom(room -> room.RoomNumber == 1));
         PutPlayerOnMap(GetRoom(ByFirstRoom), new Position(3,3));
         ViewObjects.mapView.setRoom(GetRoom(ByFirstRoom));
+        getCurrentRoom().startMobAIThreads();
     }
 
     public static Room GetRoom(Predicate<Room> RoomFilter){
@@ -48,6 +50,8 @@ public class Dungeon {
 
     public static void RegenRoom() {
 
+        getCurrentRoom().endMobAIThreads();
+
         System.out.flush();
         RoomGenerate.GenerateRoomStructure(Objects.requireNonNull(Dungeon.rooms.stream().filter(
                 room -> room.RoomNumber == player.getCurrentRoom()
@@ -56,6 +60,8 @@ public class Dungeon {
 
         ViewObjects.mapView.setRoom(GetRoom(ByPlayer));
 
+        getCurrentRoom().startMobAIThreads();
+
         TerminalView.reDrawAll(IViewBlock.empty);
         //BaseGenerate.PutPlayerInDungeon(((byte)(Dungeon.CurrentRoom[0].length/2)), (byte) 1, Dungeon.CurrentRoom);
 
@@ -63,11 +69,15 @@ public class Dungeon {
     }
 
     public static void PutPlayerOnMap(Room room, Position position){
+        Debug.toLog("[Room "+room.RoomNumber+"] put player on map");
+        Debug.toLog("[Room "+room.RoomNumber+"] put player on position "+position.toString());
         room.getCell(position).clear();
         room.getCell(position).putIntoCell(player);
     }
 
     public static void ChangeRoom(Room nextRoom) {
+
+        Dungeon.getCurrentRoom().endMobAIThreads();
 
         if(nextRoom.isEndRoom){
             Debug.toLog(nextRoom.RoomNumber + " is final room!");
@@ -104,6 +114,8 @@ public class Dungeon {
 
         Draw.call(ViewObjects.mapView);
         Draw.call(ViewObjects.infoGrid.getFirstBlock());
+
+        nextRoom.startMobAIThreads();
 
         //Draw.call(ViewObjects.mapView);
         //Debug.log("THREADS: Restart mob threads");

@@ -27,18 +27,19 @@ public class GameVariables {
     /* Variables for items */
 
     public static final int WEAPON_BASE_DMG = 2;
+    public static final int ARMOR_BASE_DEF = 2;
 
-    public static final HashMap<String, Float> WEAPON_MATERIAL_POWER;
+    public static final HashMap<String, Float> MATERIAL_POWER;
     static {
-        WEAPON_MATERIAL_POWER = new HashMap<>();
+        MATERIAL_POWER = new HashMap<>();
 
-        WEAPON_MATERIAL_POWER.put("wood",1.1f);
-        WEAPON_MATERIAL_POWER.put("stone",1.3f);
-        WEAPON_MATERIAL_POWER.put("copper",2f);
-        WEAPON_MATERIAL_POWER.put("iron",2.5f);
-        WEAPON_MATERIAL_POWER.put("gold",3f);
-        WEAPON_MATERIAL_POWER.put("steel",3.2f);
-        WEAPON_MATERIAL_POWER.put("diamond",5f);
+        MATERIAL_POWER.put("wood",1.1f);
+        MATERIAL_POWER.put("stone",1.3f);
+        MATERIAL_POWER.put("copper",2f);
+        MATERIAL_POWER.put("iron",2.5f);
+        MATERIAL_POWER.put("gold",3f);
+        MATERIAL_POWER.put("steel",3.2f);
+        MATERIAL_POWER.put("diamond",5f);
     }
     /* Variables for mob */
 

@@ -6,6 +6,9 @@ package com.rogurea.dev.player;
 
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.dev.base.Entity;
+import com.rogurea.dev.creatures.Creature;
+import com.rogurea.dev.creatures.NPC;
+import com.rogurea.dev.gamelogic.Events;
 import com.rogurea.dev.gamemap.*;
 import com.rogurea.dev.items.Item;
 import com.rogurea.dev.view.Draw;
@@ -39,19 +42,14 @@ public class MoveController {
 
         if(nextCell.isEmpty()){
             movePlayerIntoCell();
-        } /*else if (nextCell.getFromCell() instanceof FogPart){
-            Dungeon.GetCurrentRoom().getFogController().RemoveFogParts(player.lookAround(), 1);
-            if(!CheckObstaclesOrEntity(nextCell))
-                MovePlayerIntoCell();
-        }*/
-
-
+        }
         ViewObjects.mapView.drawAround();
     }
     private static void movePlayerIntoCell(){
         Dungeon.getCurrentRoom().getCell(player.playerPosition).removeFromCell();
         Dungeon.getCurrentRoom().getCell(newPos).putIntoCell(player);
         player.playerPosition = newPos;
+        player.cellPosition = newPos;
     }
 
     private static boolean checkNextCell(Cell nextCell){
@@ -73,6 +71,12 @@ public class MoveController {
             }
             player.putUpItem(_item);
             Draw.call(inventoryView);
+        }
+
+        if(nextCell.getFromCell().tag.startsWith("creature.mob")){
+            Events.encounter(player, (Creature) nextCell.getFromCell());
+        } else if (nextCell.getFromCell().tag.startsWith("creature.npc")) {
+            ((NPC) nextCell.getFromCell()).executeLogic();
         }
 
         Scan.checkPlayerSee(nextCell);

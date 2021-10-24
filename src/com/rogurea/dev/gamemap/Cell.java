@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 public class Cell implements Serializable {
 
+    private Room linkedRoom;
+
     public Position position;
 
     public ArrayList<GameObject> gameObjects;
@@ -61,6 +63,7 @@ public class Cell implements Serializable {
         if(gameObject instanceof Border)
             setWall();
         gameObject.placeObject(this);
+        linkedRoom.gameObjects.add(gameObject);
         UpdateLastItemCounter();
     }
 
@@ -76,6 +79,11 @@ public class Cell implements Serializable {
     public Cell(Position position){
         this.position = position;
         gameObjects = new ArrayList<>();
+    }
+
+    public Cell(Position position, Room room){
+        this(position);
+        this.linkedRoom = room;
     }
 
     public Cell[] getCellsAround(){

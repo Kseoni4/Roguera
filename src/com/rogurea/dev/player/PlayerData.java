@@ -11,7 +11,7 @@ import com.rogurea.dev.resources.GameVariables;
 public class PlayerData {
     private String PlayerName;
     private short MP = 30;
-    private short HP = 100;
+    private short HP;
     private byte Level = 1;
     private short Money = 0;
     private byte attempt = 0;

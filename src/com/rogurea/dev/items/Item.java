@@ -22,7 +22,7 @@ public class Item extends GameObject {
 
             @Override
             public float getStrenght() {
-                return GameVariables.WEAPON_MATERIAL_POWER.get(WOOD.name().toLowerCase());
+                return GameVariables.MATERIAL_POWER.get(WOOD.name().toLowerCase());
             }
         },
         STONE {
@@ -33,7 +33,7 @@ public class Item extends GameObject {
 
             @Override
             public float getStrenght() {
-                return GameVariables.WEAPON_MATERIAL_POWER.get(STONE.name().toLowerCase());
+                return GameVariables.MATERIAL_POWER.get(STONE.name().toLowerCase());
             }
         },
         IRON {
@@ -44,7 +44,7 @@ public class Item extends GameObject {
 
             @Override
             public float getStrenght() {
-                return GameVariables.WEAPON_MATERIAL_POWER.get(IRON.name().toLowerCase());
+                return GameVariables.MATERIAL_POWER.get(IRON.name().toLowerCase());
             }
         },
         GOLD {
@@ -55,7 +55,7 @@ public class Item extends GameObject {
 
             @Override
             public float getStrenght() {
-                return GameVariables.WEAPON_MATERIAL_POWER.get(GOLD.name().toLowerCase());
+                return GameVariables.MATERIAL_POWER.get(GOLD.name().toLowerCase());
             }
         },
         DIAMOND {
@@ -66,7 +66,7 @@ public class Item extends GameObject {
 
             @Override
             public float getStrenght() {
-                return GameVariables.WEAPON_MATERIAL_POWER.get(DIAMOND.name().toLowerCase());
+                return GameVariables.MATERIAL_POWER.get(DIAMOND.name().toLowerCase());
             }
         };
         public abstract String getColor();

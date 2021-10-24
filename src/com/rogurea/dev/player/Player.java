@@ -4,8 +4,8 @@
 
 package com.rogurea.dev.player;
 
+import com.rogurea.dev.creatures.Creature;
 import com.rogurea.dev.base.Debug;
-import com.rogurea.dev.base.GameObject;
 import com.rogurea.dev.gamemap.Cell;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.items.Item;
@@ -21,10 +21,11 @@ import com.rogurea.dev.view.ViewObjects;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 
 import static com.rogurea.dev.view.ViewObjects.logView;
 
-public class Player extends GameObject {
+public class Player extends Creature {
 
     private final String defaultName = "Player" + Calendar.getInstance().getTimeInMillis();
 
@@ -33,6 +34,7 @@ public class Player extends GameObject {
     private PlayerData playerData;
 
     private byte CurrentRoom = 1;
+
     @Override
     public Model setModel(Model model) {
         return super.setModel(model);
@@ -62,7 +64,7 @@ public class Player extends GameObject {
     private void autoEquip(Equipment equipment){
         removeBlank();
         if(equipment instanceof Weapon){
-            if(Equipment.get("FirstWeapon") != null) {
+            if(!Equipment.get("FirstWeapon").getName().equals("blank")) {
                 switchEquipment(equipment, "FirstWeapon");
             }else{
                 Equipment.put("FirstWeapon", equipment);
@@ -74,19 +76,24 @@ public class Player extends GameObject {
         }
     }
 
+    public void equipItemIntoFirstSlot(Equipment eq){
+        switchEquipment(eq, "FirstWeapon");
+    }
+
     private void switchEquipment(Equipment toEquip, String place){
         Inventory.add(Equipment.remove(place));
-        Equipment.put(place,toEquip);
+        Equipment.put(place, toEquip);
     }
 
     private void removeBlank(){
-        if(Equipment.get("FirstWeapon").getName().equals("blank"))
+        if(!Equipment.get("FirstWeapon").getName().equals("blank"))
             Equipment.remove("FirstWeapon");
     }
 
     @Override
     public void placeObject(Cell cell) {
         this.playerPosition = cell.position;
+        this.cellPosition = this.playerPosition;
         cell.gameObjects.add(this);
     }
 
@@ -111,11 +118,30 @@ public class Player extends GameObject {
         return cells;
     }
 
+    @Override
+    protected Equipment findEquipmentInInventoryByTag(String tag){
+        try {
+            return this.Equipment.values().stream().filter(eq -> eq.tag.startsWith(tag)).findFirst().get();
+        } catch (NoSuchElementException ignore){
+            return com.rogurea.dev.items.Equipment.BLANK;
+        }
+    }
+
+
     public Player(){
-        this.tag = "player";
+        super();
+        this.tag += ".player";
         playerData = new PlayerData();
         playerData.setPlayerName(defaultName);
         setModel(new Model("Player", Colors.GREEN_BRIGHT, GameResources.PLAYER_MODEL));
+        playerData.setHP(100);
+        this.name = playerData.getPlayerName();
+        this.cellPosition = this.playerPosition;
+    }
+
+    @Override
+    public int getHP(){
+        return playerData.getHP();
     }
 
     public PlayerData getPlayerData(){
@@ -128,6 +154,11 @@ public class Player extends GameObject {
 
     public void setCurrentRoom(byte currentRoom) {
         CurrentRoom = currentRoom;
+    }
+
+    @Override
+    public void getHit(int incomingDamage){
+        this.playerData.setHP(this.playerData.getHP() - Math.abs(this.playerData.get_def() - incomingDamage));
     }
 
 }

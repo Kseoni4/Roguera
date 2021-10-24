@@ -5,7 +5,11 @@
 package com.rogurea.dev.mapgenerate;
 
 
+import com.rogurea.dev.creatures.Mob;
+import com.rogurea.dev.creatures.NPC;
+import com.rogurea.dev.gamelogic.NPCLogicFactory;
 import com.rogurea.dev.gamemap.Dungeon;
+import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.gamemap.Room;
 import com.rogurea.dev.items.Chest;
 import com.rogurea.dev.resources.GetRandom;
@@ -13,6 +17,7 @@ import com.rogurea.dev.resources.GetRandom;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RoomGenerate implements Serializable {
 
@@ -111,7 +116,7 @@ public class RoomGenerate implements Serializable {
 
     }
 
-    public static void GenerateRoomStructure(Room room){
+    public static void GenerateRoomStructure(Room room) {
 
         room.ClearCells();
 
@@ -121,31 +126,47 @@ public class RoomGenerate implements Serializable {
 
         MapEditor.SetRoomForEdit(room);
 
-        /*try {
-            if(TerminalView.terminal != null) {
-                TerminalView.terminal.clearScreen();
-                TerminalView.terminal.flush();
-            }
+        room.setCells(pgp.GenerateRoom(room.getCells()));
+
+        room.makePerimeter();
+
+        room.setPositionsInsidePerimeter();
+
+        MapEditor.PlaceDoors(room, room.getCells(), pgp.ExitPoint);
+
+        MapEditor.setIntoCell(new Chest(),
+                room.positionsInsidePerimeter.get(
+                        random.nextInt(room.positionsInsidePerimeter.size()
+                        )
+                )
+        );
+
+       /*if(room.isEndRoom){
+           placeTrader(room);
+       }*/
+
+        if (room.Width >= 10 && room.Height > 10) {
+            //placeMobs(room);
         }
-        catch (IOException e){
-            e.printStackTrace();
-        }*/
-       room.setCells(pgp.GenerateRoom(room.getCells()));
 
-       room.makePerimeter();
+        placeTrader(room);
 
-       room.setPositionsInsidePerimeter();
+        room.initFogController();
+    }
 
-       MapEditor.PlaceDoors(room, room.getCells(), pgp.ExitPoint);
+    private static void placeTrader(Room room){
+        room.getCell(new Position(2,2)).putIntoCell(new NPC("Trader", NPCLogicFactory.getTraderLogic()));
+    }
 
-       MapEditor.setIntoCell(new Chest(),
-               room.positionsInsidePerimeter.get(
-                       random.nextInt(room.positionsInsidePerimeter.size()
-                       )
-               )
-       );
-
-       room.initFogController();
+    private static void placeMobs(Room room){
+        int randomMobCount = ThreadLocalRandom.current().nextInt(0,3);
+        for(int i = 0; i < randomMobCount; i++){
+            int randomMobHP = ThreadLocalRandom.current().nextInt(2,20);
+            MapEditor.setIntoCell(new Mob(randomMobHP,GetRandom.getRandomMobName()),room.positionsInsidePerimeter.get(
+                    random.nextInt(room.positionsInsidePerimeter.size()
+                    )
+            ));
+        }
     }
     /*
 

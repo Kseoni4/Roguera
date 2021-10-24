@@ -16,6 +16,7 @@ public class KeyController {
             try {
                KEY_MAP.get(key).run();
             }catch (NullPointerException e){
+                Debug.toLog(e.getLocalizedMessage());
                 System.out.printf("Binding for '%s' key has not found\n", key);
                 Debug.toLog("Binding for " + key + " has not found");
             }

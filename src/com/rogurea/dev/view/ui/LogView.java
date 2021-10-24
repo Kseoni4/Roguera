@@ -37,6 +37,8 @@ public class LogView implements IViewBlock {
 
     private int logHeightsize;
 
+    private final int LOG_STRINGS_LIMIT = 10;
+
     private int logWightSize;
 
     private int logLineIndex;
@@ -89,7 +91,7 @@ public class LogView implements IViewBlock {
     }
 
     public void putLog(String message){
-        if(logLineIndex > logHeightsize){
+        if(logLineIndex >= LOG_STRINGS_LIMIT){
             logLineIndex = 0;
             logHistory.clear();
             assembleStrings.clear();
@@ -119,7 +121,7 @@ public class LogView implements IViewBlock {
         for (String log : logHistory_buffer) {
             //colorFadeDecrement(log);
             int substr = logHistory_buffer.indexOf(log) < 10 ? 1 : 2;
-            Debug.toLog("write log (index): (" + logHistory_buffer.indexOf(log) + ")" + log);
+            //Debug.toLog("write log (index): (" + logHistory_buffer.indexOf(log) + ")" + log);
             writeLog(colorFade.concat(log.substring(substr)), logHistory_buffer.indexOf(log));
         }
     }
@@ -139,7 +141,7 @@ public class LogView implements IViewBlock {
 
         int i = 0;
 
-        Debug.toLog("remove "+getTrimString(message)+"("+logHistory.removeIf(s -> s.endsWith(getTrimString(message))));
+        //Debug.toLog("remove "+getTrimString(message)+"("+logHistory.removeIf(s -> s.endsWith(getTrimString(message)))+")");
         if(logLineIndex > 1)
             logLineIndex--;
 
@@ -166,11 +168,13 @@ public class LogView implements IViewBlock {
     }
 
     private void incResetLog(){
-        logHistory.add(logLineIndex+logMessage.toString());
+        if(!logMessage.toString().equals("")) {
+            logHistory.add(logLineIndex + logMessage.toString());
 
-        logLineIndex++;
+            logLineIndex++;
 
-        logMessage = new StringBuilder();
+            logMessage = new StringBuilder();
+        }
     }
 
     private void writeLog(String msg, int line){

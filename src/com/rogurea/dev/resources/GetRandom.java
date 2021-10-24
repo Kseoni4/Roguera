@@ -19,4 +19,12 @@ public class GetRandom {
     public static Position getPosition(){
         return new Position(RNGenerator.nextInt(5), RNGenerator.nextInt(6));
     }
+
+    public static String getRandomWoops() {
+        return GameResources.getWhoopsText().get(RNGenerator.nextInt(GameResources.getWhoopsText().size()));
+    }
+
+    public static String getRandomMobName(){
+        return GameResources.getMobNames().get(RNGenerator.nextInt(GameResources.getWhoopsText().size()));
+    }
 }

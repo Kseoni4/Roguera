@@ -4,8 +4,14 @@
 
 package com.rogurea.dev.gamemap;
 
+import com.rogurea.dev.base.AIController;
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.base.Entity;
 import com.rogurea.dev.base.GameObject;
+import com.rogurea.dev.creatures.Creature;
+import com.rogurea.dev.creatures.NPC;
+import com.rogurea.dev.gamelogic.NPCLogicFactory;
+import com.rogurea.dev.items.Item;
 import com.rogurea.dev.mapgenerate.RoomGenerate;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.GameResources;
@@ -15,6 +21,9 @@ import com.rogurea.devMain;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class Room implements Serializable {
 
@@ -42,6 +51,8 @@ public class Room implements Serializable {
 
     Room prevRoom;
 
+    ExecutorService mobThreads = Executors.newCachedThreadPool();
+
     public Cell getCell(int x, int y){
         return Cells.stream().filter(cell -> cell.position.equals(new Position(x,y))).findFirst().orElse(null);
     }
@@ -61,7 +72,7 @@ public class Room implements Serializable {
 
         for(int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                Cells.add(new Cell(new Position(x, y)));
+                Cells.add(new Cell(new Position(x, y),this));
             }
         }
     }
@@ -129,8 +140,12 @@ public class Room implements Serializable {
         this.Cells.add(cell);
     }
 
+    public ArrayList<GameObject> getObjectsSet(){
+        return gameObjects;
+    }
+
     public GameObject[] getObjectsByTag(String tag){
-        return gameObjects.stream().filter(gameObject -> gameObject.tag.equals(tag)).toArray(GameObject[]::new);
+        return gameObjects.stream().filter(gameObject -> gameObject.tag.startsWith(tag)).toArray(GameObject[]::new);
     }
 
     public GameObject getObjectByModel(Model model){
@@ -147,6 +162,7 @@ public class Room implements Serializable {
         this.Height = height;
         this.roomSize = roomSize;
         makeCells();
+        this.gameObjects = new ArrayList<>();
         /*makeCells_test();*/
     }
 
@@ -182,6 +198,21 @@ public class Room implements Serializable {
 
     public FogController getFogController(){
         return this.fogController;
+    }
+
+    public void startMobAIThreads(){
+        mobThreads = Executors.newCachedThreadPool();
+        for(GameObject gO : getObjectsByTag("creature.mob")){
+            Creature creature = (Creature) gO;
+            Debug.toLog("[Room "+RoomNumber+"]" + creature.getName() + " to thread");
+            mobThreads.execute(new AIController(creature));
+        }
+        Debug.toLog("[Room "+RoomNumber+"] mob threads has started");
+    }
+
+    public void endMobAIThreads(){
+        mobThreads.shutdownNow();
+        Debug.toLog("[Room "+RoomNumber+"] mob threads has ended");
     }
 
     private Entity nextDoor;

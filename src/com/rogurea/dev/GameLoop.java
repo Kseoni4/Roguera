@@ -4,31 +4,39 @@
 
 package com.rogurea.dev;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.dev.base.AIController;
+import com.rogurea.dev.base.Entity;
+import com.rogurea.dev.creatures.Creature;
+import com.rogurea.dev.creatures.Mob;
 import com.rogurea.dev.gamelogic.Events;
+import com.rogurea.dev.gamelogic.PathFinder;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.gamemap.Room;
 import com.rogurea.dev.gamemap.Scan;
 import com.rogurea.dev.items.Item;
 import com.rogurea.dev.player.KeyController;
 import com.rogurea.dev.player.MoveController;
-import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
-import com.rogurea.dev.view.Message;
+import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.TerminalView;
 import com.rogurea.dev.view.ViewObjects;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class GameLoop {
     public GameLoop(){
 
     }
 
-    public void start() {
+    public void start() throws InterruptedException {
 
         /* Message win = new Message(Colors.RED_BRIGHT,"teststtssstst\nfsddsds");
 
@@ -45,6 +53,9 @@ public class GameLoop {
         ViewObjects.logView.putLog("Very very long super string for testing");
 
         Random random = new Random();
+
+        Draw.call(ViewObjects.mapView);
+
         try {
             while (isNotEscapePressed() && isNotClosed()) {
 
@@ -62,6 +73,7 @@ public class GameLoop {
         } catch (IOException e){
             e.printStackTrace();
         } finally {
+            Dungeon.rooms.forEach(Room::endMobAIThreads);
             TerminalView.dispose();
         }
     }

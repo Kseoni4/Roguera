@@ -46,6 +46,6 @@ public class PlayerInfoView implements IViewBlock {
 
     @Override
     public void Reset() {
-        PlayerInfoViewGraphics.fillRectangle(new TerminalPosition(infoPosition.x, infoPosition.y), new TerminalSize(10,10), ' ');
+        PlayerInfoViewGraphics.fillRectangle(new TerminalPosition(infoPosition.x, infoPosition.y), new TerminalSize(20,10), ' ');
     }
 }

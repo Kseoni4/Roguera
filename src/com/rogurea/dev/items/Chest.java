@@ -9,7 +9,6 @@ import com.rogurea.dev.gamelogic.ItemGenerator;
 import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
 import com.rogurea.dev.view.InventoryWindow;
-import com.rogurea.dev.view.Message;
 
 import java.util.ArrayList;
 
@@ -34,7 +33,7 @@ public class Chest extends Entity {
 
     private void putLoot(){
         for(int i = 0; i < 5; i++){
-            loot.add(ItemGenerator.getItemEquipment());
+            loot.add(ItemGenerator.getRandomWeaponEquipment());
         }
     }
 }

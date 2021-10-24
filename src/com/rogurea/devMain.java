@@ -21,7 +21,7 @@ public class devMain {
 
     public static boolean isClearMap = false;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         checkCLI(args);
 

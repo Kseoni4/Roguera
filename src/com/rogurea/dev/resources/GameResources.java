@@ -13,12 +13,13 @@ import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 
 public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "0.2.2:0610:1930dev";
+    public static final String VERSION = "0.2.3:2410:1311dev";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -26,11 +27,20 @@ public class GameResources {
 
     private static final HashMap<String, Model> MODEL_HASH_MAP = new HashMap<>();
 
+    private static final ArrayList<String> WHOOPS_TEXT = new ArrayList<>();
+
+    private static final ArrayList<String> MOB_NAMES = new ArrayList<>();
+
     private static final String[] resources = {
             "MapStructure",
             "Equipment",
             "InventoryStructure",
             "Entity"
+    };
+
+    private static final String[] textResources = {
+            "whoops",
+            "mobnames"
     };
 
     public static void loadFont(){
@@ -74,7 +84,37 @@ public class GameResources {
                 Debug.toLog(e.getMessage());
             }
         }
+        loadTextResources();
         Debug.toLog("= Loading resources is ended =");
+    }
+
+    private static void loadTextResources() {
+        for(String file : textResources){
+            try {
+                InputStream text_csv = GameResources.class.getResourceAsStream(FILE_PATH + file + FILE_EXTENSION);
+                byte[] buffer = new byte[1024];
+
+                assert text_csv != null;
+                int len = text_csv.read(buffer);
+
+                byte[] inputstring = Arrays.copyOf(buffer, len);
+
+                String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
+
+                Debug.toLog("= Getting string: " + Arrays.toString(map));
+
+                switch (file){
+                    case "whoops":
+                        WHOOPS_TEXT.addAll(Arrays.asList(map));
+                        break;
+                    case "mobnames":
+                        MOB_NAMES.addAll(Arrays.asList(map));
+                        break;
+                }
+            }catch (IOException e){
+                Debug.toLog(e.getMessage());
+            }
+        }
     }
 
     public static Model getModel(String modelname){
@@ -98,6 +138,13 @@ public class GameResources {
         }
     }
 
+    public static ArrayList<String> getWhoopsText(){
+        return WHOOPS_TEXT;
+    }
+
+    public static ArrayList<String> getMobNames(){
+        return MOB_NAMES;
+    }
 
     public static HashMap<Character, Runnable> getKeyMap(){
         HashMap<Character, Runnable> _keymap = new HashMap<>();

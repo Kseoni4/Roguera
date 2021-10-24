@@ -77,6 +77,11 @@ public class Position implements Serializable {
             SOUTH_EAST
     };
 
+    public static final Position FRONT = new Position(0,1);
+    public static final Position BACK = new Position(0,-1);
+    public static final Position LEFT = new Position(-1,0);
+    public static final Position RIGHT = new Position(1,0);
+
     /**
      * Задаёт позицию для объекта по входным координатам
      * @param y - строка
