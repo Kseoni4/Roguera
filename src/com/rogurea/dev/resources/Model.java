@@ -35,6 +35,10 @@ public class Model implements Serializable {
         this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(getTextColor(modelBColor));
     }
 
+    public void resetBColor(){
+        this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(TextColor.ANSI.BLACK);
+    }
+
     public Model(String modelName, String modelColor, char modelSymbol){
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
@@ -61,9 +65,19 @@ public class Model implements Serializable {
         return this.modelName;
     }
 
+    public String getModelColorName() {
+        return this.modelColor + this.modelName + Colors.R;
+    }
+
     public Model changeColor(String modelColor){
         this.modelColor = modelColor;
         settingModel();
+        return this;
+    }
+
+    public Model changeBColor(String modelBColor){
+        this.modelBColor = modelBColor;
+        settingModelWithBColor();
         return this;
     }
 
@@ -71,6 +85,10 @@ public class Model implements Serializable {
         this.modelSymbol = modelSymbol;
         settingModel();
         return this;
+    }
+
+    public String getModelColor(){
+       return this.modelColor;
     }
 
     public TextCharacter get(){

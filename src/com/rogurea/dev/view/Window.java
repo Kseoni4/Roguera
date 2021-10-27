@@ -114,7 +114,7 @@ public abstract class Window implements IViewBlock {
 
     protected void setPointerToElement(Element element, char pointer){
         TerminalView.setPointerIntoPosition(_windowGraphics, pointer, _localZeroPoint.withRelative(
-                element.getTerminalPosition().withRelative(element.ElementPointerPosition.x, 0))
+                element.ElementPointerPosition.toTerminalPosition())
         );
     }
 

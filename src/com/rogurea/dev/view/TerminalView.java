@@ -86,6 +86,8 @@ public class TerminalView {
 
                 logView.setLogWightSize(infoGrid.getVerticalBlockWight());
 
+                inventoryView.inventoryPosition = infoGrid.get_zeroPointBlock3();
+
                 ViewBlocks.forEach(Draw::init);
 
                 Debug.toLog("[RESIZE] Redraw all after resize");
@@ -96,15 +98,17 @@ public class TerminalView {
             }
         });
 
+
         terminal.resetColorAndSGR();
     }
+
 
     public static void initTerminal() {
         try {
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera build: " + GameResources.VERSION);
 
             defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(90
-                    ,24));
+                    ,25));
 
             if(GameResources.TerminalFont != null){
                 defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(

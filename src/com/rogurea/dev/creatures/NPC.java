@@ -5,6 +5,8 @@
 package com.rogurea.dev.creatures;
 
 import com.rogurea.dev.base.Debug;
+import com.rogurea.dev.gamelogic.ItemGenerator;
+import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.items.Equipment;
 import com.rogurea.dev.items.Item;
@@ -17,7 +19,7 @@ public class NPC extends Creature{
     private final Consumer<ArrayList<Item>> npcAction;
 
     public void executeLogic(){
-        this.npcAction.accept(this.creatureInventory);
+        this.npcAction.accept(creatureInventory);
     }
 
     @Override
@@ -57,9 +59,10 @@ public class NPC extends Creature{
 
     public NPC(String npcName, Consumer<ArrayList<Item>> npcAction) {
         super(1, npcName);
-        Debug.toLog("[NPC] "+npcName+" creating");
+        Debug.toLog("[NPC] " + npcName + " creating");
         this.npcAction = npcAction;
         this.tag += ".npc";
-        this.cellPosition = new Position(2,2);
+        this.cellPosition = new Position(2, 2);
+        this.creatureInventory.add(ItemGenerator.getRandomPotion());
     }
 }

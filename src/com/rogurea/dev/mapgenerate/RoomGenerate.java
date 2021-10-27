@@ -120,6 +120,8 @@ public class RoomGenerate implements Serializable {
 
         room.ClearCells();
 
+        room.getObjectsSet().clear();
+
         PGP pgp = new PGP();
 
         Dungeon.player.setCurrentRoom((byte) room.RoomNumber);
@@ -146,7 +148,7 @@ public class RoomGenerate implements Serializable {
        }*/
 
         if (room.Width >= 10 && room.Height > 10) {
-            //placeMobs(room);
+           placeMobs(room);
         }
 
         placeTrader(room);

@@ -13,10 +13,16 @@ import com.rogurea.dev.gamemap.Position;
 import com.rogurea.dev.gamemap.Room;
 import com.rogurea.dev.player.Player;
 import com.rogurea.dev.resources.Colors;
+import com.rogurea.dev.view.Animation;
+import com.rogurea.dev.view.Draw;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static com.rogurea.dev.view.ViewObjects.logView;
+import static com.rogurea.dev.view.ViewObjects.mapView;
 
 public class AIController implements Runnable {
 
@@ -37,15 +43,16 @@ public class AIController implements Runnable {
 
     @Override
     public void run() {
-        behaivorLoop();
+        behaviorLoop();
+        Debug.toLog("[AI] Mob "+this.creature.getName()+" behavior loop is over. Cause by " + (isDead() ? "Mob dead" : (isTargetDead() ? " target dead" : " interrupted")));
     }
 
     private boolean isDead(){
-        return creature.getHP() <= 0;
+        return this.creature.getHP() <= 0;
     }
 
-    private void behaivorLoop(){
-        while (!isDead() || !Thread.currentThread().isInterrupted()){
+    private void behaviorLoop(){
+        while (!isDead() && !Thread.currentThread().isInterrupted()){
             try{
                 if(checkPlayer()){
                     moveToTarget();
@@ -55,9 +62,22 @@ public class AIController implements Runnable {
                 }
                 idle();
             } catch (InterruptedException e){
-                Debug.toLog("Creature thread ".concat(creature.getName()).concat(" has been interrupted"));
+                Debug.toLog("[AI]Creature thread ".concat(creature.getName()).concat(" has been interrupted"));
                 break;
             }
+        }
+        if(isDead()){
+            logView.playerAction("kill a "+this.creature.model.getModelColorName()+"!");
+
+            int scoreForMob = ThreadLocalRandom.current().nextInt(3, 10) * this.creature.getDamageByEquipment();
+
+            Dungeon.player.getPlayerData().setScore(scoreForMob);
+
+            Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
+
+            Animation.deadAnimation(this.creature);
+
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -68,11 +88,11 @@ public class AIController implements Runnable {
     private boolean checkPlayer(){
         ArrayList<Cell> cells = Dungeon.getCurrentRoom().getCells();
 
-        Debug.toLog("[Mob] "+creature.getName() + " finding player...");
+        Debug.toLog("[AI][Mob] "+creature.getName() + " finding player...");
         if(cells.stream().anyMatch(cell -> cell.getFromCell() instanceof Player)){
             target = (Creature) cells.stream().filter(cell -> cell.getFromCell() instanceof Player).findAny().get().getFromCell();
             targetPosition = target.cellPosition;
-            Debug.toLog("[Mob] "+creature.getName() + " Find "+target.getName()+" on position "+targetPosition.toString());
+            Debug.toLog("[AI][Mob] "+creature.getName() + " Find "+target.getName()+" on position "+targetPosition.toString());
             return true;
         }
         return false;
@@ -82,13 +102,13 @@ public class AIController implements Runnable {
         ArrayList<Position> pathToTarget = updatePath();
 
         int pos = 0;
-        Debug.toLog("[Mob] "+creature.getName() + " moving to target...");
-        while(!isTargetNear()){
+        Debug.toLog("[AI][Mob] "+creature.getName() + " moving to target...");
+        while(!isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()){
             try {
                 Position nextPosition = pathToTarget.get(pos);
 
-                Debug.toLog("[POS] "+pos);
-                Debug.toLog("[Mob] "+creature.getName() + " move to " + nextPosition);
+                Debug.toLog("[AI][POS] "+pos);
+                Debug.toLog("[AI][Mob] "+creature.getName() + " move to " + nextPosition);
 
                 creature.moveTo(nextPosition);
 
@@ -96,22 +116,22 @@ public class AIController implements Runnable {
 
                 pos++;
                 if (!isTargetNotMove() && pos >= pathToTarget.size()/2) {
-                    Debug.toLog("[Mob] "+creature.getName() + " target is moved, break");
+                    Debug.toLog("[AI][Mob] "+creature.getName() + " target is moved, break");
                     break;
                 }
 
             } catch (IndexOutOfBoundsException e) {
-                Debug.toLog(Colors.RED_BRIGHT+"[Mob] "+creature.getName() + " something goes wrong with index");
+                Debug.toLog(Colors.RED_BRIGHT+"[AI][Mob] "+creature.getName() + " something goes wrong with index");
                 break;
             }
         }
         try {
             if(isTargetNear()){
-                Debug.toLog("[Mob] "+creature.getName() + " target is near, fight!");
+                Debug.toLog("[AI][Mob] "+creature.getName() + " target is near, fight!");
                 Events.encounter(this.creature, this.target);
             }
         }catch (NullPointerException e) {
-            Debug.toLog(Colors.RED_BRIGHT + "[Mob] Exception in target finder (null)");
+            Debug.toLog(Colors.RED_BRIGHT + "[AI][Mob] Exception in target finder (null)");
         }
     }
 
@@ -123,7 +143,7 @@ public class AIController implements Runnable {
         try {
             return Arrays.stream(currentRoom.getCell(creature.cellPosition).getCellsAround()).anyMatch(cell -> cell.getFromCell() instanceof Player);
         } catch (NullPointerException e){
-            Debug.toLog(Colors.RED_BRIGHT+"[Mob] Exception in target finder (null)");
+            Debug.toLog(Colors.RED_BRIGHT+"[AI][Mob] Exception in target finder (null)");
             return false;
         }
     }
@@ -137,7 +157,7 @@ public class AIController implements Runnable {
     }
 
     private void idle() throws InterruptedException {
-        Debug.toLog("[Mob] "+creature.getName() + " waiting...");
+        Debug.toLog("[AI][Mob] "+creature.getName() + " waiting...");
         TimeUnit.MILLISECONDS.sleep(400);
     }
 }

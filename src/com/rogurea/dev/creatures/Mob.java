@@ -4,9 +4,14 @@
 
 package com.rogurea.dev.creatures;
 
+import com.rogurea.dev.base.Debug;
 import com.rogurea.dev.gamelogic.ItemGenerator;
+import com.rogurea.dev.resources.Colors;
+
+
 
 public class Mob extends Creature{
+
     @Override
     public int getDamageByEquipment() {
         return super.getDamageByEquipment();
@@ -14,7 +19,9 @@ public class Mob extends Creature{
 
     @Override
     public void getHit(int incomingDamage) {
-        this.HP -= Math.abs((this.baseDEF + findEquipmentInInventoryByTag("item.equipment.armor.").getStats().intValue()) - incomingDamage);
+        int fullDef = this.baseDEF + findEquipmentInInventoryByTag("item.equipment.armor.").getStats();
+        int deltaDmg = incomingDamage - fullDef;
+        this.HP -= Math.max(0,deltaDmg);
     }
 
     public Mob(int HP, String name) {
@@ -23,7 +30,13 @@ public class Mob extends Creature{
         this.baseATK = 1;
         this.baseDEF = 1;
         this.model.changeModel(name.charAt(0));
+        this.model.changeColor(Colors.RED_BRIGHT);
         initialPutInventory();
+    }
+
+    @Override
+    public String getName(){
+        return Colors.RED_BRIGHT+this.name+Colors.R;
     }
 
     private void initialPutInventory(){

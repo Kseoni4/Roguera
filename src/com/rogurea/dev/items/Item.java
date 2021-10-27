@@ -14,7 +14,7 @@ public class Item extends GameObject {
     public static final Materials BLANK_MATERIAL = Materials.IRON;
 
     public enum Materials{
-        WOOD{
+        WOOD (2){
             @Override
             public String getColor() {
                 return Colors.BROWN;
@@ -25,7 +25,7 @@ public class Item extends GameObject {
                 return GameVariables.MATERIAL_POWER.get(WOOD.name().toLowerCase());
             }
         },
-        STONE {
+        STONE (3) {
             @Override
             public String getColor() {
                 return Colors.GREY_241;
@@ -36,7 +36,7 @@ public class Item extends GameObject {
                 return GameVariables.MATERIAL_POWER.get(STONE.name().toLowerCase());
             }
         },
-        IRON {
+        IRON (4) {
             @Override
             public String getColor() {
                 return Colors.IRON;
@@ -47,7 +47,7 @@ public class Item extends GameObject {
                 return GameVariables.MATERIAL_POWER.get(IRON.name().toLowerCase());
             }
         },
-        GOLD {
+        GOLD (6) {
             @Override
             public String getColor() {
                 return Colors.GOLDEN;
@@ -58,7 +58,7 @@ public class Item extends GameObject {
                 return GameVariables.MATERIAL_POWER.get(GOLD.name().toLowerCase());
             }
         },
-        DIAMOND {
+        DIAMOND (10) {
             @Override
             public String getColor() {
                 return Colors.DIAMOND;
@@ -68,9 +68,25 @@ public class Item extends GameObject {
             public float getStrenght() {
                 return GameVariables.MATERIAL_POWER.get(DIAMOND.name().toLowerCase());
             }
+        },
+        NONE (1){
+            @Override
+            public String getColor() {
+                return Colors.GREY;
+            }
+            @Override
+            public float getStrenght() {
+                return 0f;
+            }
         };
+
         public abstract String getColor();
         public abstract float getStrenght();
+        public int costEmpower;
+
+        Materials(int costEmpower){
+            this.costEmpower = costEmpower;
+        }
     }
 
     private static int itemCounter = 0;
@@ -87,6 +103,10 @@ public class Item extends GameObject {
         this.name = name;
         setItemMaterial(itemMaterial);
         this.setModel(model).changeColor(itemMaterial.getColor());
+    }
+
+    public Item(String name, Model model){
+        this(name, model, Materials.NONE);
     }
 
     public Materials getItemMaterial(){

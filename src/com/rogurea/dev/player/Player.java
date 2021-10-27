@@ -19,16 +19,15 @@ import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.ViewObjects;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
+import static com.rogurea.dev.view.ViewObjects.infoGrid;
 import static com.rogurea.dev.view.ViewObjects.logView;
 
 public class Player extends Creature {
 
-    private final String defaultName = "Player" + Calendar.getInstance().getTimeInMillis();
+    private final String defaultName = "Player" + ThreadLocalRandom.current().nextInt(1,10000);
 
     public Position playerPosition = new Position();
 
@@ -45,6 +44,8 @@ public class Player extends Creature {
 
     public ArrayList<Item> Inventory = new ArrayList<>();
 
+    public final ArrayList<Equipment> quickEquipment = new ArrayList<>(5);
+
     public void putUpItem(Item item){
         Debug.toLog("Picked up item: "+item.getFullInfo());
         if(item instanceof Equipment && isGreaterStats(item)){
@@ -52,43 +53,68 @@ public class Player extends Creature {
         }
         else {
             Debug.toLog("\ninto inventory");
-            Inventory.add(item);
+            putIntoInventory(item);
         }
         logView.playerActionPickUp(item.getName());
         Draw.call(ViewObjects.infoGrid.getThirdBlock());
     }
 
     private boolean isGreaterStats(Item item){
-       return ((Equipment) item).getStats().intValue() > Equipment.get("FirstWeapon").getStats().intValue();
+       return ((Equipment) item).getStats().intValue() > getEquipmentFromSlot("FirstWeapon").orElse(com.rogurea.dev.items.Equipment.BLANK).getStats().intValue();
     }
 
     private void autoEquip(Equipment equipment){
-        removeBlank();
+        //removeBlank();
         if(equipment instanceof Weapon){
-            if(!Equipment.get("FirstWeapon").getName().equals("blank")) {
+            if(getEquipmentFromSlot("FirstWeapon").isPresent()) {
                 switchEquipment(equipment, "FirstWeapon");
             }else{
-                Equipment.put("FirstWeapon", equipment);
+                putIntoEquipment(equipment, "FirstWeapon");
             }
-            playerData.set_atk(playerData.get_baseAtk()+Equipment.get("FirstWeapon").getStats().intValue());
         }
         else {
-            Inventory.add(equipment);
+            Debug.toLog("\ninto inventory");
+            putIntoInventory(equipment);
         }
+    }
+
+    private void putIntoInventory(Item item){
+        if(quickEquipment.toArray().length < 5){
+            quickEquipment.add((Equipment) item);
+        } else {
+            Inventory.add(item);
+        }
+    }
+
+    public Optional<Equipment> getEquipmentFromSlot(String key){
+          return Optional.ofNullable(Equipment.get(key));
     }
 
     public void equipItemIntoFirstSlot(Equipment eq){
         switchEquipment(eq, "FirstWeapon");
     }
 
+    public void equipItemFromQuickSlot(Equipment eq){
+        int index = quickEquipment.indexOf(eq);
+        quickEquipment.remove(eq);
+        quickEquipment.add(index, Equipment.remove("FirstWeapon"));
+        putIntoEquipment(eq, "FirstWeapon");
+    }
+
     private void switchEquipment(Equipment toEquip, String place){
         Inventory.add(Equipment.remove(place));
-        Equipment.put(place, toEquip);
+        putIntoEquipment(toEquip, place);
+    }
+
+    private void putIntoEquipment(Equipment equipment, String place){
+        Equipment.put(place, equipment);
+        playerData.recountStats(equipment.equipmentStat, equipment.getStats());
+        Draw.call(infoGrid.getFirstBlock());
     }
 
     private void removeBlank(){
         if(!Equipment.get("FirstWeapon").getName().equals("blank"))
-            Equipment.remove("FirstWeapon");
+            Equipment.remove("FirstWeapon", com.rogurea.dev.items.Equipment.BLANK);
     }
 
     @Override
@@ -99,7 +125,7 @@ public class Player extends Creature {
     }
 
     {
-        Equipment.put("FirstWeapon", com.rogurea.dev.items.Equipment.BLANK);
+        Equipment.put("FirstWeapon", null);
         Equipment.put("SecondWeapon", com.rogurea.dev.items.Equipment.BLANK);
         Equipment.put("Armor", com.rogurea.dev.items.Equipment.BLANK);
         Equipment.put("Amulet", com.rogurea.dev.items.Equipment.BLANK);
@@ -123,12 +149,10 @@ public class Player extends Creature {
     protected Equipment findEquipmentInInventoryByTag(String tag){
         try {
             return this.Equipment.values().stream().filter(eq -> eq.tag.startsWith(tag)).findFirst().get();
-        } catch (NoSuchElementException ignore){
+        } catch (NoSuchElementException | NullPointerException e){
             return com.rogurea.dev.items.Equipment.BLANK;
         }
     }
-
-
     public Player(){
         super();
         this.tag += ".player";
@@ -163,7 +187,9 @@ public class Player extends Creature {
 
     @Override
     public void getHit(int incomingDamage){
-        this.playerData.setHP(this.playerData.getHP() - Math.abs(this.playerData.get_def() - incomingDamage));
+        int fullDef = this.playerData.get_baseDef() + this.playerData.get_def();
+        int deltaDmg = incomingDamage - fullDef;
+        this.playerData.setHP(this.playerData.getHP() - Math.max(0, deltaDmg));
     }
 
 }

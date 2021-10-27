@@ -32,11 +32,11 @@ public class Creature extends GameObject {
         this.HP = HP;
         this.name = name;
         this.tag = "creature";
-        this.model = new Model("Creature", Colors.ORANGE,'C');
+        this.model = new Model(name, Colors.ORANGE,name.charAt(0));
     }
 
     public int getDamageByEquipment(){
-        return baseATK + findEquipmentInInventoryByTag("item.equipment.weapon.").getStats().intValue();
+        return baseATK + findEquipmentInInventoryByTag("item.equipment.weapon.").getStats();
     }
 
     public int getHP(){
@@ -48,7 +48,7 @@ public class Creature extends GameObject {
     }
 
     public void getHit(int incomingDamage){
-        this.HP -= Math.abs(this.baseDEF - incomingDamage);
+        this.HP -= Math.abs(incomingDamage - this.baseDEF);
     }
 
     protected ArrayList<Item> creatureInventory = new ArrayList<>();

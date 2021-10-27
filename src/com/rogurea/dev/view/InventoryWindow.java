@@ -18,8 +18,9 @@ import com.rogurea.dev.items.Item;
 import com.rogurea.dev.resources.Colors;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
-public class InventoryWindow extends Window{
+public class InventoryWindow extends Window {
 
     private final int _width = 25;
     private final int _height = 5;
@@ -59,7 +60,7 @@ public class InventoryWindow extends Window{
                             cursorUI = new CursorUI(elements);
                     }
             ));
-            elements.get(this.itemCollection.indexOf(item)).ElementPointerPosition.x--;
+            //elements.get(this.itemCollection.indexOf(item)).ElementPointerPosition.x++;
         }
     }
 
@@ -85,11 +86,11 @@ public class InventoryWindow extends Window{
         if(!elements.isEmpty()) {
             cursorUI.setFirstElementCursorPosition();
             while (!elements.isEmpty()) {
-                KeyStroke key = Input.GetKey();
-                if(key != null) {
-                    if (key.getKeyType().equals(KeyType.Escape))
+                Optional<KeyStroke> keyStroke = Input.waitForInput();
+                if(Input.keyNotNull(keyStroke.get())) {
+                    if (Input.keyIsEscape(keyStroke.get()))
                         break;
-                    cursorUI.SelectElementV(key.getKeyType());
+                    cursorUI.SelectElementV(keyStroke.get().getKeyType());
                     Draw.call(this);
                 }
             }

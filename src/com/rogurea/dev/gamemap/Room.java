@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Room implements Serializable {
@@ -210,9 +211,16 @@ public class Room implements Serializable {
         Debug.toLog("[Room "+RoomNumber+"] mob threads has started");
     }
 
-    public void endMobAIThreads(){
+    public void endMobAIThreads() {
         mobThreads.shutdownNow();
-        Debug.toLog("[Room "+RoomNumber+"] mob threads has ended");
+        try {
+            if(mobThreads.awaitTermination(2, TimeUnit.SECONDS))
+                gameObjects.removeIf(go -> go.tag.startsWith("creature.mob"));
+                Debug.toLog("[Room "+RoomNumber+"] mob threads has ended");
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+
     }
 
     private Entity nextDoor;

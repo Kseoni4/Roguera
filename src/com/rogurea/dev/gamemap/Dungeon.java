@@ -52,6 +52,8 @@ public class Dungeon {
 
         getCurrentRoom().endMobAIThreads();
 
+        getCurrentRoom().ClearCells();
+
         System.out.flush();
         RoomGenerate.GenerateRoomStructure(Objects.requireNonNull(Dungeon.rooms.stream().filter(
                 room -> room.RoomNumber == player.getCurrentRoom()

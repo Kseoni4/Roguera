@@ -6,6 +6,7 @@ package com.rogurea.dev.gamelogic;
 
 import com.rogurea.dev.items.Item;
 import com.rogurea.dev.view.InventoryWindow;
+import com.rogurea.dev.view.TraderWindow;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 public class NPCLogicFactory {
 
     private static final Consumer<ArrayList<Item>> tradeItems = (ArrayList<Item> traderInventory) -> {
-        new InventoryWindow(traderInventory).show();
+        new TraderWindow(traderInventory).show();
     };
 
     public static Consumer<ArrayList<Item>> getTraderLogic(){

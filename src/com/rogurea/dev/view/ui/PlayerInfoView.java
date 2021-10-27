@@ -15,6 +15,8 @@ import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
 
+import static com.rogurea.dev.view.ViewObjects.infoGrid;
+
 public class PlayerInfoView implements IViewBlock {
 
     private TextGraphics PlayerInfoViewGraphics = null;
@@ -43,6 +45,7 @@ public class PlayerInfoView implements IViewBlock {
             i++;
         }
     }
+
 
     @Override
     public void Reset() {

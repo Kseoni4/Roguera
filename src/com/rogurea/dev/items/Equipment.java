@@ -6,17 +6,28 @@ package com.rogurea.dev.items;
 
 import com.rogurea.dev.resources.Model;
 
-public class Equipment extends Item implements Wearable<Number> {
+import java.util.concurrent.ThreadLocalRandom;
 
-    public static final Equipment BLANK = new Equipment("blank",Model.BLANK,BLANK_MATERIAL);
+public class Equipment extends Item implements Wearable<Integer> {
 
-    public Equipment(String name, Model model, Materials itemMaterial) {
+    public static final Equipment BLANK = new Equipment("blank",Model.BLANK,BLANK_MATERIAL, "none");
+
+    public String equipmentStat;
+
+    public Equipment(String name, Model model, Materials itemMaterial, String stat) {
         super(name, model, itemMaterial);
         tag = tag.concat(".equipment");
+        this.equipmentStat = stat;
+        int sellPrice = ThreadLocalRandom.current().nextInt(1, 50) * itemMaterial.costEmpower;
+        this.setSellPrice(sellPrice);
+    }
+
+    public Equipment(String name, Model model, String stat){
+        this(name, model, Materials.NONE, stat);
     }
 
     @Override
-    public Number getStats() {
-        return 0.0d;
+    public Integer getStats() {
+        return 0;
     }
 }

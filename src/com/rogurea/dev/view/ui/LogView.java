@@ -15,7 +15,10 @@ import com.rogurea.dev.view.IViewBlock;
 import com.rogurea.dev.view.TerminalView;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+
+import static com.rogurea.dev.view.ViewObjects.infoGrid;
 
 public class LogView implements IViewBlock {
 
@@ -37,7 +40,7 @@ public class LogView implements IViewBlock {
 
     private int logHeightsize;
 
-    private final int LOG_STRINGS_LIMIT = 10;
+    private final int LOG_STRINGS_LIMIT = infoGrid.get_pointYX().y-1;
 
     private int logWightSize;
 
@@ -116,7 +119,7 @@ public class LogView implements IViewBlock {
     }
 
     private void redrawHistory() {
-        clearLog();
+        Reset();
         ArrayList<String> logHistory_buffer = new ArrayList<>(logHistory);
         for (String log : logHistory_buffer) {
             //colorFadeDecrement(log);
@@ -133,7 +136,14 @@ public class LogView implements IViewBlock {
 
     private String getTrimString(String message){
         String trimmedMessage = message.trim();
-        return trimmedMessage.replaceFirst("\\[\\d{2};\\d{1};\\d{2}m", "");
+        int len = trimmedMessage.split(" ").length;
+        for(int i = 0; i <= len; i++) {
+            trimmedMessage = trimmedMessage.replaceFirst("\\[\\d{2};\\d{1};((\\d{3}m)|(\\d{2}m)|(\\d{1}m))", "");
+            trimmedMessage = trimmedMessage.replaceFirst("(\\u001b|\\u001b[ESC]\\[(\\d{1}m))", "");
+            trimmedMessage = trimmedMessage.replaceFirst("(\\[(\\d{1}m))", "");
+            trimmedMessage = trimmedMessage.replaceFirst("\\[\\u001b|\\u001b[ESC]", "");
+        }
+        return trimmedMessage;
     }
 
     private void splitMessage(String message){
@@ -157,13 +167,14 @@ public class LogView implements IViewBlock {
                 do {
                     logMessage.append(longMessage[i]).append(" ");
                     i++;
-                } while ((logMessage + longMessage[i]).length() < logWightSize);
+                } while ((getTrimString(logMessage + longMessage[i])).length() < logWightSize);
             } catch (ArrayIndexOutOfBoundsException ignored) { }
             finally {
                 writeLog(logMessage.toString(), logLineIndex);
                 incResetLog();
             }
-            recurrentPrint(longMessage, i);
+            if(i < 30)
+                recurrentPrint(longMessage, i);
         }
     }
 
@@ -201,6 +212,6 @@ public class LogView implements IViewBlock {
     }
 
     private void clearLog(){
-        logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, logHeightsize+1), ' ');
+        logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, infoGrid.get_pointYX().y-1), ' ');
     }
 }

@@ -4,10 +4,7 @@
 
 package com.rogurea.dev.gamelogic;
 
-import com.rogurea.dev.items.Armor;
-import com.rogurea.dev.items.Equipment;
-import com.rogurea.dev.items.Item;
-import com.rogurea.dev.items.Weapon;
+import com.rogurea.dev.items.*;
 import com.rogurea.dev.resources.GameResources;
 import com.rogurea.dev.resources.GameVariables;
 import com.rogurea.dev.resources.GetRandom;
@@ -34,6 +31,9 @@ public class ItemGenerator {
                 Item.Materials.values()[GetRandom.RNGenerator.nextInt(Item.Materials.values().length)]);
     }
 
-
+    public static Item getRandomPotion(){
+        Model pt = GameResources.getModel("Potion");
+        return new Potion("Potion", pt);
+    }
 
 }

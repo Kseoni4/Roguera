@@ -4,6 +4,8 @@
 
 package com.rogurea.dev.gamemap;
 
+import com.googlecode.lanterna.TerminalPosition;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -149,6 +151,10 @@ public class Position implements Serializable {
 
     public Position(Position newPosition){
         this(newPosition.x, newPosition.y);
+    }
+
+    public TerminalPosition toTerminalPosition(){
+        return new TerminalPosition(this.x, this.y);
     }
 
     public Position(){

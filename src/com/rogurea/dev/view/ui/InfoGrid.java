@@ -4,10 +4,13 @@
 
 package com.rogurea.dev.view.ui;
 
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.dev.gamemap.Dungeon;
 import com.rogurea.dev.gamemap.Position;
+import com.rogurea.dev.resources.Colors;
 import com.rogurea.dev.resources.Model;
 import com.rogurea.dev.view.Draw;
 import com.rogurea.dev.view.IViewBlock;
@@ -100,7 +103,7 @@ public class InfoGrid implements IViewBlock {
         int _xLenght = _leastRightX - _startPointXY.x;
         int _y = 0;
         int _yLenght = _leastBottomY;
-        int calculatedXLenght = (_xLenght/3)+8;
+        int calculatedXLenght = (_xLenght/5)+8;
         _pointXY = _startPointXY.getRelative(calculatedXLenght,_y);
         _zeroPointBlock1 = _startPointXY.getRelative(1,1);
         _zeroPointBlock2 = _pointXY.getRelative(1,1);
@@ -131,6 +134,10 @@ public class InfoGrid implements IViewBlock {
             }*/
             /*
             TerminalView.putCharInTerminal(BordersViewGraphics, borderCRCorner.get(), center.getRelative(0, -(center.y - 2)));*/
+    }
+
+    public Position get_pointYX() {
+        return _pointYX;
     }
 
     @Override
@@ -176,6 +183,20 @@ public class InfoGrid implements IViewBlock {
         if(!_viewBlocks.isEmpty()){
             _viewBlocks.forEach(Draw::call);
         }
+        drawKeyInfo();
+    }
+
+    private void drawKeyInfo(){
+        String WASD = Colors.WHITE_BRIGHT+"WASD/↑↓←→";
+        String I = Colors.WHITE_BRIGHT+"i";
+        String quickMenu = Colors.WHITE_BRIGHT+"1,2,3,4,5";
+        String info = Colors.B_BLUE_BRIGHT+
+                WASD+Colors.GREY+" - walk"+Colors.WHITE_BRIGHT+"|"
+                +I+Colors.GREY+" - inventory"+Colors.WHITE_BRIGHT+"|"
+                +quickMenu+Colors.GREY+" - quick equip/use"+Colors.WHITE_BRIGHT+"|";
+
+        _infoGridGraphics.fillRectangle(new TerminalPosition(0,_leastBottomY-1), new TerminalSize(_leastRightX,1),new TextCharacter(' ').withBackgroundColor(Colors.GetTextColor(Colors.B_BLUE_BRIGHT)));
+        TerminalView.drawBlockInTerminal(_infoGridGraphics, info, new Position(0, _leastBottomY-1));
     }
 
     @Override

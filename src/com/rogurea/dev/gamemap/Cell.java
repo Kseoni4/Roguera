@@ -33,9 +33,11 @@ public class Cell implements Serializable {
         }
     }
 
-    public void removeFromCell(){
-            gameObjects.remove(lastObjectIndex);
-            UpdateLastItemCounter();
+    public void removeFromCell() {
+        if(lastObjectIndex < 0)
+            lastObjectIndex = 0;
+        gameObjects.remove(lastObjectIndex);
+        UpdateLastItemCounter();
     }
 
     public GameObject getAndRemoveFromCell(){
