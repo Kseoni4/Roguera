@@ -10,14 +10,28 @@ import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.items.Item;
 import com.rogurea.resources.Colors;
+import com.rogurea.view.Draw;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.rogurea.view.ViewObjects.ViewBlocks;
 import static com.rogurea.view.ViewObjects.mapView;
 
 
 public class Mob extends Creature{
+
+    private boolean dead = false;
+
+    public boolean isDead(){
+        return this.dead;
+    }
+
+    private void dead(){
+        this.dead = true;
+    }
+
+    private int experiencePoints;
 
     @Override
     public int getDamageByEquipment() {
@@ -38,8 +52,14 @@ public class Mob extends Creature{
         this.baseDEF = Dungeon.getCurrentFloor().getFloorNumber();
         this.model.changeModel(name.charAt(0));
         this.model.changeColor(Colors.RED_BRIGHT);
+
         initialPutInventory();
-        Debug.toLog(this.toString());
+        //Debug.toLog(this.toString());
+    }
+
+    private void calculateEXP() {
+        int leftBound = 1 + (Dungeon.getCurrentFloor().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber);
+        int rightBound = 12 * Dungeon.getCurrentFloor().getFloorNumber() + getDamageByEquipment();
     }
 
     @Override
@@ -57,9 +77,12 @@ public class Mob extends Creature{
         Cell[] cells = Dungeon.getCurrentRoom().getCell(this.cellPosition).getCellsAround();
         for(Item item : creatureInventory) {
             int randomCellIndex = ThreadLocalRandom.current().nextInt(8);
-            cells[randomCellIndex].putIntoCell(item);
+            if(!cells[randomCellIndex].isWall())
+                cells[randomCellIndex].putIntoCell(item);
+            //mapView.drawAround(cells[randomCellIndex].position);
         }
-        mapView.drawAround(this);
+        dead();
+        //mapView.drawAround(this.cellPosition);
     }
 
     @Override

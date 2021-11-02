@@ -32,13 +32,13 @@ public class MoveController {
         keyType.ifPresent(pointer -> {
             switch (pointer) {
                 case ArrowUp:
-                    move(new Position(player.playerPosition.x, player.playerPosition.y + 1));
+                    move(new Position(player.playerPosition.x, player.playerPosition.y - 1));
                     break;
                 case ArrowLeft:
                     move(new Position(player.playerPosition.x - 1, player.playerPosition.y));
                     break;
                 case ArrowDown:
-                    move(new Position(player.playerPosition.x, player.playerPosition.y - 1));
+                    move(new Position(player.playerPosition.x, player.playerPosition.y + 1));
                     break;
                 case ArrowRight:
                     move(new Position(player.playerPosition.x + 1, player.playerPosition.y));
@@ -53,13 +53,13 @@ public class MoveController {
     private static void moveByWASD(char key){
         switch (key) {
             case 'w':
-                move(new Position(player.playerPosition.x, player.playerPosition.y + 1));
+                move(new Position(player.playerPosition.x, player.playerPosition.y - 1));
                 break;
             case 'a':
                 move(new Position(player.playerPosition.x - 1, player.playerPosition.y));
                 break;
             case 's':
-                move(new Position(player.playerPosition.x, player.playerPosition.y - 1));
+                move(new Position(player.playerPosition.x, player.playerPosition.y + 1));
                 break;
             case 'd':
                 move(new Position(player.playerPosition.x + 1, player.playerPosition.y));

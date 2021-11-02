@@ -5,19 +5,18 @@
 package com.rogurea.mapgenerate;
 
 
+import com.rogurea.base.Debug;
 import com.rogurea.creatures.NPC;
 import com.rogurea.gamelogic.MobFactory;
 import com.rogurea.gamelogic.NPCLogicFactory;
-import com.rogurea.gamemap.Dungeon;
-import com.rogurea.gamemap.Floor;
-import com.rogurea.gamemap.Position;
-import com.rogurea.gamemap.Room;
+import com.rogurea.gamemap.*;
 import com.rogurea.items.Chest;
 import com.rogurea.items.Gold;
 import com.rogurea.resources.GetRandom;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -85,9 +84,6 @@ public class RoomGenerate implements Serializable {
 
     public static void generateRoomSequence(int floorNumber){
         random = GetRandom.RNGenerator;
-        /*if(Dungeon.rooms.size() >= Dungeon.DungeonRoomsCount){
-            Dungeon.DungeonRoomsCount += RoomCount;
-        }*/
 
         Dungeon.rooms = new ArrayList<>();
 
@@ -100,15 +96,15 @@ public class RoomGenerate implements Serializable {
             int RandomRoomSize = random.nextInt(3);
 
             byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
+
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
             if(i >= Dungeon.DungeonRoomsCount-1){
                 Dungeon.rooms.add(new Room((i+1), Widght, Height, roomSizes[RandomRoomSize], true));
-                Dungeon.floors.get(floorNumber).putRoomInFloor(Dungeon.rooms.get(i));
             }
             else {
                 Dungeon.rooms.add(new Room((i + 1), Widght, Height, roomSizes[RandomRoomSize]));
-                Dungeon.floors.get(floorNumber).putRoomInFloor(Dungeon.rooms.get(i));
             }
+            Dungeon.floors.get(floorNumber).putRoomInFloor(Dungeon.rooms.get(i));
         }
         ConnectRooms();
     }
@@ -127,6 +123,8 @@ public class RoomGenerate implements Serializable {
     }
 
     public static void generateRoomStructure(Room room) {
+
+        Debug.toLog("[GENERATE] Generate room: "+room.roomNumber+"(floor "+room.floorNumber+")");
 
         room.ClearCells();
 
@@ -149,12 +147,16 @@ public class RoomGenerate implements Serializable {
         int randomChestCount = ThreadLocalRandom.current().nextInt(0,2);
 
         for(int i = 0; i < randomChestCount;i++) {
-            MapEditor.setIntoCell(new Chest(),
-                    room.positionsInsidePerimeter.get(
-                            random.nextInt(room.positionsInsidePerimeter.size()
-                            )
-                    )
-            );
+            Position randomPos = room.positionsInsidePerimeter.get(random.nextInt(room.positionsInsidePerimeter.size()));
+
+            if(!isWallsOnSides(room.getCell(randomPos).getCellsAround())){
+                MapEditor.setIntoCell(new Chest(),
+                        room.positionsInsidePerimeter.get(
+                                random.nextInt(room.positionsInsidePerimeter.size()
+                                )
+                        )
+                );
+            }
         }
 
         int randomGoldCount = ThreadLocalRandom.current().nextInt(0,6);
@@ -178,12 +180,23 @@ public class RoomGenerate implements Serializable {
         room.initFogController();
     }
 
-    private static void placeTrader(Room room){
-        room.getCell(new Position(2,2)).putIntoCell(new NPC("Trader", NPCLogicFactory.getTraderLogic()));
+    private static boolean isWallsOnSides(Cell[] cells){
+        return Arrays.stream(cells).filter(cell -> cell.isWall()).count() > 1;
     }
+
+    private static void placeTrader(Room room){
+        Position randomPos = room.positionsInsidePerimeter.get(random.nextInt(room.positionsInsidePerimeter.size()));
+
+        while(isWallsOnSides(room.getCell(randomPos).getCellsAround())) {
+            randomPos = room.positionsInsidePerimeter.get(random.nextInt(room.positionsInsidePerimeter.size()));
+        }
+
+        room.getCell(randomPos).putIntoCell(new NPC("Trader", NPCLogicFactory.getTraderLogic()));
+}
 
     private static void placeMobs(Room room){
         int randomMobCount = ThreadLocalRandom.current().nextInt(0,5) * Dungeon.getCurrentFloor().getFloorNumber();
+
         for(int i = 0; i < randomMobCount; i++){
             MapEditor.setIntoCell(MobFactory.newMob(),room.positionsInsidePerimeter.get(
                     random.nextInt(room.positionsInsidePerimeter.size()

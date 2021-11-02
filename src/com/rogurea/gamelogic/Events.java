@@ -4,6 +4,7 @@
 
 package com.rogurea.gamelogic;
 
+import com.rogurea.base.Debug;
 import com.rogurea.creatures.Creature;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
@@ -37,34 +38,50 @@ public class Events {
         Dungeon.getCurrentRoom().getCell(position).putIntoCell(new Chest());
     };
 
-    private static Consumer<Creature> hitEffectRun = target -> {
+    private static final Consumer<Creature> hitEffectRun = target -> {
+
         target.model.changeBColor(Colors.B_RED_BRIGHT);
+
         Draw.call(mapView);
+
         try {
             TimeUnit.MILLISECONDS.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         target.model.resetBColor();
+
         Draw.call(mapView);
     };
 
     public static void encounter(Creature attacker, Creature victim){
+        Debug.toLog("[EVENT]Event encounter: " +
+                "\n\t attacker: "+attacker.getName()+"ATK: "+attacker.getDamageByEquipment()+"| DEF: "+attacker.getDefenceByEquipment()+
+                "\n\t victim:"+victim.getName()+"ATK: "+victim.getDamageByEquipment()+"| DEF: "+victim.getDefenceByEquipment());
+
         ExecutorService ef = Executors.newSingleThreadExecutor();
+
         int dmg = attacker.getDamageByEquipment();
+
         int fullDef = victim.getDefenceByEquipment();
+
         victim.getHit(dmg);
+
         ef.execute(new Effect<>(victim, hitEffectRun));
+
         ef.shutdown();
+
         ViewObjects.logView.action(victim.getName()
                 .concat(" get ")
                 .concat(""+Math.max(0,dmg - fullDef))
                 .concat(" damage")
-                //.concat("(DEF:").concat(String.valueOf(victim.getDefenceByEquipment())).concat(")")
+                .concat("(DEF:").concat(String.valueOf(victim.getDefenceByEquipment())).concat(")")
                 .concat(" from ")
                 .concat(attacker.getName())
                 .concat(" ")
                 .concat(GetRandom.getRandomWoops()));
+
         Draw.call(ViewObjects.infoGrid.getFirstBlock());
     }
 }

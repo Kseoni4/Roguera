@@ -30,13 +30,15 @@ public class PlayerData implements Serializable {
     private int playerID = 1;
     private short HP;
     private byte Level = 1;
-    private short Money = 0;
+    private int Money = 0;
     private byte attempt = 0;
     private int score = 0;
     private int scoreMultiplier = 1;
-    private int _atk = 1;
+    private int _atk = 0;
+    private int _atkPotionBonus = 0;
     private int _baseAtk = GameVariables.BASE_PLAYER_ATK;
-    private int _def = 1;
+    private int _def = 0;
+    private int _defPotionBonus = 0;
     private int _baseDef = GameVariables.BASE_PLAYER_DEF;
     private byte[] scoreHashMD5;
     private static MessageDigest md;
@@ -99,8 +101,11 @@ public class PlayerData implements Serializable {
     public void recountStats(String stat, int amount){
         try{
             Field baseStat = this.getClass().getDeclaredField("_base"+Character.toUpperCase(stat.charAt(0))+stat.substring(1));
+            int _statPotion  = this.getClass().getDeclaredField("_"+stat+"PotionBonus").getInt(this);
 
-            this.getClass().getDeclaredField("_"+stat).setInt(this,baseStat.getInt(this)+amount);
+            Debug.toLog("[REFLECTION] base stat "+baseStat.getInt(this)+" _statPotionBonus "+_statPotion+" amount "+amount);
+
+            this.getClass().getDeclaredField("_"+stat).setInt(this,_statPotion+amount);
 
         } catch (NoSuchFieldException | IllegalAccessException e){
             Debug.toLog("No such field: "+"_"+stat);
@@ -117,19 +122,17 @@ public class PlayerData implements Serializable {
 
     public PlayerData() throws NoSuchAlgorithmException {
         scoreHashMD5 = md.digest(String.valueOf(this.score).getBytes());
-        Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
+        //Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
     }
 
     public void setScore(int score) {
         if(checkScoreHash()){
-            Debug.toLog(Colors.GREEN_BRIGHT+"Score is not compromised!");
-            Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
+            Debug.toLog("[PLAYER_DATA]"+Colors.GREEN_BRIGHT+"Score is not compromised!");
             this.score += score * scoreMultiplier;
             updateHash();
             JDBСQueries.updateUserScore();
-            Debug.toLog("New hash\n"+ Arrays.toString(scoreHashMD5));
         } else {
-            Debug.toLog(Colors.RED_BRIGHT+"Score is compromised!");
+            Debug.toLog("[PLAYER_DATA]"+Colors.RED_BRIGHT+"Score is compromised!");
             this.score = 0;
             updateHash();
         }
@@ -143,14 +146,10 @@ public class PlayerData implements Serializable {
     private void updateHash(){
         md.update(String.valueOf(this.score).getBytes());
         scoreHashMD5 = md.digest();
-        Debug.toLog("[PLAYER_DATA] new hash code: "+scoreHashMD5.hashCode());
-        Debug.toLog("[PLAYER_DATA] new hash code: "+scoreHashMD5.hashCode());
         JDBСQueries.updUserHash(String.valueOf(scoreHashMD5.hashCode()));
     }
 
     public boolean checkSavedScoreHash(int hash){
-        Debug.toLog("[LOAD] score hash from save: "+scoreHashMD5.hashCode());
-        Debug.toLog("[LOAD] score hash from database: "+hash);
         return scoreHashMD5.hashCode() == hash;
     }
 
@@ -159,9 +158,7 @@ public class PlayerData implements Serializable {
     }
 
     public void setScoreHash(byte[] hash){
-        Debug.toLog("[PLAYER_DATA] Input hash = "+hash.hashCode());
         this.scoreHashMD5 = hash;
-        Debug.toLog("[PLAYER_DATA] This hash = "+scoreHashMD5.hashCode());
     }
 
     private boolean checkScoreHash(){
@@ -186,8 +183,8 @@ public class PlayerData implements Serializable {
                 "Health: " + Colors.RED_BRIGHT.concat(String.valueOf(HP)),
                 "Level: "+Colors.CYAN.concat(String.valueOf(Level)),
                 "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money)),
-                "ATK: "+Colors.ORANGE.concat(String.valueOf(_atk)),
-                "DEF: "+Colors.BLUE_BRIGHT.concat(String.valueOf(_def))
+                "ATK: "+Colors.ORANGE.concat(""+(_atk+_baseAtk)),
+                "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_def+_baseDef))
         };
     }
 
@@ -215,7 +212,7 @@ public class PlayerData implements Serializable {
 
     public void setMoney(int money) {
         setScore(money/3);
-        Money += (short) money;
+        Money += money;
     }
 
     public int getAttempt() {
@@ -261,6 +258,23 @@ public class PlayerData implements Serializable {
     public void set_def(int _def) {
         this._def = _def;
     }
+
+    public int get_atkPotionBonus() {
+        return _atkPotionBonus;
+    }
+
+    public void set_atkPotionBonus(int _atkPotionBonus) {
+        this._atkPotionBonus = _atkPotionBonus;
+    }
+
+    public int get_defPotionBonus() {
+        return _defPotionBonus;
+    }
+
+    public void set_defPotionBonus(int _defPotionBonus) {
+        this._defPotionBonus = _defPotionBonus;
+    }
+
 
     public int getKills() {
         return kills;

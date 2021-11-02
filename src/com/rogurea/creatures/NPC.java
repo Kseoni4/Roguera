@@ -63,5 +63,7 @@ public class NPC extends Creature {
         this.tag += ".npc";
         this.cellPosition = new Position(2, 2);
         this.creatureInventory.add(ItemGenerator.getRandomPotion());
+        this.creatureInventory.add(ItemGenerator.getRandomPotion());
+        this.creatureInventory.add(ItemGenerator.getRandomPotion());
     }
 }

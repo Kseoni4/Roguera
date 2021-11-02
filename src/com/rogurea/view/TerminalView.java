@@ -11,7 +11,9 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
 import com.rogurea.mapgenerate.MapEditor;
 import com.rogurea.resources.GameResources;
@@ -96,8 +98,6 @@ public class TerminalView {
                 e.printStackTrace();
             }
         });
-
-
         terminal.resetColorAndSGR();
     }
 
@@ -121,7 +121,7 @@ public class TerminalView {
 
             updateWindowSize(terminal.getTerminalSize());
 
-            Debug.toLog("Window size: ".concat(windowSize.toString()));
+            Debug.toLog("[DISPLAY]Window size: ".concat(windowSize.toString()));
 
             terminal.flush();
 
@@ -155,7 +155,9 @@ public class TerminalView {
         if(terminal != null){
             try {
                 TerminalView.keyStroke = null;
+
                 terminal.clearScreen();
+
                 terminal.close();
             } catch (IOException e){
                 e.printStackTrace();
@@ -205,15 +207,20 @@ public class TerminalView {
     }
 
     public static void drawBlockInTerminal(TextGraphics textgui, String data, TerminalPosition position) {
-        textgui.putCSIStyledString(position, data);
+        drawBlockInTerminal(textgui, data, position.getColumn(), position.getRow());
     }
 
     public static void drawBlockInTerminal(TextGraphics textgui, String data, Position position){
-        textgui.putCSIStyledString(new TerminalPosition(position.x, position.y), data);
+        drawBlockInTerminal(textgui, data, position.x, position.y);
     }
 
     public static void drawBlockInTerminal(TextGraphics textgui, String data, int x, int y) {
-        textgui.putCSIStyledString(x, y, data);
+        try {
+            textgui.putCSIStyledString(x, y, data);
+        }  catch (IllegalArgumentException e){
+            Debug.toLog("[DISPLAY_ERROR]"+ Arrays.toString(e.getStackTrace()));
+            Debug.toLog("[DISPLAY_ERROR] data string was "+data);
+        }
     }
 
     public static void putCharInTerminal(TextGraphics textgui, TextCharacter data, int x, int y){

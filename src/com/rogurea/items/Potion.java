@@ -4,8 +4,11 @@ import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.Model;
+import com.rogurea.view.Draw;
 
 import java.util.concurrent.ThreadLocalRandom;
+
+import static com.rogurea.view.ViewObjects.infoGrid;
 
 public class Potion extends Equipment implements Usable {
 
@@ -38,10 +41,11 @@ public class Potion extends Equipment implements Usable {
         constructPotionType();
         this.tag += ".potion."+this.potionType.name().toLowerCase();
         this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50) + this.amount * (this.potionType.name().equals("SCORE_BUF") ? 100 : 1));
-        Debug.toLog("Create potion: \n\t" +
+/*
+   Debug.toLog("Create potion: \n\t" +
                 "Type: "+this.potionType.name()+"\n\t"+
                 "Amount: "+this.amount+"\n\t"+
-                "Price: "+this.getSellPrice());
+                "Price: "+this.getSellPrice());*/
     }
 
     private void constructPotionType(){
@@ -57,12 +61,14 @@ public class Potion extends Equipment implements Usable {
             case HEAL:
                 Dungeon.player.getPlayerData().setHP(Math.min(100,Dungeon.player.getHP() + amount)); break;
             case ATK_BUF:
-                Dungeon.player.getPlayerData().set_atk(Dungeon.player.getPlayerData().get_baseAtk() + amount); break;
+                Dungeon.player.getPlayerData().set_atkPotionBonus(Dungeon.player.getPlayerData().get_atkPotionBonus() + amount); break;
             case DEF_BUF:
-                Dungeon.player.getPlayerData().set_def(Dungeon.player.getPlayerData().get_def() + amount); break;
+                Dungeon.player.getPlayerData().set_defPotionBonus(Dungeon.player.getPlayerData().get_defPotionBonus() + amount); break;
             case SCORE_BUF :
                 Dungeon.player.getPlayerData().addScoreMultiplier(amount); break;
         }
+        Draw.call(infoGrid.getFirstBlock());
+        Draw.call(infoGrid.getThirdBlock());
     }
 
     public int getAmount() {

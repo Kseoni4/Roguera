@@ -17,8 +17,10 @@ import com.rogurea.view.ViewObjects;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
+import static com.rogurea.view.ViewObjects.inventoryView;
 
 public class LogView implements IViewBlock {
 
@@ -40,7 +42,7 @@ public class LogView implements IViewBlock {
 
     private int logHeightsize;
 
-    private final int LOG_STRINGS_LIMIT = infoGrid.get_pointYX().y-1;
+    private final int LOG_STRINGS_LIMIT = infoGrid.get_pointYX().y-2;
 
     private int logWightSize;
 
@@ -95,15 +97,28 @@ public class LogView implements IViewBlock {
     }
 
     public void putLog(String message){
-        if(logLineIndex >= LOG_STRINGS_LIMIT){
-            logLineIndex = 0;
-            logHistory.clear();
-            assembleStrings.clear();
-            Draw.reset(this);
+        if(logLineIndex > LOG_STRINGS_LIMIT){
+            resetLog();
         }
-        logMessage.append(message);
-        assembleStrings.add(assembleStrings.size()+logMessage.toString());
+        try {
+            logMessage.append(message);
+            assembleStrings.add(assembleStrings.size() + logMessage.toString());
+        } catch (ArrayIndexOutOfBoundsException e){
+            Debug.toLog("[LOG_VIEW] Error out of bound exception: " +
+                    "\n\t string: "+message+
+                    "\n\t stacktrace: "+ Arrays.toString(e.getStackTrace()));
+        }
         Draw.call(this);
+    }
+
+    private void resetLog(){
+        logLineIndex = 0;
+
+        logHistory.clear();
+
+        assembleStrings.clear();
+
+        Draw.reset(this);
     }
 
     @Override
@@ -185,7 +200,11 @@ public class LogView implements IViewBlock {
             splitMessage(msg);
         }
         else{
-            TerminalView.drawBlockInTerminal(logTextGraphics, msg, logPosition.x, logPosition.y+line);
+            if(line > LOG_STRINGS_LIMIT){
+                resetLog();
+            } else {
+                TerminalView.drawBlockInTerminal(logTextGraphics, msg, logPosition.x, logPosition.y+line);
+            }
         }
     }
 
@@ -203,6 +222,6 @@ public class LogView implements IViewBlock {
     }
 
     private void clearLog(){
-        logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, infoGrid.get_pointYX().y-1), ' ');
+            logTextGraphics.fillRectangle(new TerminalPosition(logPosition.x, logPosition.y), new TerminalSize(logWightSize, infoGrid.get_pointYX().y-1), ' ');
     }
 }

@@ -10,6 +10,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.base.GameObject;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.gamemap.Position;
 import com.rogurea.gamemap.Room;
 import com.rogurea.player.Player;
 import com.rogurea.view.Draw;
@@ -52,15 +53,15 @@ public class MapView implements IViewBlock {
     }
 
     public void drawAround(){
-        drawAround(Dungeon.player);
+        drawAround(Dungeon.player.playerPosition);
         TerminalView.putCharInTerminal(MapViewGraphics, Dungeon.player.getModel(), Dungeon.player.playerPosition);
         Draw.flush();
     }
 
-    public void drawAround(GameObject object){
-        for(Cell cell : Dungeon.getCurrentRoom().getCell(object.cellPosition).getCellsAround()){
+    public void drawAround(Position position){
+        for(Cell cell : Dungeon.getCurrentRoom().getCell(position).getCellsAround()){
             try {
-                if(!(cell.getFromCell() instanceof Player))
+                if(!(cell.getFromCell().equals(Dungeon.player)))
                     TerminalView.putCharInTerminal(MapViewGraphics, cell.getFromCell().getModel(), cell.position);
             } catch (NullPointerException ignored){
             }

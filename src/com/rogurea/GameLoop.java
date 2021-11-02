@@ -7,6 +7,7 @@ package com.rogurea;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.base.Debug;
 import com.rogurea.exceptions.NickNameAlreadyUsed;
+import com.rogurea.gamelogic.Events;
 import com.rogurea.gamelogic.ItemGenerator;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.net.UpdaterWorker;
@@ -20,6 +21,7 @@ import com.rogurea.net.JDBСQueries;
 import com.rogurea.view.Draw;
 import com.rogurea.view.TerminalView;
 import com.rogurea.view.ViewObjects;
+import net.arikia.dev.drpc.DiscordRPC;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -55,6 +57,8 @@ public class GameLoop {
             Dungeon.player.getPlayerData().setPlayerID(JDBСQueries.getNewUserId());
 
             Dungeon.player.putUpItem(ItemGenerator.getRandomWeaponEquipment());
+
+            //Events.putTestItemIntoPos.action(new Position(3,3));
         }
 
         JDBСQueries.createGameSession();
@@ -67,7 +71,13 @@ public class GameLoop {
 
         while (isNotEscapePressed() && isNotClosed() && !Thread.currentThread().isInterrupted()) {
 
+            Dungeon.player.updateRichPresence();
+
             Input.waitForInput().ifPresent(keyStroke -> TerminalView.keyStroke = keyStroke);
+
+            if(TerminalView.keyStroke.getKeyType().equals(KeyType.EOF)){
+                break;
+            }
 
             KeyController.getKey(TerminalView.keyStroke.getCharacter());
 
@@ -83,6 +93,8 @@ public class GameLoop {
 
                 break;
             }
+
+            DiscordRPC.discordRunCallbacks();
         }
         endPlayTime = LocalDateTime.now();
 
@@ -102,20 +114,35 @@ public class GameLoop {
     }
 
     public static void endGameSequence(){
-        if(Dungeon.player.getHP()  > 0) {
+        if(Dungeon.player != null && Dungeon.player.getHP()  > 0) {
             try {
                 SaveLoadSystem.saveGame();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        updWrk.shutdownNow();
-        Dungeon.rooms.forEach(Room::endMobAIThreads);
-        Dungeon.floors.clear();
-        Dungeon.rooms.clear();
+        if(updWrk != null)
+            updWrk.shutdownNow();
+
+        if(Main.autoLogWorker != null)
+            Main.autoLogWorker.shutdownNow();
+
+        if(Dungeon.rooms != null && Dungeon.floors != null) {
+            Dungeon.rooms.forEach(Room::endMobAIThreads);
+
+            Dungeon.floors.clear();
+
+            Dungeon.rooms.clear();
+        }
+
+        Dungeon.resetVariables();
+
         Floor.resetCounter();
+
         GameResources.clearResources();
+
         TerminalView.dispose();
+
         System.gc();
     }
 

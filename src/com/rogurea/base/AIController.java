@@ -65,21 +65,26 @@ public class AIController implements Runnable {
             }
         }
         if(isDead()){
-            logView.playerAction("kill a "+this.creature.model.getModelColorName()+"!");
-
-            int scoreForMob = ThreadLocalRandom.current().nextInt(3, 10) * this.creature.getDamageByEquipment();
-
-            Dungeon.player.getPlayerData().setScore(scoreForMob);
-            Dungeon.player.getPlayerData().setKill();
-
-            Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
-
-            Animation.deadAnimation(this.creature);
-
-            ((Mob) this.creature).dropLoot();
-
-            //Thread.currentThread().interrupt();
+            mobDead();
         }
+    }
+
+    private void mobDead(){
+        logView.playerAction("kill a "+this.creature.model.getModelColorName()+"!");
+
+        int scoreForMob = ThreadLocalRandom.current().nextInt(3, 10) * this.creature.getDamageByEquipment();
+
+        Dungeon.player.getPlayerData().setScore(scoreForMob);
+
+        Dungeon.player.getPlayerData().setKill();
+
+        Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
+
+        Animation.deadAnimation(this.creature);
+
+        ((Mob) this.creature).dropLoot();
+
+        //Thread.currentThread().interrupt();
     }
 
     private boolean fogUncover() {
@@ -94,11 +99,11 @@ public class AIController implements Runnable {
     private boolean checkPlayer(){
         ArrayList<Cell> cells = Dungeon.getCurrentRoom().getCells();
 
-        Debug.toLog("[AI][Mob] "+creature.getName() + " finding player...");
+        //Debug.toLog("[AI][Mob] "+creature.getName() + " finding player...");
         if(cells.stream().anyMatch(cell -> cell.getFromCell() instanceof Player)){
             target = (Creature) cells.stream().filter(cell -> cell.getFromCell() instanceof Player).findAny().get().getFromCell();
             targetPosition = target.cellPosition;
-            Debug.toLog("[AI][Mob] "+creature.getName() + " Find "+target.getName()+" on position "+targetPosition.toString());
+            //Debug.toLog("[AI][Mob] "+creature.getName() + " Find "+target.getName()+" on position "+targetPosition.toString());
             return true;
         }
         return false;
@@ -108,13 +113,13 @@ public class AIController implements Runnable {
         ArrayList<Position> pathToTarget = updatePath();
 
         int steps = 0;
-        Debug.toLog("[AI][Mob] "+creature.getName() + " moving to target...");
+        //Debug.toLog("[AI][Mob] "+creature.getName() + " moving to target...");
         while(!isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()){
             try {
                 Position nextPosition = pathToTarget.get(steps);
 
-                Debug.toLog("[AI][POS] "+steps);
-                Debug.toLog("[AI][Mob] "+creature.getName() + " move to " + nextPosition);
+               // Debug.toLog("[AI][POS] "+steps);
+               // Debug.toLog("[AI][Mob] "+creature.getName() + " move to " + nextPosition);
 
                 creature.moveTo(nextPosition);
 
@@ -122,7 +127,7 @@ public class AIController implements Runnable {
 
                 steps++;
                 if (!isTargetNotMove() && steps >= pathToTarget.size()/2) {
-                    Debug.toLog("[AI][Mob] "+creature.getName() + " target is moved, break");
+                   // Debug.toLog("[AI][Mob] "+creature.getName() + " target is moved, break");
                     break;
                 }
 
@@ -133,7 +138,7 @@ public class AIController implements Runnable {
         }
         try {
             if(isTargetNear()){
-                Debug.toLog("[AI][Mob] "+creature.getName() + " target is near, fight!");
+                //Debug.toLog("[AI][Mob] "+creature.getName() + " target is near, fight!");
                 Events.encounter(this.creature, this.target);
             }
         }catch (NullPointerException e) {
@@ -163,7 +168,7 @@ public class AIController implements Runnable {
     }
 
     private void idle() throws InterruptedException {
-        Debug.toLog("[AI][Mob] "+creature.getName() + " waiting...");
+        //Debug.toLog("[AI][Mob] "+creature.getName() + " waiting...");
         TimeUnit.MILLISECONDS.sleep(400);
     }
 }

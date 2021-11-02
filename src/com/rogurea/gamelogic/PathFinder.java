@@ -30,7 +30,7 @@ public class PathFinder {
         openList = new LinkedList<>();
         closeList = new LinkedList<>();
         finalPath = new ArrayList<>();
-        Debug.toLog("[A*]ALGORITHM IS STARTED");
+        //Debug.toLog("[A*]ALGORITHM IS STARTED");
 /*        Debug.toLog("[A*]Room: "+map.RoomNumber);
         Debug.toLog("[A*]Target position: "+target.toString());
         Debug.toLog("[A*]Start position: "+start.toString());*/
@@ -55,19 +55,19 @@ public class PathFinder {
             Debug.toLog("[A*]Can't find element");
         }
 
-        Debug.toLog("[A*]Final path("+finalPath.size()+"): ");
+        //Debug.toLog("[A*]Final path("+finalPath.size()+"): ");
 
         //Показать путь движения в консоли
-        if(Roguera.isDebug) {
+/*        if(Roguera.isDebug) {
             System.out.print("start -> ");
             for (Position pos : finalPath) {
                 System.out.print(pos.toString() + " -> ");
             }
             System.out.print("end");
             System.out.println();
-        }
+        }*/
 
-        Debug.toLog("[A*]ALGORITHM IS ENDED");
+        //Debug.toLog("[A*]ALGORITHM IS ENDED");
         return finalPath;
     };
 
@@ -75,14 +75,7 @@ public class PathFinder {
 
         Cell[] cellsAround = start.nodeCell.getCellsAround();
 
-       // Debug.toLog("[A*]Remove start cell from open list");
         openList.removeFirst();
-
-       // Debug.toLog("[A*]Cells around root: ");
-        /*for(Cell cell : cellsAround)
-            if(cell != null)
-                System.out.print(cell.position.toString()+" |");
-        System.out.println();*/
 
         ArrayList<Cell> buffer = (ArrayList<Cell>) Arrays.stream(cellsAround).collect(Collectors.toList());
 
@@ -95,15 +88,13 @@ public class PathFinder {
                     || cell.getFromCell().tag.equals("fog")
                     || cell.getFromCell() instanceof Player)
                     && closeList.stream().noneMatch(node -> node.nodeCell.position.equals(cell.position))){
-                //Debug.toLog("[A*]Cell position "+cell.position+" is empty calculate F = G + H");
-                //Debug.toLog("[A*]Cell root position "+(start.rootNode != null ? start.rootNode.nodeCell.position.toString() : "none"));
 
                 int G = (start.nodeCell.position.x == cell.position.x || start.nodeCell.position.y == cell.position.y ? HORIZONTAL : DIAGONAL);
-               // Debug.toLog("[A*]G = "+G);
+
                 int H = manhattanLong(target, cell.position) * 10;
-               // Debug.toLog("[A*]H = "+H);
+
                 int F = G + H;
-               // Debug.toLog("[A*]F = "+F);
+
                 if(openList.stream().anyMatch(node -> node.nodeCell.position.equals(cell.position)))
                 {
                     Node n = openList.stream().filter(node -> node.nodeCell.position.equals(cell.position)).findFirst().get();
@@ -120,12 +111,6 @@ public class PathFinder {
                 }
             }
         }
-
-        //Debug.toLog("[A*]Open list F's" );
-        // openList.forEach(node -> System.out.print(node.F + ", "));
-        //System.out.println();
-
-       // Debug.toLog("[A*]Find next cell with minimum F");
         try {
             Node nextNode = openList.stream().min(comparingF).get();
             /*Debug.toLog("[A*]Node F = "+nextNode.F);
@@ -138,26 +123,6 @@ public class PathFinder {
         }
 
     }
-
-    /*       x y
-        tPos(3,6)
-        cPos(1,3)
-
-      x   0123
-      y 0 ....
-        1 ....
-        2 ....
-        3 .c..
-        4 ....
-        5 ....
-        6 ...t
-
-        (yC != yT & xC != xT) -> yD = yT - yC, xD = xT - xC,
-        yD = 3
-        xD = 2
-
-        mLong = yD + xD = 5;
-     */
 
     private int manhattanLong(Position target, Position currentCell){
         int xT = target.x;

@@ -8,7 +8,10 @@ import com.rogurea.player.PlayerData;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.ViewObjects;
 
+import javax.swing.filechooser.FileFilter;
 import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SaveLoadSystem {
     private static File CurrentSaveFile;
@@ -31,8 +34,6 @@ public class SaveLoadSystem {
 
         JDBСQueries.updUserHash(String.valueOf(Dungeon.player.getPlayerData().getScoreHash().hashCode()));
 
-        Debug.toLog("[SAVE] Score hash: "+Dungeon.player.getPlayerData().getScoreHash().hashCode());
-
         savePlayerFile.setSaveFileVersion(GameResources.VERSION);
 
         //savePlayerFile.CurrentDungeonLenght = Dungeon.CurrentDungeonLenght;
@@ -53,11 +54,9 @@ public class SaveLoadSystem {
 
         savePlayerFile.setPlayerEquipment(Dungeon.player.Equipment);
 
-        //Debug.toLog("[SAVE]: room " + savePlayerFile.getCurrentRoom().roomNumber + " has saved");
+        Debug.toLog("[SAVE]: room " + savePlayerFile.getCurrentRoom().roomNumber + " has saved");
 
-        Debug.toLog("[SAVE] Saved score hash: "+savePlayerFile.getScoreHash());
-
-        objectOutputStream.writeObject(savePlayerFile);
+         objectOutputStream.writeObject(savePlayerFile);
 
         Debug.toLog("[SAVE]: success! " + player.getPlayerData().getPlayerName()+".sav has created");
     }
@@ -83,16 +82,7 @@ public class SaveLoadSystem {
 
         Debug.toLog("[LOAD] Player ID from save: "+Dungeon.player.getPlayerData().getPlayerID());
 
-        Debug.toLog("[LOAD] Score hash from loadingFile: "+loadedFile.getScoreHash().hashCode());
-
         int scoreHash = JDBСQueries.getUserScoreHash();
-
-        /*if(Dungeon.player.getPlayerData().checkSavedScoreHash(scoreHash)){
-            Debug.toLog("[LOAD] Score hash is OK");
-        } else {
-            Debug.toLog("[LOAD] Score hash is BAD");
-            throw new IOException("Save file is corrupt");
-        }*/
 
         Debug.toLog("[LOAD]Player name: " + Dungeon.player.getName());
 
@@ -110,12 +100,16 @@ public class SaveLoadSystem {
     public static String GetSaveFileName() {
         File directory = new File("./");
 
-        File[] files = directory.listFiles(((dir, name) -> name.endsWith(".sav")));
+        ArrayList<File> files = new ArrayList<File>(List.of(Objects.requireNonNull(directory.listFiles(((dir, name) -> name.endsWith(".sav"))))));
+
+        files.sort(Comparator.comparingLong(File::lastModified));
 
         try {
-            return files[files.length - 1].getName();
+            Debug.toLog("[LOAD] Load file with name: "+ files.get(files.size()-1).getName());
+            return files.get(files.size()-1).getName();
         } catch (NullPointerException e) {
-            Debug.toLog("ERROR: Save file exist but not found");
+            Debug.toLog("[ERROR] Save file exist but not found");
+            Debug.toLog(e.getMessage());
             return "";
         }
     }

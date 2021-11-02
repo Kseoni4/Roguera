@@ -44,17 +44,17 @@ public class InventoryWindow extends Window {
 
     private void fillElements(){
         elements = new ArrayList<>();
-        Debug.toLog("Size of collection: "+this.itemCollection.size());
+        //Debug.toLog("Size of collection: "+this.itemCollection.size());
         for(Item item : this.itemCollection){
-            Debug.toLog("Put item \n\t"+item.toString()+"\ninto element");
+            //Debug.toLog("Put item \n\t"+item.toString()+"\ninto element");
             elements.add(new Element(
                     item.getName(),
-                    item.model.toString()+" "+item.getName()+" ["+((Equipment)item).getStats().intValue()+"]",
+                    item.model.toString()+" "+item.getName()+" ["+ ((Equipment) item).getStats() +"]",
                     new Position(1,this.itemCollection.indexOf(item)),
                     () -> {
                             Dungeon.player.putUpItem(item);
+                            this.itemCollection.remove(item);
                             //Debug.toLog(item.getFullInfo());
-                            Debug.toLog("item"+(this.itemCollection.remove(item) ? Colors.GREEN_BRIGHT+" removed" : Colors.RED_BRIGHT+" not removed")+Colors.R);
                             this.fillElements();
                             cursorUI = new CursorUI(elements);
                     }
@@ -71,7 +71,7 @@ public class InventoryWindow extends Window {
         if(!elements.isEmpty())
             try {
                 setPointerToElement(elements.get(cursorUI.indexOfElement), cursorUI.cursorPointer);
-                Debug.toLog("Point to element: ".concat(elements.get(cursorUI.indexOfElement).ElementTitle));
+                //Debug.toLog("Point to element: ".concat(elements.get(cursorUI.indexOfElement).ElementTitle));
             } catch (IndexOutOfBoundsException e){
                 cursorUI.indexOfElement = Math.abs(cursorUI.indexOfElement - elements.size());
                 setPointerToElement(elements.get(cursorUI.indexOfElement), cursorUI.cursorPointer);

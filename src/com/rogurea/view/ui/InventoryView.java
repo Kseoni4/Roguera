@@ -9,6 +9,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.items.*;
+import com.rogurea.resources.Colors;
 import com.rogurea.resources.Model;
 import com.rogurea.view.*;
 
@@ -50,19 +51,21 @@ public class InventoryView implements IViewBlock {
         }
     }
 
-    private Runnable accessItem = () -> {
+    private final Runnable accessItem = () -> {
         Equipment eq = Dungeon.player.quickEquipment.get(indexOfSlot);
         if(eq instanceof Usable){
             Draw.reset(this);
+
             ((Usable) eq).use();
-            logView.playerAction("have used a "+eq.model.getModelColorName()+"!");
+
+            logView.playerAction("have used a "+eq.model.getModelColorName() +"!");
+
             Dungeon.player.quickEquipment.remove(eq);
-            Draw.call(this);
         } else {
             Dungeon.player.equipItemFromQuickSlot(eq);
             Draw.reset(this);
-            Draw.call(this);
         }
+        Draw.reset(this);
     };
 
     @Override
@@ -119,7 +122,7 @@ public class InventoryView implements IViewBlock {
                         accessItem
                 ));
                 Element element = quickEqpElements.get(quickEqpList.indexOf(eqp));
-                TerminalView.drawBlockInTerminal(invViewGraphics, eqp.model.toString() +" "+eqp.model.getModelColorName() + " " + "[+"+eqp.getStats()+"]", element.ElementPosition);
+                TerminalView.drawBlockInTerminal(invViewGraphics, eqp.model.toString() +" "+eqp.model.getModelColorName() + " " + "[+"+eqp.getStats()+"]"+ Colors.R, element.ElementPosition);
             }
         }
     }
@@ -127,6 +130,7 @@ public class InventoryView implements IViewBlock {
     @Override
     public void Reset() {
         invViewGraphics.fillRectangle(inventoryPosition.toTerminalPosition(), new TerminalSize(TerminalView.windowWight*2,5), ' ');
+        Draw.call(this);
     }
 
     /*private TextGraphics invViewGraphics;

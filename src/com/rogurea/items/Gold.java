@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Gold extends Item{
 
-    private int amount;
+    private final int amount;
 
     public Gold(){
         this("Gold", GameResources.getModel("Gold").changeColor(Colors.GOLDEN));

@@ -1,0 +1,183 @@
+[9:33:33:95][START_UP] CLI args: [--clearmap]
+[9:33:33:139]SYSTEM PROPERTIES: 
+	OS: Windows 10
+	Architecture: amd64
+	System version: 10.0
+	Java version: 17.0.1
+	Java RE: 17.0.1+12-LTS-39
+	Java VM Version: 17
+	Java Сompiler Version: null
+	Java Сlass version: 61.0
+[9:33:33:150][VERSION]v0.2.6:0111:2330
+[9:33:33:305][MAIN_MENU]Loading main menu
+[9:33:33:306][DISCORD_RP]Start main menu presence
+[9:33:33:310][DISCORD_RP] RP set
+[9:33:33:312][RESOURCES]Loading font...
+[9:33:33:363][RESOURCES]Font loaded successfully
+[9:33:33:832][DISPOSE_LISTENER] Start listen on
+[9:33:33:832][DISPOSE_LISTENER] Terminal  has been closed
+[9:33:33:838][MAIN_MENU]Save file was found
+[9:33:33:848][JDBC] Connection worker has started
+[9:33:33:849][JDBC] Try to connect jdbc:mysql://89.108.76.61:3306/roguera
+[9:33:34:238][JDBC] Connection successful
+[9:33:45:65][MAIN_MENU] set random nickname
+[9:33:45:78][GAME]Start sequence
+[9:33:45:79][AUTO_SAVE_LOG_WORKER] Starting...
+[9:33:45:79][AUTO_SAVE_LOG_WORKER] File name to save: Player9315_1371721631.txt
+[9:33:45:90][DISPLAY]Window size: {90x25}
+[9:33:45:115][RESOURCES]= Loading resources from MapStructure.res =
+[9:33:45:117][RESOURCES] Getting string: [Hwall, ─, SWall, ═, Vwall, │, LBCorner, └, RTCorner, ┐, LTCorner, ┌, RBCorner, ┘, LRCenter, ├, RLCenter, ┤, TCenter, ┬, BCenter, ┴]
+[9:33:45:119][RESOURCE]: Map [Hwall-─]
+[9:33:45:119][RESOURCE]: Map [SWall-═]
+[9:33:45:119][RESOURCE]: Map [Vwall-│]
+[9:33:45:120][RESOURCE]: Map [LBCorner-└]
+[9:33:45:120][RESOURCE]: Map [RTCorner-┐]
+[9:33:45:120][RESOURCE]: Map [LTCorner-┌]
+[9:33:45:120][RESOURCE]: Map [RBCorner-┘]
+[9:33:45:120][RESOURCE]: Map [LRCenter-├]
+[9:33:45:121][RESOURCE]: Map [RLCenter-┤]
+[9:33:45:121][RESOURCE]: Map [TCenter-┬]
+[9:33:45:121][RESOURCE]: Map [BCenter-┴]
+[9:33:45:121][RESOURCES]= Loading resources from Equipment.res =
+[9:33:45:122][RESOURCES] Getting string: [LongSword, †, ShortSword, ┼, Knife, ╽, ArmorChest, Ť, Bow, ⟭]
+[9:33:45:123][RESOURCE]: Map [LongSword-†]
+[9:33:45:124][RESOURCE]: Map [ShortSword-┼]
+[9:33:45:124][RESOURCE]: Map [Knife-╽]
+[9:33:45:124][RESOURCE]: Map [ArmorChest-Ť]
+[9:33:45:125][RESOURCE]: Map [Bow-⟭]
+[9:33:45:125][RESOURCES]= Loading resources from InventoryStructure.res =
+[9:33:45:126][RESOURCES] Getting string: [InvHWallDown, ┬, InvHWallUp, ┴, InvVWallRight, ├, InvVWallLeft, ┤, InvLPCorner, ┌, InvLDorner, └, InvRPorner, ┐, InvRDorner, ┘, PointerUp, ▲, PointerRight, »]
+[9:33:45:127][RESOURCE]: Map [InvHWallDown-┬]
+[9:33:45:128][RESOURCE]: Map [InvHWallUp-┴]
+[9:33:45:128][RESOURCE]: Map [InvVWallRight-├]
+[9:33:45:128][RESOURCE]: Map [InvVWallLeft-┤]
+[9:33:45:128][RESOURCE]: Map [InvLPCorner-┌]
+[9:33:45:128][RESOURCE]: Map [InvLDorner-└]
+[9:33:45:129][RESOURCE]: Map [InvRPorner-┐]
+[9:33:45:129][RESOURCE]: Map [InvRDorner-┘]
+[9:33:45:129][RESOURCE]: Map [PointerUp-▲]
+[9:33:45:129][RESOURCE]: Map [PointerRight-»]
+[9:33:45:129][RESOURCES]= Loading resources from Entity.res =
+[9:33:45:130][RESOURCES] Getting string: [PlayerModel, @, Gold, $, Potion, ₧, NextDoor, ↓, BackDoor, ↑, FloorExit, ∏]
+[9:33:45:131][RESOURCE]: Map [PlayerModel-@]
+[9:33:45:131][RESOURCE]: Map [Gold-$]
+[9:33:45:131][RESOURCE]: Map [Potion-₧]
+[9:33:45:132][RESOURCE]: Map [NextDoor-↓]
+[9:33:45:132][RESOURCE]: Map [BackDoor-↑]
+[9:33:45:132][RESOURCE]: Map [FloorExit-∏]
+[9:33:45:134][RESOURCES]= Getting string: [Ouch!, Oops!, Tough!, Ah!, Aye!, Bruh!]
+[9:33:45:136][RESOURCES]= Getting string: [Skeleton, Kobalt, Zombie, Slime, Beast, Imp]
+[9:33:45:136][RESOURCES]= Loading resources is ended =
+[9:33:45:146][GENERATE] Start generate rooms sequence
+[9:33:45:169][GENERATE] Generate room: 1(floor 1)
+[9:33:45:173][GENERATE]: Starting a main sequence of the Point Generating Procedure
+[9:33:45:187][GENERATE]: Main sequence of the Point Generating Procedure has completed
+[9:33:45:223][NPC] Trader creating
+[9:33:45:225][Room 1] put player on map
+[9:33:45:227][Room 1] put player on position x: 8;y: 1
+[9:33:45:229][Room 1]Skeleton to thread
+[9:33:45:234][Room 1]Slime to thread
+[9:33:45:236][Room 1] mob threads has started
+[9:33:45:236][DRAW_LOOT_WORKER] Start working in room 1
+[9:33:45:283]09:33:45.283395800
+[9:33:45:407][REFLECTION] base stat 1 _statPotionBonus 0 amount 2
+[9:33:45:421][JDBC] Creating new game session for player Player9315
+[9:33:45:439][UPDATER_WORKER]Update game session worker has started
+[9:33:46:709][PLAYER_DATA]Score is not compromised!
+[9:33:47:278][PLAYER_DATA]Score is not compromised!
+[9:33:48:126]Skeleton get 3 damage(DEF:2) from Player9315 Ah!
+[9:33:48:230][PLAYER_DATA]Score is not compromised!
+[9:33:48:268][SCORE] Score for mob: 15 (equipment dmg 3)
+[9:33:48:942][PLAYER_DATA]Score is not compromised!
+[9:33:49:98][AI] Mob Skeleton behavior loop is over. Cause by Mob dead
+[9:33:49:826][REFLECTION] base stat 1 _statPotionBonus 0 amount 1
+[9:33:49:893]Slime get 3 damage(DEF:2) from Player9315 Tough!
+[9:33:49:985][PLAYER_DATA]Score is not compromised!
+[9:33:50:478][PLAYER_DATA]Score is not compromised!
+[9:33:50:510][SCORE] Score for mob: 12 (equipment dmg 3)
+[9:33:51:328][AI] Mob Slime behavior loop is over. Cause by Mob dead
+[9:33:51:654][PLAYER_DATA]Score is not compromised!
+[9:33:51:822][DRAW_LOOT_WORKER] End of work
+[9:33:55:597][PLAYER_DATA]Score is not compromised!
+[9:33:55:894][PLAYER_DATA]Score is not compromised!
+[9:33:56:205][PLAYER_DATA]Score is not compromised!
+[9:34:1:349][PLAYER_DATA]Score is not compromised!
+[9:34:4:717][PLAYER_DATA]Score is not compromised!
+[9:34:7:144][PLAYER_DATA]Score is not compromised!
+[9:34:10:382][Room] threads is  terminated
+[9:34:10:382][Room 1] mob threads has ended
+[9:34:10:385][GENERATE] Generate room: 2(floor 1)
+[9:34:10:385][GENERATE]: Starting a main sequence of the Point Generating Procedure
+[9:34:10:386][GENERATE]: Main sequence of the Point Generating Procedure has completed
+[9:34:10:410][NPC] Trader creating
+[9:34:10:410][Room 2] put player on map
+[9:34:10:410][Room 2] put player on position x: 11;y: 1
+[9:34:10:414][Room 2] mob threads has started
+[9:34:11:885][PLAYER_DATA]Score is not compromised!
+[9:34:13:53][PLAYER_DATA]Score is not compromised!
+[9:34:14:309][PLAYER_DATA]Score is not compromised!
+[9:34:15:797][PLAYER_DATA]Score is not compromised!
+[9:34:17:781][PLAYER_DATA]Score is not compromised!
+[9:34:20:360][PLAYER_DATA]Score is not compromised!
+[9:34:23:141][Room] threads is  terminated
+[9:34:23:141][Room 2] mob threads has ended
+[9:34:23:144][GENERATE] Generate room: 3(floor 1)
+[9:34:23:144][GENERATE]: Starting a main sequence of the Point Generating Procedure
+[9:34:23:145][GENERATE]: Main sequence of the Point Generating Procedure has completed
+[9:34:23:149][NPC] Trader creating
+[9:34:23:149][Room 3] put player on map
+[9:34:23:149][Room 3] put player on position x: 7;y: 1
+[9:34:23:152][Room 3] mob threads has started
+[9:34:25:588][PLAYER_DATA]Score is not compromised!
+[9:34:28:186][PLAYER_DATA]Score is not compromised!
+[9:34:34:615][PLAYER_DATA]Score is not compromised!
+[9:34:37:21][Room] threads is  terminated
+[9:34:37:21][Room 3] mob threads has ended
+[9:34:37:24][Room 2] put player on map
+[9:34:37:24][Room 2] put player on position x: 7;y: 14
+[9:34:37:27][Room 2] mob threads has started
+[9:34:39:427][Room] threads is  terminated
+[9:34:39:427][Room 2] mob threads has ended
+[9:34:39:429][Room 3] put player on map
+[9:34:39:429][Room 3] put player on position x: 7;y: 1
+[9:34:39:431][Room 3] mob threads has started
+[9:34:42:733][Room] threads is  terminated
+[9:34:42:733][Room 3] mob threads has ended
+[9:34:42:736][GENERATE] Generate room: 4(floor 1)
+[9:34:42:736][GENERATE]: Starting a main sequence of the Point Generating Procedure
+[9:34:42:737][GENERATE]: Main sequence of the Point Generating Procedure has completed
+[9:34:42:739][NPC] Trader creating
+[9:34:42:739][Room 4] put player on map
+[9:34:42:739][Room 4] put player on position x: 6;y: 1
+[9:34:42:750][Room 4]Skeleton to thread
+[9:34:42:750][Room 4]Imp to thread
+[9:34:42:750][Room 4]Skeleton to thread
+[9:34:42:750][Room 4] mob threads has started
+[9:34:42:751][DRAW_LOOT_WORKER] Start working in room 4
+[9:34:43:479]Player9315 get 2 damage(DEF:3) from Imp Tough!
+[9:34:43:480]Player9315 get 2 damage(DEF:3) from Skeleton Ouch!
+[9:34:43:480][PLAYER_DATA]Score is not compromised!
+[9:34:43:887]Player9315 get 2 damage(DEF:3) from Skeleton Tough!
+[9:34:43:888]Player9315 get 2 damage(DEF:3) from Imp Oops!
+[9:34:44:92]Skeleton get 2 damage(DEF:3) from Player9315 Ouch!
+[9:34:44:123]Skeleton get 2 damage(DEF:3) from Player9315 Ah!
+[9:34:44:153]Skeleton get 2 damage(DEF:3) from Player9315 Ah!
+[9:34:44:611][PLAYER_DATA]Score is not compromised!
+[9:34:44:643][SCORE] Score for mob: 9 (equipment dmg 3)
+[9:34:44:991]Skeleton get 3 damage(DEF:2) from Player9315 Ah!
+[9:34:45:25]Player9315 get 2 damage(DEF:3) from Skeleton Bruh!
+[9:34:45:25]Player9315 get 2 damage(DEF:3) from Imp Oops!
+[9:34:45:131][DRAW_LOOT_WORKER] End of thread
+[9:34:45:131][AI]Creature thread Imp has been interrupted
+[9:34:45:131][AI]Creature thread Skeleton has been interrupted
+[9:34:45:131][DRAW_LOOT_WORKER] End of work
+[9:34:45:131][AI] Mob Imp behavior loop is over. Cause by  interrupted
+[9:34:45:134][PLAYER_DATA]Score is not compromised!
+[9:34:45:167][SCORE] Score for mob: 40 (equipment dmg 5)
+[9:34:45:339][AI] Mob Skeleton behavior loop is over. Cause by Mob dead
+[9:34:45:987][AI] Mob Skeleton behavior loop is over. Cause by Mob dead
+[9:34:45:987][Room] threads is  terminated
+[9:34:45:987][Room 4] mob threads has ended
+[9:34:45:995][Room 3] put player on map
+[9:34:45:995][Room 3] put player on position x: 5;y: 10
+[9:34:45:998][Room 3] mob threads has started

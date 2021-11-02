@@ -7,6 +7,7 @@ import com.rogurea.gamemap.Dungeon;
 import com.rogurea.view.ViewObjects;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -57,10 +58,14 @@ public class JDBСQueries {
                 return JDBConnect.isValid(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Debug.toLog("[JDBC]"+ Arrays.toString(e.getStackTrace()));
             return false;
         }
         return false;
+    }
+
+    public static void closeConnection() throws SQLException {
+        JDBConnect.close();
     }
 
     public static boolean isNickNameIsAlreadyUsed(String nickname){
@@ -108,7 +113,8 @@ public class JDBСQueries {
     public static int getNewUserId(){
         String SELECT_USER_ID = "select id " +
                 "from user " +
-                "where nickname = ?";
+                "where nickname = ? " +
+                "order by first_start_playing desc ";
         try {
             PreparedStatement getUserID = JDBConnect.prepareStatement(SELECT_USER_ID);
 
@@ -139,10 +145,11 @@ public class JDBСQueries {
     }
 
     public static void createGameSession(){
+        Debug.toLog("[JDBC] Creating new game session for player "+Dungeon.player.getPlayerData().getPlayerName());
         try{
             PreparedStatement createGSStatement = JDBConnect.prepareStatement(INSERT_NEW_GS_QUERY);
 
-            int session_id = ThreadLocalRandom.current().nextInt(1000,9999);
+            int session_id = Dungeon.player.getPlayerData().hashCode() + ThreadLocalRandom.current().nextInt(1000, 9999);
 
             createGSStatement.setInt(1, session_id);
             createGSStatement.setBoolean(2, false);
@@ -152,10 +159,12 @@ public class JDBСQueries {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            Debug.toLog("[JDBC]"+throwables.getSQLState());
         }
     }
 
     public static void endGameSession(){
+        Debug.toLog("[JDBC] Ending game session for player "+Dungeon.player.getPlayerData().getPlayerName());
         try{
             PreparedStatement endGSStatement = JDBConnect.prepareStatement(END_GS);
 
