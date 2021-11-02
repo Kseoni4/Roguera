@@ -18,7 +18,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v.0.2.5:0111:0007";
+    public static final String VERSION = "v0.2.6:0111:2330";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -43,17 +43,19 @@ public class GameResources {
     };
 
     public static void loadFont(){
-        Debug.toLog("Loading font...");
-        try{
-            InputStream file_font = GameResources.class.getResourceAsStream("PxPlus_IBM_VGA_9x16.ttf");
+        if(TerminalFont == null) {
+            Debug.toLog("[RESOURCES]Loading font...");
+            try {
+                InputStream file_font = GameResources.class.getResourceAsStream("PxPlus_IBM_VGA_9x16.ttf");
 
-            assert file_font != null;
-            TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
+                assert file_font != null;
+                TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
 
-            Debug.toLog(Colors.GREEN_BRIGHT+"Font loaded successfully");
-        } catch (FontFormatException | IOException e) {
-            Debug.toLog(Colors.RED_BRIGHT+"Error in loading font:" + e.getMessage());
-            e.printStackTrace();
+                Debug.toLog("[RESOURCES]" + Colors.GREEN_BRIGHT + "Font loaded successfully");
+            } catch (FontFormatException | IOException e) {
+                Debug.toLog("[RESOURCES]" + Colors.RED_BRIGHT + "Error in loading font:" + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -68,7 +70,7 @@ public class GameResources {
 
     public static void loadResources() {
         for(String file : resources){
-            String showload = "= Loading resources from " + file + ".res =";
+            String showload = "[RESOURCES]= Loading resources from " + file + ".res =";
             Debug.toLog(showload);
             try {
                 InputStream atlas_csv = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
@@ -82,7 +84,7 @@ public class GameResources {
 
                 String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
 
-                Debug.toLog("= Getting string: " + Arrays.toString(map));
+                Debug.toLog("[RESOURCES] Getting string: " + Arrays.toString(map));
 
                 putStringsIntoMap(map);
             } catch (IOException e) {
@@ -90,7 +92,7 @@ public class GameResources {
             }
         }
         loadTextResources();
-        Debug.toLog("= Loading resources is ended =");
+        Debug.toLog("[RESOURCES]= Loading resources is ended =");
     }
 
     private static void loadTextResources() {
@@ -106,7 +108,7 @@ public class GameResources {
 
                 String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
 
-                Debug.toLog("= Getting string: " + Arrays.toString(map));
+                Debug.toLog("[RESOURCES]= Getting string: " + Arrays.toString(map));
 
                 switch (file){
                     case "whoops":
@@ -127,8 +129,8 @@ public class GameResources {
             return MODEL_HASH_MAP.get(modelname);
         }
         catch (NullPointerException e){
-            Debug.toLog(Colors.ORANGE+"RESOURCE: Get model error: no such symbol for name " + modelname);
-            System.out.printf(Colors.ORANGE+"Get model error: no such symbol for name \"%s\"\n",modelname);
+            Debug.toLog(Colors.ORANGE+"[RESOURCE]: Get model error: no such symbol for name " + modelname);
+            System.out.printf(Colors.ORANGE+"[RESOURCES]Get model error: no such symbol for name \"%s\"\n",modelname);
             return new Model();
         }
     }
@@ -138,7 +140,7 @@ public class GameResources {
             char model = array[i].charAt(0);
 
             String name = array[i-1];
-            Debug.toLog("RESOURCE: Map ["+name+"-"+model+"]");
+            Debug.toLog("[RESOURCE]: Map ["+name+"-"+model+"]");
             MODEL_HASH_MAP.put(name, new Model(name, model));
         }
     }
@@ -156,7 +158,6 @@ public class GameResources {
         _keymap.put('r', Dungeon::RegenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         //_keymap.put('i', () -> ViewObjects.inventoryView.openToInput());
-        _keymap.put('p', () -> Dungeon.player.getPlayerData().setScore(100));
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));
         _keymap.put('2', () -> ViewObjects.inventoryView.useItem(1));
         _keymap.put('3', () -> ViewObjects.inventoryView.useItem(2));

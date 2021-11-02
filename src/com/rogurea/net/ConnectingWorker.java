@@ -18,6 +18,7 @@ public class ConnectingWorker implements Callable<Optional<Connection>> {
 
     @Override
     public Optional<Connection> call() throws Exception {
+        Debug.toLog("[JDBC] Connection worker has started");
         decode();
         try {
             decode();

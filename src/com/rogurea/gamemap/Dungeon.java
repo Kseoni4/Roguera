@@ -34,34 +34,38 @@ public class Dungeon {
     private static int currentFloorNumber = 0;
 
     private static final Predicate<Room> ByFirstRoom = Room -> Room.roomNumber == 1;
+
     private static final Predicate<Room> ByPlayer = Room -> Room.roomNumber == player.getCurrentRoom();
 
     public static void generate(){
-        Debug.toLog("[Generate] Start generate sequence");
+        Debug.toLog("[GENERATE] Start generate rooms sequence");
+
         currentFloorNumber = 1;
+
         RoomGenerate.generateRoomSequence(0);
+
         RoomGenerate.generateRoomStructure(getRoom(room -> room.roomNumber == 1));
-        PutPlayerOnMap(getRoom(ByFirstRoom), new Position(3,3));
+
+        PutPlayerOnMap(getRoom(ByFirstRoom),getRoom(ByFirstRoom).getTopCenterCellPosition().getRelative(0,1));
+
         ViewObjects.mapView.setRoom(getRoom(ByFirstRoom));
+
         getCurrentRoom().startMobAIThreads();
     }
 
     public static void loadDungeonFromSave(){
         currentFloorNumber = Dungeon.player.getPlayerData().getCurrentFloor().getFloorNumber();
+
         floors.add(0, Dungeon.player.getPlayerData().getCurrentFloor());
+
+        Floor.setCounterFromLoad(currentFloorNumber);
+
         rooms = Dungeon.player.getPlayerData().getCurrentFloor().getRooms();
-        Dungeon.player.Equipment.values().forEach(equipment -> equipment.model.reloadModel());
-        Dungeon.player.Inventory.forEach(equipment -> equipment.model.reloadModel());
+
         PutPlayerOnMap(Dungeon.savedRoom, Dungeon.player.playerPosition);
+
         ViewObjects.mapView.setRoom(Dungeon.savedRoom);
-        floors.forEach(floor -> floor.getRooms()
-                .forEach(room -> {
-                    room.gameObjects.forEach(gameObject -> gameObject.model.reloadModel());
-                    room.initFogController();
-                }));
-        Dungeon.savedRoom.cells.forEach(cell -> cell.getFromCell().model.reloadModel());
-        Dungeon.savedRoom.cells.stream().filter(cell -> cell.getFromCell() instanceof Chest).forEach(cell -> ((Chest) cell.getFromCell()).reload());
-        Dungeon.savedRoom.cells.stream().filter(cell -> cell.getFromCell() instanceof Creature).forEach(cell -> ((Creature) cell.getFromCell()).reloadInventory());
+
         Dungeon.savedRoom.startMobAIThreads();
     }
 
@@ -139,13 +143,14 @@ public class Dungeon {
         }
         else {
             Position pos = player.getCurrentRoom() > nextRoom.roomNumber ?
-                    nextRoom.getNextDoor().cellPosition.getRelative(0,-1) : nextRoom.getTopCenterCellPosition().getRelative(0,1);
+                    nextRoom.getNextDoor().cellPosition.getRelative(0,-1) : nextRoom.getBackDoor().cellPosition.getRelative(0,1);
             player.setCurrentRoom((byte) nextRoom.roomNumber);
             PutPlayerOnMap(nextRoom, pos);
         }
         ViewObjects.mapView.setRoom(getRoom(ByPlayer));
 
         Draw.call(ViewObjects.mapView);
+
         Draw.call(ViewObjects.infoGrid.getFirstBlock());
 
         nextRoom.startMobAIThreads();
@@ -153,16 +158,35 @@ public class Dungeon {
 
     public static void changeFloor(){
         Dungeon.getCurrentRoom().endMobAIThreads();
+
         Dungeon.getCurrentRoom().getCell(Dungeon.player.playerPosition).removeFromCell();
+
         Draw.clear();
+
         currentFloorNumber++;
+
         RoomGenerate.generateRoomSequence(currentFloorNumber-1);
+
         RoomGenerate.generateRoomStructure(getRoom(room -> room.roomNumber == 1));
+
         player.setCurrentRoom((byte) getRoom(ByFirstRoom).roomNumber);
+
         PutPlayerOnMap(getRoom(ByFirstRoom), getRoom(ByFirstRoom).getTopCenterCellPosition().getRelative(0,1));
+
         ViewObjects.mapView.setRoom(getRoom(ByPlayer));
+
         TerminalView.reDrawAll(IViewBlock.empty);
+
         logView.playerAction("entered the next floor!");
+
         getRoom(ByFirstRoom).startMobAIThreads();
+    }
+
+    public static void resetVariables(){
+        currentFloorNumber = 0;
+        DungeonRooms = 10;
+        DungeonRoomsCount = 10;
+        rooms = new ArrayList<>();
+        floors = new ArrayList<>();
     }
 }

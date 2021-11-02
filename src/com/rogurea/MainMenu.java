@@ -5,10 +5,19 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.*;
 import com.googlecode.lanterna.gui2.*;
+import com.googlecode.lanterna.gui2.Button;
+import com.googlecode.lanterna.gui2.Label;
+import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.screen.TerminalScreen;
+import com.googlecode.lanterna.screen.VirtualScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
+import com.rogurea.base.DisposeListener;
 import com.rogurea.exceptions.NickNameAlreadyUsed;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.gamemap.Dungeon;
@@ -16,8 +25,13 @@ import com.rogurea.net.ConnectingWorker;
 import com.rogurea.player.Player;
 import com.rogurea.resources.GameResources;
 import com.rogurea.net.JDBСQueries;
+import net.arikia.dev.drpc.DiscordRPC;
+import net.arikia.dev.drpc.DiscordRichPresence;
+import net.arikia.dev.drpc.DiscordUser;
 
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Optional;
@@ -51,9 +65,18 @@ public class MainMenu {
 
     private static String checkedResources = null;
 
+    private static void startMainMenuRP(){
+        Debug.toLog("[DISCORD_RP]Start main menu presence");
+        DiscordRichPresence mainMenuRP = new DiscordRichPresence.Builder("Ready to start").setDetails("In Main Menu").setBigImage("icon","Roguera").build();
+        DiscordRPC.discordUpdatePresence(mainMenuRP);
+        Debug.toLog("[DISCORD_RP] RP set");
+    }
+
     public static void start(int code){
         try {
-            Debug.toLog("MAIN MENU: Loading main menu");
+            Debug.toLog("[MAIN_MENU]Loading main menu");
+
+            startMainMenuRP();
 
             if(GameResources.TerminalFont == null)
                 GameResources.loadFont();
@@ -62,15 +85,23 @@ public class MainMenu {
 
             defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(GameResources.TerminalFont));
 
+            defaultTerminalFactory.setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnExitPrivateMode);
+
             GUIWindow = defaultTerminalFactory.createScreen();
 
             GUIWindow.startScreen();
+
+            Roguera.terminals.add(GUIWindow);
 
             CenterOfScreen = new TerminalPosition(
                     GUIWindow.getTerminalSize().getColumns()/2-10,
                     GUIWindow.getTerminalSize().getRows()/2);
 
             WindowsGUI = new MultiWindowTextGUI(GUIWindow, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLACK));
+
+            WindowsGUI.setEOFWhenNoWindows(true);
+
+            Roguera.disposeListenerThread.execute(new DisposeListener(WindowsGUI));
 
             WindowsGUI.getBackgroundPane().setTheme(new SimpleTheme(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK));
 
@@ -86,7 +117,7 @@ public class MainMenu {
 
     private static void CheckErrorCode(int code){
         switch (code){
-            case 0: {Debug.toLog("MAIN: All good"); break;}
+            case 0: {Debug.toLog("[MAIN_MENU]: All good"); break;}
             case 1: {
                 Label errormessage = new Label("Saving file has been corrupted").setForegroundColor(TextColor.ANSI.RED_BRIGHT);
                 BasePanel.addComponent(errormessage);
@@ -131,31 +162,29 @@ public class MainMenu {
         NewGamePanel.addComponent(new Button("Start game", () -> {
             Dungeon.player = new Player();
             if(nickname.getText().length() > 0) {
-                Debug.toLog("MAIN MENU: get input nickname: " + nickname.getText());
+                Debug.toLog("[MAIN_MENU] get input nickname: " + nickname.getText());
 
-                if(!JDBСQueries.isNickNameIsAlreadyUsed(nickname.getText())){
-                    Dungeon.player.getPlayerData().setPlayerName(nickname.getText());
-                } else {
-                    try {
-                        throw new NickNameAlreadyUsed("This nickname has already used");
-                    } catch (NickNameAlreadyUsed e) {
-                        CheckErrorCode(2);
-                        return;
-                    }
-                }
-                Debug.toLog("MAIN MENU: Set nickname " + Dungeon.player.getPlayerData().getPlayerName());
+                Dungeon.player.getPlayerData().setPlayerName(nickname.getText());
+
+                Debug.toLog("[MAIN_MENU] Set nickname " + Dungeon.player.getPlayerData().getPlayerName());
             } else {
-                Debug.toLog("MAIN MENU: set random nickname");
+                Debug.toLog("[MAIN_MENU] set random nickname");
             }
             try {
                 GUIWindow.close();
+
                 WindowsGUI.getActiveWindow().close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
             try {
                 BasePanel = null;
+
+                Main.newGame();
+
                 Main.startSequence();
+
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -212,6 +241,8 @@ public class MainMenu {
         STATUS_WINDOW.setPosition(new TerminalPosition(0, 20));
 
         WindowsGUI.setActiveWindow(MenuWindows).waitForWindowToClose(MenuWindows);
+
+        System.exit(1);
     }
 
     private static void ConstructMenuPanel(){
@@ -220,7 +251,7 @@ public class MainMenu {
         BasePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
 
         if(SaveLoadSystem.SaveFileExists()){
-            Debug.toLog("Save file was found");
+            Debug.toLog("[MAIN_MENU]Save file was found");
             BasePanel.addComponent(new Button("Continue game from last save", () -> {
                 try {
                     SaveLoadSystem.loadGame(SaveLoadSystem.GetSaveFileName());
@@ -241,7 +272,7 @@ public class MainMenu {
                 }
             }));
         } else{
-            Debug.toLog("Save files was not found");
+            Debug.toLog("[MAIN_MENU]Save files was not found");
         }
 
         BasePanel.addComponent(new Button("New Game", ()-> {
@@ -257,6 +288,13 @@ public class MainMenu {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }*/
+            DiscordRPC.discordShutdown();
+            WindowsGUI.getActiveWindow().close();
+            try {
+                GUIWindow.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             System.exit(0);
         }));
 /*        Label checkConnect = new Label("Online");

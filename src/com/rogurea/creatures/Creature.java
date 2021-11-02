@@ -65,9 +65,9 @@ public class Creature extends GameObject {
         Draw.call(ViewObjects.mapView);
     }
 
-    public void reloadInventory(){
+/*    public void reloadInventory(){
         this.creatureInventory.forEach(item -> item.model.reloadModel());
-    }
+    }*/
 
     public void putInInventory(Item item){
         creatureInventory.add(item);

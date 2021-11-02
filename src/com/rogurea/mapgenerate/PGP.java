@@ -64,11 +64,11 @@ public class PGP {
 
         CRBuffer.addAll(CurrentRoomCells);
 
-        Debug.toLog("GENERATE: Starting a main sequence of the Point Generating Procedure");
+        Debug.toLog("[GENERATE]: Starting a main sequence of the Point Generating Procedure");
 
         MainSequence();
 
-        Debug.toLog("GENERATE: Main sequence of the Point Generating Procedure has completed");
+        Debug.toLog("[GENERATE]: Main sequence of the Point Generating Procedure has completed");
 
         return CRBuffer;
     }
@@ -144,7 +144,7 @@ public class PGP {
 
         //System.out.println("[Final Place]");
 
-        Debug.toLog("PGP: Final Place");
+        //Debug.toLog("PGP: Final Place");
 
         int y0 = FirstPoint.y;
 

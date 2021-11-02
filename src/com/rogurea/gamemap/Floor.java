@@ -32,4 +32,8 @@ public class Floor implements Serializable {
     public static void resetCounter(){
         floorNumberCounter = 0;
     }
+
+    public static void setCounterFromLoad(int currentFloorNumber){
+        floorNumberCounter = currentFloorNumber;
+    }
 }

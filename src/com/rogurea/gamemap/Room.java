@@ -14,10 +14,11 @@ import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
+import com.rogurea.view.DrawLootWorker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -119,15 +120,46 @@ public class Room implements Serializable {
 
     public void setPositionsInsidePerimeter(){
         positionsInsidePerimeter = new ArrayList<>();
-        Cell maxCellOnX = perimeter.stream().max(Comparator.comparingInt(cell -> cell.position.x)).get();
+
+        cells.forEach(cell -> {
+            if(!perimeter.contains(cell) && isIntersectionsOdd(cell)) {
+                //cell.putIntoCell(new Entity(new Model("dot", '.')));
+                positionsInsidePerimeter.add(cell.position);
+            }
+        });
+
+        /*Cell maxCellOnX = perimeter.stream().max(Comparator.comparingInt(cell -> cell.position.x)).get();
         Cell maxCellOnY = perimeter.stream().max(Comparator.comparingInt(cell -> cell.position.y)).get();
+
         cells.forEach(cell -> perimeter.forEach(cellPerimeter ->{
             if((cell.position.x > cellPerimeter.position.x && cell.position.y < cellPerimeter.position.y)
                     && (cell.position.x < maxCellOnX.position.x && cell.position.y < maxCellOnY.position.y) && !cell.isWall()){
                     positionsInsidePerimeter.add(cell.position);
                 }
             })
-        );
+        );*/
+    }
+
+    private boolean isIntersectionsOdd(Cell cell){
+
+        int y = 0;
+
+        int x = 0;
+
+        int intersections = 0;
+
+        for(;x < width; x++){
+            Optional<Cell> gettedCell = Optional.ofNullable(getCell(cell.position.getRelative(x,0)));
+            if(gettedCell.isPresent()) {
+                if (gettedCell.get().isWall()) {
+                    intersections++;
+                }
+            }
+        }
+        if(intersections > 2){
+            return false;
+        }
+        return intersections % 2 != 0;
     }
 
     public void setCells(ArrayList<Cell> cells){
@@ -214,6 +246,9 @@ public class Room implements Serializable {
                 mobThreads.execute(new AIController(creature));
             }
         }
+        if (getObjectsByTag("creature.mob").length > 0)
+            mobThreads.execute(new DrawLootWorker());
+
         mobThreads.shutdown();
         Debug.toLog("[Room "+ roomNumber +"] mob threads has started");
     }

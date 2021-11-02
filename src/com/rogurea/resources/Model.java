@@ -21,51 +21,49 @@ public class Model implements Serializable {
 
     String modelBColor =  "";
 
-    transient TextCharacter _model = new TextCharacter(' ');
-
     public TextColor getTextColor(String modelColor){
         return Colors.GetTextColor(modelColor);
     }
 
-    public void reloadModel(){
+/*    public void reloadModel(){
         _model = new TextCharacter(' ');
         if(!modelBColor.equals("")){
             settingModelWithBColor();
         } else {
             settingModel();
         }
+    }*/
+
+    private TextCharacter settingModel(){
+       return new TextCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor));
     }
 
-    private void settingModel(){
-        this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor));
-    }
-
-    private void settingModelWithBColor(){
-        this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(getTextColor(modelBColor));
+    private TextCharacter settingModelWithBColor(){
+        return new TextCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(getTextColor(modelBColor));
     }
 
     public void resetBColor(){
-        this._model = _model.withCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor)).withBackgroundColor(TextColor.ANSI.BLACK);
+        changeBColor(TextColor.ANSI.BLACK.toString());
     }
 
     public Model(String modelName, String modelColor, char modelSymbol){
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
         this.modelColor = modelColor;
-        settingModel();
+        //settingModel();
     }
 
     public Model(String modelName, String modelFColor, String modelBColor, char modelSymbol){
         this(modelName, modelSymbol);
         this.modelColor = modelFColor;
         this.modelBColor = modelBColor;
-        settingModelWithBColor();
+        //settingModelWithBColor();
     }
 
     public Model(String modelName, char modelSymbol){
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
-        settingModel();
+        //settingModel();
     }
 
     public Model(){}
@@ -86,13 +84,13 @@ public class Model implements Serializable {
 
     public Model changeBColor(String modelBColor){
         this.modelBColor = modelBColor;
-        settingModelWithBColor();
+        //settingModelWithBColor();
         return this;
     }
 
     public Model changeModel(char modelSymbol){
         this.modelSymbol = modelSymbol;
-        settingModel();
+        //settingModel();
         return this;
     }
 
@@ -101,11 +99,15 @@ public class Model implements Serializable {
     }
 
     public TextCharacter get(){
-        return this._model;
+        if(this.modelBColor.equals("")){
+            return settingModel();
+        } else {
+            return settingModelWithBColor();
+        }
     }
 
     @Override
     public String toString(){
-        return ""+this.modelColor+this._model.getCharacter()+Colors.R;
+        return ""+this.modelColor+get().getCharacter()+Colors.R;
     }
 }

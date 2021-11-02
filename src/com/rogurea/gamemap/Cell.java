@@ -4,10 +4,12 @@
 
 package com.rogurea.gamemap;
 
+import com.rogurea.base.Debug;
 import com.rogurea.base.GameObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class Cell implements Serializable {
 
@@ -21,14 +23,24 @@ public class Cell implements Serializable {
 
     private int lastObjectIndex;
 
+    public static final Cell EMPTY_CELL = new Cell(new Position(0,0));
+
     public boolean isEmpty(){
         return this.gameObjects.isEmpty() && !isWall;
     }
 
     public GameObject getFromCell(){
-        if(!isEmpty())
-            return this.gameObjects.get(lastObjectIndex);
-        else{
+        try {
+            if (!isEmpty()) {
+                Optional<GameObject> gameObject;
+                gameObject = Optional.ofNullable(this.gameObjects.get(lastObjectIndex));
+                return gameObject.orElse(EditorEntity.EMPTY_CELL);
+            }
+            else {
+                return EditorEntity.EMPTY_CELL;
+            }
+        } catch (IndexOutOfBoundsException e){
+            Debug.toLog("[CELL|"+position.toString()+"|] Error out of bounds, return empty");
             return EditorEntity.EMPTY_CELL;
         }
     }
@@ -91,6 +103,10 @@ public class Cell implements Serializable {
     public Cell(Position position, Room room){
         this(position);
         this.linkedRoom = room;
+    }
+
+    public Cell(Room room){
+        this(new Position(), room);
     }
 
     public Cell[] getCellsAround(){

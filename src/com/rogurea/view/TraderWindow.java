@@ -20,11 +20,13 @@ import com.rogurea.resources.Colors;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static com.rogurea.view.ViewObjects.infoGrid;
 import static com.rogurea.view.ViewObjects.logView;
 
 public class TraderWindow extends Window {
 
     private final int _width = 26;
+
     private final int _height = 5;
 
     private CursorUI itemCursorUI;
@@ -63,6 +65,8 @@ public class TraderWindow extends Window {
         fillElements(this.sellAction);
 
         itemCursorUI = new CursorUI(itemElements);
+
+        Draw.call(infoGrid.getFirstBlock());
     };
 
     private final Runnable buyAction = () -> {
@@ -72,24 +76,34 @@ public class TraderWindow extends Window {
 
             traderItemCollection.remove(item);
 
-            Dungeon.player.getPlayerData().setMoney(Dungeon.player.getPlayerData().getMoney() - item.getSellPrice());
+            Dungeon.player.getPlayerData().setMoney(-item.getSellPrice());
 
             logView.playerAction("buy the "+item.model.getModelColorName()+" for "+Colors.GOLDEN+item.getSellPrice());
 
             fillElements(this.buyAction);
 
             itemCursorUI = new CursorUI(itemElements);
+
+            Draw.call(infoGrid.getFirstBlock());
+
+            Draw.call(infoGrid.getThirdBlock());
         }
     };
 
     public TraderWindow(ArrayList<Item> itemCollection) {
         super();
         this.traderItemCollection = itemCollection;
+
         this.itemCollection = this.traderItemCollection;
+
         makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(0,itemCollection.size()));
+
         makeMenu();
+
         fillElements(buyAction);
+
         menuCursorUI = new CursorUI(menuElements);
+
         itemCursorUI = new CursorUI(itemElements);
     }
 
@@ -121,12 +135,12 @@ public class TraderWindow extends Window {
 
     private void fillElements(Runnable action){
         itemElements = new ArrayList<>();
-        Debug.toLog("Size of collection: "+this.itemCollection.size());
+        //Debug.toLog("Size of collection: "+this.itemCollection.size());
         for(Item item : this.itemCollection) {
-            Debug.toLog("Put item \n\t" + item.toString() + "\ninto element");
+            //Debug.toLog("Put item \n\t" + item.toString() + "\ninto element");
             int stats = 0;
             if (item instanceof Equipment) {
-                stats = ((Equipment) item).getStats().intValue();
+                stats = ((Equipment) item).getStats();
             } else if (item instanceof Potion) {
                 stats = ((Potion) item).getAmount();
             }
@@ -162,7 +176,7 @@ public class TraderWindow extends Window {
         if(!itemElements.isEmpty()) {
             try {
                 setPointerToElement(itemElements.get(itemCursorUI.indexOfElement), itemCursorUI.cursorPointer);
-                Debug.toLog("Point to element: ".concat(itemElements.get(itemCursorUI.indexOfElement).ElementTitle));
+                //Debug.toLog("Point to element: ".concat(itemElements.get(itemCursorUI.indexOfElement).ElementTitle));
             } catch (IndexOutOfBoundsException e) {
                 itemCursorUI.indexOfElement = Math.abs(itemCursorUI.indexOfElement - itemElements.size());
                 setPointerToElement(itemElements.get(itemCursorUI.indexOfElement), itemCursorUI.cursorPointer);
