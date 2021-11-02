@@ -31,6 +31,8 @@ public class Mob extends Creature{
         this.dead = true;
     }
 
+    private int experiencePoints;
+
     @Override
     public int getDamageByEquipment() {
         return super.getDamageByEquipment();
@@ -50,8 +52,14 @@ public class Mob extends Creature{
         this.baseDEF = Dungeon.getCurrentFloor().getFloorNumber();
         this.model.changeModel(name.charAt(0));
         this.model.changeColor(Colors.RED_BRIGHT);
+
         initialPutInventory();
         //Debug.toLog(this.toString());
+    }
+
+    private void calculateEXP() {
+        int leftBound = 1 + (Dungeon.getCurrentFloor().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber);
+        int rightBound = 12 * Dungeon.getCurrentFloor().getFloorNumber() + getDamageByEquipment();
     }
 
     @Override
