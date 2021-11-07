@@ -10,6 +10,7 @@ import com.rogurea.base.Debug;
 import com.rogurea.exceptions.NickNameAlreadyUsed;
 import com.rogurea.gamelogic.Events;
 import com.rogurea.gamelogic.ItemGenerator;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.net.UpdaterWorker;
 import com.rogurea.gamemap.*;

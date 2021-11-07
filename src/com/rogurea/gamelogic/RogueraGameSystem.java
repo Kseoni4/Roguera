@@ -2,11 +2,15 @@ package com.rogurea.gamelogic;
 
 
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.net.JDBСQueries;
 import com.rogurea.resources.GameVariables;
 
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Base64;
+import java.util.HashMap;
 
 public class RogueraGameSystem {
 
@@ -42,5 +46,35 @@ public class RogueraGameSystem {
 
     public static int getPScoreBonus(){
         return (int) ((Math.pow(Math.log(getBaseProgression()),2)) / 2) + 1;
+    }
+
+    public static boolean isVariablesOk(){
+        float sum = 0;
+        for(Field field : GameVariables.class.getFields()) {
+            try {
+                if(field.getType().equals(int.class)) {
+                    sum += field.getInt(field);
+
+                } else if(field.getType().equals(double.class)) {
+                    sum += field.getDouble(field);
+
+                } else if(field.getType().equals(float.class)){
+                    sum += field.getFloat(field);
+
+                } else if(field.getType().equals(HashMap.class)) {
+                    for(Object obj : ((HashMap) field.get(field)).values()){
+                        sum += (float) obj;
+                    }
+                }
+            } catch (IllegalAccessException ignored) {
+            }
+        }
+        int intSum = Float.floatToIntBits(sum);
+
+        byte[] encodedValues = Base64.getEncoder().encode(new String(""+intSum).getBytes());
+
+        String s = new String(encodedValues);
+
+        return JDBСQueries.getGetVariableHash().equals(s);
     }
 }

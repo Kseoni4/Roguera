@@ -74,13 +74,15 @@ public class SaveLoadSystem {
 
         PlayerData loadedFile;
 
-        loadedFile = (PlayerData) objectInputStream.readObject();
+        Dungeon.player = new Player();
 
-        Dungeon.player = new Player(loadedFile);
+        loadedFile = (PlayerData) objectInputStream.readObject();
 
         Dungeon.player.setCurrentRoom((byte) loadedFile.getCurrentRoom().roomNumber);
 
         Dungeon.player.setPlayerData(loadedFile);
+
+        Dungeon.player.playerPosition = loadedFile.getPlayerPositionData();
 
         Debug.toLog("[LOAD] Player ID from loadingFile: "+loadedFile.getPlayerID());
 
@@ -102,7 +104,7 @@ public class SaveLoadSystem {
     }
 
     public static String GetSaveFileName() {
-        File directory = new File("./");
+        File directory = new File("./saves/");
 
         ArrayList<File> files = new ArrayList<File>(List.of(Objects.requireNonNull(directory.listFiles(((dir, name) -> name.endsWith(".sav"))))));
 
@@ -110,7 +112,7 @@ public class SaveLoadSystem {
 
         try {
             Debug.toLog("[LOAD] Load file with name: "+ files.get(files.size()-1).getName());
-            return files.get(files.size()-1).getName();
+            return "./saves/"+files.get(files.size()-1).getName();
         } catch (NullPointerException e) {
             Debug.toLog("[ERROR] Save file exist but not found");
             Debug.toLog(e.getMessage());
@@ -119,7 +121,7 @@ public class SaveLoadSystem {
     }
 
     public static boolean SaveFileExists(){
-        File directory = new File("./");
+        File directory = new File("./saves/");
 
         File[] files = directory.listFiles((dir, name) -> name.endsWith(".sav"));
 

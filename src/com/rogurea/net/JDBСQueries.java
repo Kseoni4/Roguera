@@ -3,6 +3,7 @@ package com.rogurea.net;
 
 import com.rogurea.GameLoop;
 import com.rogurea.base.Debug;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.view.ViewObjects;
 
@@ -47,6 +48,9 @@ public class JDBСQueries {
     private static final String GET_USER_NICKNAME = "select nickname " +
             "from user " +
             "where nickname = ? ";
+
+    private static final String GET_VARIABLE_HASH = "select hash " +
+            "from variableHash ";
 
     public static void setConnection(Connection connection){
         JDBConnect = connection;
@@ -204,11 +208,16 @@ public class JDBСQueries {
 
     public static void updateUserScore(){
         try {
-            PreparedStatement updUserScore = JDBConnect.prepareStatement(UPDATE_USER);
-            updUserScore.setInt(1, Dungeon.player.getPlayerData().getScore());
-            updUserScore.setInt(2, Dungeon.player.getPlayerData().getPlayerID());
+            if(RogueraGameSystem.isVariablesOk()) {
+                Debug.toLog("[RGS] Variables is OK");
+                PreparedStatement updUserScore = JDBConnect.prepareStatement(UPDATE_USER);
 
-            updUserScore.execute();
+                updUserScore.setInt(1, Dungeon.player.getPlayerData().getScore());
+
+                updUserScore.setInt(2, Dungeon.player.getPlayerData().getPlayerID());
+
+                updUserScore.execute();
+            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -233,6 +242,23 @@ public class JDBСQueries {
             throwables.printStackTrace();
         }
         return 0;
+    }
+
+    public static String getGetVariableHash(){
+        try{
+            PreparedStatement getVariableHash = JDBConnect.prepareStatement(GET_VARIABLE_HASH);
+
+            ResultSet getHash = getVariableHash.executeQuery();
+            if(getHash.next()){
+                return getHash.getString(1);
+            } else {
+                return "";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
 }
