@@ -4,6 +4,8 @@
 
 package com.rogurea.resources;
 
+import com.rogurea.gamelogic.RogueraGameSystem;
+
 import java.util.HashMap;
 
 public class GameVariables {
@@ -66,7 +68,9 @@ public class GameVariables {
 
     public static int BaseReqXP = 50;
 
-    public static final double PROGRESSION_COEFFICIENT = 1.3;
+    public static final double Psmall = 1.2;
+
+    public static final double PROGRESSION_COEFFICIENT = 5;
 
     public static final short BASE_PLAYER_ATK = 1;
 

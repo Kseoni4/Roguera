@@ -86,7 +86,7 @@ public class InventoryWindow extends Window {
             cursorUI.setFirstElementCursorPosition();
             while (!elements.isEmpty()) {
                 Optional<KeyStroke> keyStroke = Input.waitForInput();
-                if(Input.keyNotNull(keyStroke.get())) {
+                if(keyStroke.isPresent()) {
                     if (Input.keyIsEscape(keyStroke.get()))
                         break;
                     cursorUI.SelectElementV(keyStroke.get().getKeyType());

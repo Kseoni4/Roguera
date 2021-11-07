@@ -91,11 +91,15 @@ public class Item extends GameObject {
 
     private static int itemCounter = 0;
 
-    private final String name;
+    private String name;
 
     private int sellPrice = 1;
 
     private Materials itemMaterial;
+
+    protected void rename(String newName){
+        this.name = newName;
+    }
 
     public Item(String name, Model model, Materials itemMaterial){
         this.tag = "item";

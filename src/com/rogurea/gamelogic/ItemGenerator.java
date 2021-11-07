@@ -32,7 +32,7 @@ public class ItemGenerator {
     }
 
     public static Item getRandomPotion(){
-        Model pt = GameResources.getModel("Potion");
+        Model pt = new Model(GameResources.getModel("Potion"));
         return new Potion("Potion", pt);
     }
 

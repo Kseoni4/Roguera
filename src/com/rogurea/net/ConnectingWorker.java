@@ -22,11 +22,15 @@ public class ConnectingWorker implements Callable<Optional<Connection>> {
         decode();
         try {
             decode();
+
             Debug.toLog("[JDBC] Try to connect " + URL);
+
             Driver driver = new Driver();
 
             Properties pr = new Properties();
+
             pr.put("user", USER);
+
             pr.put("password", DecodePassword);
 
             Optional<Connection> connection = Optional.ofNullable(driver.connect(URL, pr));

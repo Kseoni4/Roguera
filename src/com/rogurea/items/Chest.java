@@ -18,10 +18,6 @@ public class Chest extends Entity {
     private final ArrayList<Item> loot = new ArrayList<>();
     private static final Model chest = new Model("chest", Colors.GOLDEN, Colors.B_GREYSCALE_237, '≡');
 
-/*    public void reload(){
-        this.loot.forEach(item -> item.model.reloadModel());
-    }*/
-
     public Chest() {
         super(chest);
         putLoot();

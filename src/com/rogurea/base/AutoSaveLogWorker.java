@@ -1,11 +1,19 @@
 package com.rogurea.base;
 
+import com.rogurea.GameLoop;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.resources.Colors;
 import com.rogurea.view.ViewObjects;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class AutoSaveLogWorker implements Runnable{
@@ -20,11 +28,16 @@ public class AutoSaveLogWorker implements Runnable{
 
     private String fileName;
 
+    private File logDirectory = new File("logs/");
+
     @Override
     public void run() {
-        this.fileName = ViewObjects.getTrimString(Dungeon.player.getPlayerData().getPlayerName()+"_"+Dungeon.player.getPlayerData().hashCode()+FILE_EXTENSION);
 
-        logFile = new File(fileName);
+        this.fileName = ViewObjects.getTrimString(Dungeon.player.getPlayerData().getPlayerName()+"_"+getLocalTime()+FILE_EXTENSION);
+
+        logDirectory.mkdir();
+
+        logFile = new File(logDirectory+"/"+fileName);
 
         Debug.toLog("[AUTO_SAVE_LOG_WORKER] Starting...");
 
@@ -36,7 +49,16 @@ public class AutoSaveLogWorker implements Runnable{
                 saveLogToFile();
             }
         } catch (InterruptedException | FileNotFoundException e){
-            Debug.toLog("[ERROR] Error in autosave log worker "+ Arrays.toString(e.getStackTrace()));
+            if(Optional.ofNullable(e.getCause()).isPresent() && !(e.getCause().equals(InterruptedException.class))) {
+                Debug.toLog(Colors.RED_BRIGHT + "[ERROR] Error in autosave log worker:");
+                e.printStackTrace();
+            } else {
+                try {
+                    saveLogToFile();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,5 +74,15 @@ public class AutoSaveLogWorker implements Runnable{
         fileOutputStream.flush();
 
         fileOutputStream.close();
+    }
+
+    private String getLocalTime(){
+        int year = java.time.Year.now().getValue();
+        int month = java.time.LocalDate.now().getMonth().getValue();
+        int day = LocalDate.now().getDayOfMonth();
+        int hour = LocalTime.now().getHour();
+        int minute = LocalTime.now().getMinute();
+        int second = LocalTime.now().getSecond();
+        return ""+year + month + day+"_"+ hour + minute + second;
     }
 }

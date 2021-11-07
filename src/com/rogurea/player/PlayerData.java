@@ -5,6 +5,7 @@
 package com.rogurea.player;
 
 import com.rogurea.base.Debug;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Floor;
 import com.rogurea.gamemap.Position;
@@ -28,10 +29,13 @@ import java.util.HashMap;
 public class PlayerData implements Serializable {
     private String playerName;
     private int playerID = 1;
-    private short HP;
-    private byte Level = 1;
+    private int HP;
+    private int maxHP = 100;
+    private int level = 1;
+    private int requiredEXP = 0;
+    private int exp = 0;
     private int Money = 0;
-    private byte attempt = 0;
+    private int attempt = 0;
     private int score = 0;
     private int scoreMultiplier = 1;
     private int _atk = 0;
@@ -98,14 +102,21 @@ public class PlayerData implements Serializable {
         this.saveFileVersion = saveFileVersion;
     }
 
+
+    /**
+     * Обновление характеристик по имени поля класса
+     * @param stat
+     * @param amount
+     */
     public void recountStats(String stat, int amount){
         try{
             Field baseStat = this.getClass().getDeclaredField("_base"+Character.toUpperCase(stat.charAt(0))+stat.substring(1));
+
             int _statPotion  = this.getClass().getDeclaredField("_"+stat+"PotionBonus").getInt(this);
 
             Debug.toLog("[REFLECTION] base stat "+baseStat.getInt(this)+" _statPotionBonus "+_statPotion+" amount "+amount);
 
-            this.getClass().getDeclaredField("_"+stat).setInt(this,_statPotion+amount);
+            this.getClass().getDeclaredField("_"+stat).setInt(this,amount);
 
         } catch (NoSuchFieldException | IllegalAccessException e){
             Debug.toLog("No such field: "+"_"+stat);
@@ -125,6 +136,14 @@ public class PlayerData implements Serializable {
         //Debug.toLog("Current hash\n"+ Arrays.toString(scoreHashMD5));
     }
 
+    public int getMaxHP() {
+        return maxHP;
+    }
+
+    public void setMaxHP(int maxHP) {
+        this.maxHP = maxHP;
+    }
+
     public void setScore(int score) {
         if(checkScoreHash()){
             Debug.toLog("[PLAYER_DATA]"+Colors.GREEN_BRIGHT+"Score is not compromised!");
@@ -140,7 +159,7 @@ public class PlayerData implements Serializable {
     }
 
     public void addScoreMultiplier(int amount){
-        this.scoreMultiplier += amount;
+        this.scoreMultiplier = amount;
     }
 
     private void updateHash(){
@@ -181,10 +200,10 @@ public class PlayerData implements Serializable {
                 "Floor: ".concat(Colors.PINK).concat(String.valueOf(Dungeon.getCurrentFloor().getFloorNumber()))+Colors.R+" Room: ".concat(Colors.MAGENTA).concat(String.valueOf(Dungeon.getCurrentRoom().roomNumber)),
                 "Name: ".concat(Colors.GREEN_BRIGHT).concat(playerName),
                 "Health: " + Colors.RED_BRIGHT.concat(String.valueOf(HP)),
-                "Level: "+Colors.CYAN.concat(String.valueOf(Level)),
+                "Level: "+Colors.CYAN.concat(String.valueOf(level))+" EXP:"+exp+"/"+requiredEXP,
                 "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money)),
-                "ATK: "+Colors.ORANGE.concat(""+(_atk+_baseAtk)),
-                "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_def+_baseDef))
+                "ATK: "+Colors.ORANGE.concat(""+(_atkPotionBonus+_atk+_baseAtk)),
+                "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_defPotionBonus+_def+_baseDef))
         };
     }
 
@@ -195,7 +214,7 @@ public class PlayerData implements Serializable {
     }
 
     public int getLevel(){
-        return Level;
+        return level;
     }
 
     public void setHP(int HP) {
@@ -203,7 +222,7 @@ public class PlayerData implements Serializable {
     }
 
     public void setLevel(int level) {
-        Level = (byte) level;
+        this.level = (byte) level;
     }
 
     public int getMoney() {
@@ -217,6 +236,14 @@ public class PlayerData implements Serializable {
 
     public int getAttempt() {
         return attempt;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public void setExp(int exp) {
+        this.exp += exp;
     }
 
     public void setAttempt(int attempt) {
@@ -275,7 +302,6 @@ public class PlayerData implements Serializable {
         this._defPotionBonus = _defPotionBonus;
     }
 
-
     public int getKills() {
         return kills;
     }
@@ -290,5 +316,35 @@ public class PlayerData implements Serializable {
 
     public void setPlayerID(int playerID) {
         this.playerID = playerID;
+    }
+
+    public void updBaseATK(){
+        this._baseAtk = RogueraGameSystem.getBaseATK();
+    }
+
+    public void updRequiredEXP(){
+        this.requiredEXP = RogueraGameSystem.getRequirementEXP();
+    }
+
+    public int getRequiredEXP() {
+        return requiredEXP;
+    }
+
+    public void getInfo(){
+        String info = "" +
+                "Player: "+this.playerName+"\n" +
+                "Base characteristics: \n\t" +
+                    "ATK: "+this._baseAtk+"\n\t" +
+                    "DEF: "+this._baseDef+"\n" +
+                "Base + Equipment: \n\t" +
+                    "_ATK: "+this._atk+"\n\t" +
+                    "_DEF: "+this._def+"\n" +
+                "Potion bonus: \n\t" +
+                    "_ATK_PBONUS: "+this._atkPotionBonus+"\n\t" +
+                    "_DEF_PBONUS: "+this._defPotionBonus+"\n" +
+                "Control sum: \n\t" +
+                    "ATK + _ATK + _ATK_PBONUS: "+(this._baseAtk+this._atk+this._atkPotionBonus)+"\n\t" +
+                    "DEF + _DEF + _DEF_PBONUS: "+(this._baseDef+this._def+this._defPotionBonus);
+        Debug.toLog(info);
     }
 }

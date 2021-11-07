@@ -101,6 +101,7 @@ public class JDBСQueries {
             String playerNameTrim = ViewObjects.getTrimString(Dungeon.player.getPlayerData().getPlayerName());
 
             createNewUser.setDate(1, Date.valueOf(GameLoop.startPlayTime.toLocalDate()));
+
             createNewUser.setString(2,playerNameTrim);
 
             createNewUser.execute();

@@ -1,6 +1,8 @@
 Skeleton
-Kobalt
+Kobold
 Zombie
 Slime
 Beast
 Imp
+Ghoul
+Demon

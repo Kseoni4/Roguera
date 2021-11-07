@@ -78,6 +78,8 @@ public class AIController implements Runnable {
 
         Dungeon.player.getPlayerData().setKill();
 
+        Dungeon.player.getPlayerData().setExp(((Mob) this.creature).getExperiencePoints());
+
         Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
 
         Animation.deadAnimation(this.creature);
@@ -132,7 +134,7 @@ public class AIController implements Runnable {
                 }
 
             } catch (IndexOutOfBoundsException e) {
-                Debug.toLog(Colors.RED_BRIGHT+"[AI][Mob] "+creature.getName() + " something goes wrong with index");
+                Debug.toLog(Colors.RED_BRIGHT+"[AI][Mob] "+creature.getName() + " something goes wrong with index ");
                 break;
             }
         }

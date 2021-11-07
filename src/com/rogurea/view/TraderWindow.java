@@ -144,6 +144,7 @@ public class TraderWindow extends Window {
             } else if (item instanceof Potion) {
                 stats = ((Potion) item).getAmount();
             }
+            Debug.toLog("[TRADER]Put in menu potion: " +item.toString());
             itemElements.add(new Element(
                     item.getName(),
                     item.model.toString() + " " + item.getName() + " [+" + item.model.getModelColor()+stats +Colors.R+"] " + Colors.GOLDEN+"$"+item.getSellPrice()+Colors.R,

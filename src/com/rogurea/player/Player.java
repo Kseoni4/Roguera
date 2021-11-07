@@ -245,19 +245,19 @@ public class Player extends Creature {
 
     @Override
     public void getHit(int incomingDamage){
-        int fullDef = this.playerData.get_baseDef() + this.playerData.get_def();
+        int fullDef = getDefenceByEquipment();
         int deltaDmg = incomingDamage - fullDef;
         this.playerData.setHP(this.playerData.getHP() - Math.max(0, deltaDmg));
     }
 
     @Override
     public int getDamageByEquipment(){
-        return this.playerData.get_baseAtk() + this.getPlayerData().get_atk() + findEquipmentInInventoryByTag("item.equipment.weapon.").getStats();
+        return this.playerData.get_baseAtk() + this.getPlayerData().get_atk() + this.getPlayerData().get_atkPotionBonus(); //+ findEquipmentInInventoryByTag("item.equipment.weapon.").getStats();
     }
 
     @Override
     public int getDefenceByEquipment(){
-        return this.playerData.get_baseDef() + this.getPlayerData().get_def() + findEquipmentInInventoryByTag("item.equipment.armor.").getStats();
+        return this.playerData.get_baseDef() + this.getPlayerData().get_def() + this.getPlayerData().get_defPotionBonus(); //+ findEquipmentInInventoryByTag("item.equipment.armor.").getStats();
     }
 
     public void setPlayerData(PlayerData playerData){

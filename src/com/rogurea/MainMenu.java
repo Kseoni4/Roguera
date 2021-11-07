@@ -9,16 +9,10 @@ import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.Label;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.screen.TerminalScreen;
-import com.googlecode.lanterna.screen.VirtualScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
-import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
-import com.rogurea.base.DisposeListener;
-import com.rogurea.exceptions.NickNameAlreadyUsed;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.net.ConnectingWorker;
@@ -27,11 +21,8 @@ import com.rogurea.resources.GameResources;
 import com.rogurea.net.JDBСQueries;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
-import net.arikia.dev.drpc.DiscordUser;
 
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Optional;
@@ -100,8 +91,6 @@ public class MainMenu {
             WindowsGUI = new MultiWindowTextGUI(GUIWindow, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLACK));
 
             WindowsGUI.setEOFWhenNoWindows(true);
-
-            Roguera.disposeListenerThread.execute(new DisposeListener(WindowsGUI));
 
             WindowsGUI.getBackgroundPane().setTheme(new SimpleTheme(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK));
 

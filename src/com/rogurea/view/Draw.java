@@ -17,6 +17,7 @@ public class Draw {
 
     public static void call(IViewBlock viewBlock){
         DrawCallCount++;
+        Debug.toLog("[DRAW_CALL]: "+viewBlock.getClass().getName());
         viewBlock.Draw();
         flush();
     }

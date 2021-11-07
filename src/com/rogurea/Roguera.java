@@ -5,6 +5,7 @@ import com.rogurea.base.AutoSaveLogWorker;
 import com.rogurea.base.Debug;
 import com.rogurea.net.JDBСQueries;
 import com.rogurea.resources.GameResources;
+import com.rogurea.view.Draw;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
@@ -23,8 +24,6 @@ public class Roguera {
     public static boolean isSaveToLogFile = true;
 
     public static boolean isClearMap = false;
-
-    public static ExecutorService disposeListenerThread = Executors.newFixedThreadPool(1);
 
     public static ArrayList<Closeable> terminals = new ArrayList<>();
 
@@ -50,6 +49,9 @@ public class Roguera {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Debug.toLog("[DISCORD_RP]Closing Discord hook." );
+                Debug.toLog("[DRAW_CALL] Count: "+ Draw.DrawCallCount);
+                Debug.toLog("[DRAW_RESET] Count: "+ Draw.DrawResetCount);
+                Debug.toLog("[DRAW_INIT] Count: "+ Draw.DrawInitCount);
                 DiscordRPC.discordShutdown();
                 JDBСQueries.closeConnection();
             } catch (SQLException e){

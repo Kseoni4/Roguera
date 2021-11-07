@@ -47,19 +47,29 @@ public class Mob extends Creature{
 
     public Mob(int HP, String name) {
         super(HP, name);
+
         this.tag += ".mob";
+
         this.baseATK = Dungeon.getCurrentFloor().getFloorNumber();
+
         this.baseDEF = Dungeon.getCurrentFloor().getFloorNumber();
+
         this.model.changeModel(name.charAt(0));
+
         this.model.changeColor(Colors.RED_BRIGHT);
+
+        calculateEXP();
 
         initialPutInventory();
         //Debug.toLog(this.toString());
     }
 
     private void calculateEXP() {
-        int leftBound = 1 + (Dungeon.getCurrentFloor().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber);
-        int rightBound = 12 * Dungeon.getCurrentFloor().getFloorNumber() + getDamageByEquipment();
+        experiencePoints = (int) Math.round(Dungeon.getCurrentFloor().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.2d));
+    }
+
+    public int getExperiencePoints(){
+        return this.experiencePoints;
     }
 
     @Override

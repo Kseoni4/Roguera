@@ -5,6 +5,7 @@
 package com.rogurea;
 
 import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.base.AutoSaveLogWorker;
 import com.rogurea.base.Debug;
 import com.rogurea.exceptions.NickNameAlreadyUsed;
 import com.rogurea.gamelogic.Events;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.rogurea.Main.autoLogWorker;
 import static com.rogurea.view.ViewObjects.logView;
 
 public class GameLoop {
@@ -43,6 +45,10 @@ public class GameLoop {
     public static ExecutorService updWrk;
 
     public void start() throws InterruptedException, NickNameAlreadyUsed {
+
+        Dungeon.player.getPlayerData().updBaseATK();
+
+        Dungeon.player.getPlayerData().updRequiredEXP();
 
         updWrk = Executors.newSingleThreadExecutor();
 
@@ -62,6 +68,10 @@ public class GameLoop {
         }
 
         JDBСQueries.createGameSession();
+
+        autoLogWorker.execute(new AutoSaveLogWorker());
+
+        autoLogWorker.shutdown();
 
         updWrk.execute(new UpdaterWorker());
 
@@ -124,8 +134,8 @@ public class GameLoop {
         if(updWrk != null)
             updWrk.shutdownNow();
 
-        if(Main.autoLogWorker != null)
-            Main.autoLogWorker.shutdownNow();
+        if(autoLogWorker != null)
+            autoLogWorker.shutdownNow();
 
         if(Dungeon.rooms != null && Dungeon.floors != null) {
             Dungeon.rooms.forEach(Room::endMobAIThreads);

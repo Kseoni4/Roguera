@@ -1,6 +1,7 @@
 package com.rogurea.items;
 
 import com.rogurea.base.Debug;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.Model;
@@ -14,12 +15,12 @@ public class Potion extends Equipment implements Usable {
 
     private enum PotionType {
         HEAL (101, Colors.GREEN_BRIGHT),
-        ATK_BUF (31, Colors.RED_BRIGHT),
-        DEF_BUF (31, Colors.BLUE_BRIGHT),
-        SCORE_BUF (6, Colors.VIOLET);
+        ATK_BUF (RogueraGameSystem.getPBonus(), Colors.RED_BRIGHT),
+        DEF_BUF (RogueraGameSystem.getPBonus()+1, Colors.BLUE_BRIGHT),
+        SCORE_BUF (RogueraGameSystem.getPScoreBonus(), Colors.VIOLET);
 
-        private int bound;
-        private String color;
+        private final int bound;
+        private final String color;
 
         PotionType(int bound, String color){
             this.bound = bound;
@@ -40,7 +41,9 @@ public class Potion extends Equipment implements Usable {
         super(name, model, "buffer");
         constructPotionType();
         this.tag += ".potion."+this.potionType.name().toLowerCase();
-        this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50) + this.amount * (this.potionType.name().equals("SCORE_BUF") ? 100 : 1));
+        this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50) + this.amount * (this.potionType.name().equals("SCORE_BUF") ? 500 : 1));
+        this.rename(getName() + this.potionType.name());
+        Debug.toLog("[POTION]"+getName() +" color: "+ model.getModelColor()+"#");
 /*
    Debug.toLog("Create potion: \n\t" +
                 "Type: "+this.potionType.name()+"\n\t"+
@@ -59,7 +62,7 @@ public class Potion extends Equipment implements Usable {
     public void use() {
         switch (this.potionType){
             case HEAL:
-                Dungeon.player.getPlayerData().setHP(Math.min(100,Dungeon.player.getHP() + amount)); break;
+                Dungeon.player.getPlayerData().setHP(Math.min(Dungeon.player.getPlayerData().getMaxHP(),Dungeon.player.getHP() + amount)); break;
             case ATK_BUF:
                 Dungeon.player.getPlayerData().set_atkPotionBonus(Dungeon.player.getPlayerData().get_atkPotionBonus() + amount); break;
             case DEF_BUF:

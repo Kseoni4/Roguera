@@ -5,10 +5,7 @@
 package com.rogurea.gamemap;
 
 import com.rogurea.Roguera;
-import com.rogurea.base.AIController;
-import com.rogurea.base.Debug;
-import com.rogurea.base.Entity;
-import com.rogurea.base.GameObject;
+import com.rogurea.base.*;
 import com.rogurea.creatures.Creature;
 import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.resources.Colors;
@@ -246,8 +243,10 @@ public class Room implements Serializable {
                 mobThreads.execute(new AIController(creature));
             }
         }
-        if (getObjectsByTag("creature.mob").length > 0)
+        if (getObjectsByTag("creature.mob").length > 0) {
             mobThreads.execute(new DrawLootWorker());
+            mobThreads.execute(new MapCleanWorker());
+        }
 
         mobThreads.shutdown();
         Debug.toLog("[Room "+ roomNumber +"] mob threads has started");

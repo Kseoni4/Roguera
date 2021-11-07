@@ -66,7 +66,16 @@ public class Model implements Serializable {
         //settingModel();
     }
 
+    public Model changeName(String modelName){
+        this.modelName = modelName;
+        return this;
+    }
+
     public Model(){}
+
+    public Model(Model model){
+        this(model.getModelName(), model.getModelColor(), model.modelBColor, model.modelSymbol);
+    }
 
     public String getModelName(){
         return this.modelName;
@@ -78,7 +87,7 @@ public class Model implements Serializable {
 
     public Model changeColor(String modelColor){
         this.modelColor = modelColor;
-        settingModel();
+        //settingModel();
         return this;
     }
 

@@ -18,7 +18,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.6:0111:2330";
+    public static final String VERSION = "v0.2.7:0711:1600";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -46,7 +46,7 @@ public class GameResources {
         if(TerminalFont == null) {
             Debug.toLog("[RESOURCES]Loading font...");
             try {
-                InputStream file_font = GameResources.class.getResourceAsStream("PxPlus_IBM_VGA_9x16.ttf");
+                InputStream file_font = GameResources.class.getResourceAsStream("assets/PxPlus_IBM_VGA_9x16.ttf");
 
                 assert file_font != null;
                 TerminalFont = Font.createFont(Font.TRUETYPE_FONT, file_font).deriveFont(24f);
@@ -59,7 +59,7 @@ public class GameResources {
         }
     }
 
-    private static final String FILE_PATH = "";
+    private static final String FILE_PATH = "assets/";
     private static final String FILE_EXTENSION = ".res";
 
     public static void clearResources(){
@@ -73,16 +73,7 @@ public class GameResources {
             String showload = "[RESOURCES]= Loading resources from " + file + ".res =";
             Debug.toLog(showload);
             try {
-                InputStream atlas_csv = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
-
-                byte[] buffer = new byte[1024];
-
-                assert atlas_csv != null;
-                int len = atlas_csv.read(buffer);
-
-                byte[] inputstring = Arrays.copyOf(buffer, len);
-
-                String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
+                String[] map = loadAssets(file);
 
                 Debug.toLog("[RESOURCES] Getting string: " + Arrays.toString(map));
 
@@ -95,18 +86,23 @@ public class GameResources {
         Debug.toLog("[RESOURCES]= Loading resources is ended =");
     }
 
+    private static String[] loadAssets(String file) throws IOException {
+        InputStream asset = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
+
+        byte[] buffer = new byte[1024];
+
+        assert asset != null;
+        int len = asset.read(buffer);
+
+        byte[] inputstring = Arrays.copyOf(buffer, len);
+
+        return new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
+    }
+
     private static void loadTextResources() {
         for(String file : textResources){
             try {
-                InputStream text_csv = GameResources.class.getResourceAsStream(FILE_PATH + file + FILE_EXTENSION);
-                byte[] buffer = new byte[1024];
-
-                assert text_csv != null;
-                int len = text_csv.read(buffer);
-
-                byte[] inputstring = Arrays.copyOf(buffer, len);
-
-                String[] map = new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
+                String[] map = loadAssets(file);
 
                 Debug.toLog("[RESOURCES]= Getting string: " + Arrays.toString(map));
 
@@ -164,7 +160,7 @@ public class GameResources {
         _keymap.put('4', () -> ViewObjects.inventoryView.useItem(3));
         _keymap.put('5', () -> ViewObjects.inventoryView.useItem(4));
         //_keymap.put('c', logBlock::Clear);
-        //_keymap.put('i', () -> inventoryMenu.show());
+        _keymap.put('i', () -> Dungeon.player.getPlayerData().getInfo());
         //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;
 
         return _keymap;

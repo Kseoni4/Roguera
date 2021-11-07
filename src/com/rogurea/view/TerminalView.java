@@ -104,10 +104,9 @@ public class TerminalView {
 
     public static void initTerminal() {
         try {
-            defaultTerminalFactory.setTerminalEmulatorTitle("Roguera build: " + GameResources.VERSION);
+            defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.VERSION);
 
-            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(90
-                    ,25));
+            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(90,25));
 
             if(GameResources.TerminalFont != null){
                 defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(
@@ -167,23 +166,12 @@ public class TerminalView {
 
     public static void reDrawAll(IViewBlock[] except){
 
-        //Debug.log("RENDERING: Redraw blocks");
-
-        /*try {
-            terminal.clearScreen();
-            Debug.log("RENDERING: Screen has been cleared");
-        } catch (IOException e) {
-            Debug.log("ERROR: Clear screen was failed");
-            Debug.log(e.getMessage());
-            e.printStackTrace();
-        }*/
-
-        resetPositions(except);
+        //resetPositions(except);
 
         ViewBlocks.forEach(
                 viewBlock -> {
                     if (Arrays.stream(except).noneMatch(viewBlock::equals)){
-                        //Debug.log("RENDERING: draw call block " + viewBlock.getClass().getSimpleName());
+                        //Debug.toLog("[REDRAW]: " + viewBlock.getClass().getSimpleName());
                         viewBlock.Draw();
                     }
                 });

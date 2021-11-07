@@ -22,7 +22,11 @@ public class SaveLoadSystem {
 
         String playerName = ViewObjects.getTrimString(player.getPlayerData().getPlayerName());
 
-        CurrentSaveFile = new File(playerName+".sav");
+        File saveDirectory = new File("saves/");
+
+        saveDirectory.mkdir();
+
+        CurrentSaveFile = new File(saveDirectory.getName()+"/"+playerName+".sav");
 
         Debug.toLog("[SAVE]: Saving game...");
 
