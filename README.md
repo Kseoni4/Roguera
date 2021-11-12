@@ -34,4 +34,5 @@ Old-school ASCII roguelike game, that I made for learning Java.
 
 ### Так, как поиграть?
 В разделе Releases всегда есть актуальная версия (на данный момент pre-release 0.2.6-RC). 
+
 Обязательно убедитесь, что у вас стоит java последней версии (проверить можно введя в командной строке: java -version)
