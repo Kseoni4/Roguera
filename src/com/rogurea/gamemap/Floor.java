@@ -1,5 +1,7 @@
 package com.rogurea.gamemap;
 
+import com.rogurea.base.Debug;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -18,6 +20,7 @@ public class Floor implements Serializable {
     public Floor(){
         this.floorNumber = ++floorNumberCounter;
         this.roomsOnFloor = new ArrayList<>();
+        Debug.toLog("[FLOOR "+floorNumber+"] New floor is created");
     }
 
     public int getFloorNumber(){
@@ -25,6 +28,7 @@ public class Floor implements Serializable {
     }
 
     public void putRoomInFloor(Room room){
+        Debug.toLog("[FLOOR "+floorNumber+"] putting room "+ room.roomNumber + " into the floor");
         room.floorNumber = this.floorNumber;
         this.roomsOnFloor.add(room);
     }

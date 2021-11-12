@@ -34,10 +34,11 @@ public class Chest extends Entity {
     }
 
     private void putLoot(){
-        int randomLootCount = ThreadLocalRandom.current().nextInt(0,5) * Dungeon.getCurrentFloor().getFloorNumber();
+        int randomLootCount = ThreadLocalRandom.current().nextInt(0,2) * Dungeon.getCurrentFloor().get().getFloorNumber();
         for(int i = 0; i < randomLootCount; i++){
             loot.add(ItemGenerator.getRandomWeaponEquipment());
         }
+        randomLootCount = ThreadLocalRandom.current().nextInt(0,2) * Dungeon.getCurrentFloor().get().getFloorNumber();
         for(int i = 0; i < randomLootCount; i++){
             loot.add(ItemGenerator.getRandomArmorEquipment());
         }

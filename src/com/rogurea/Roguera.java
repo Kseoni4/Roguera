@@ -1,21 +1,15 @@
 package com.rogurea;
 
-import com.googlecode.lanterna.terminal.Terminal;
-import com.rogurea.base.AutoSaveLogWorker;
 import com.rogurea.base.Debug;
-import com.rogurea.net.JDBСQueries;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.Draw;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
-import java.io.Closeable;
-import java.sql.SQLException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Roguera {
 
@@ -27,7 +21,7 @@ public class Roguera {
 
     public static ArrayList<Closeable> terminals = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         checkCLI(args);
 
@@ -47,16 +41,12 @@ public class Roguera {
         Debug.toLog("[VERSION]"+ GameResources.VERSION);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Debug.toLog("[DISCORD_RP]Closing Discord hook." );
-                Debug.toLog("[DRAW_CALL] Count: "+ Draw.DrawCallCount);
-                Debug.toLog("[DRAW_RESET] Count: "+ Draw.DrawResetCount);
-                Debug.toLog("[DRAW_INIT] Count: "+ Draw.DrawInitCount);
-                DiscordRPC.discordShutdown();
-                JDBСQueries.closeConnection();
-            } catch (SQLException e){
-                Debug.toLog("[RUNTIME] SQL Error");
-            }
+            Debug.toLog("[DISCORD_RP]Closing Discord hook." );
+            Debug.toLog("[DRAW_CALL] Count: "+ Draw.DrawCallCount);
+            Debug.toLog("[DRAW_RESET] Count: "+ Draw.DrawResetCount);
+            Debug.toLog("[DRAW_INIT] Count: "+ Draw.DrawInitCount);
+            DiscordRPC.discordShutdown();
+            //JDBСQueries.closeConnection();
         }));
 
         startDRP();

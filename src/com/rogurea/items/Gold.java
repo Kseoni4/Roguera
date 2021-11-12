@@ -1,7 +1,9 @@
 package com.rogurea.items;
 
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
+import com.rogurea.resources.GetRandom;
 import com.rogurea.resources.Model;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,7 +18,7 @@ public class Gold extends Item{
 
     private Gold(String name, Model model) {
         super(name, model, Materials.GOLD);
-        this.amount = ThreadLocalRandom.current().nextInt(1, 100);
+        this.amount = GetRandom.getRandomGoldAmount();
     }
 
     public int getAmount(){

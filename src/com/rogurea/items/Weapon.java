@@ -15,7 +15,7 @@ public class Weapon extends Equipment{
     public Weapon(String name, Model model, Materials itemMaterial) {
         super(name, model, itemMaterial, "atk");
         this.tag = this.tag.concat(".weapon").concat(".").concat(name);
-        this._damage = ((GameVariables.WEAPON_BASE_DMG * (int) itemMaterial.getStrenght()) * Dungeon.getCurrentFloor().getFloorNumber());
+        this._damage = ((GameVariables.WEAPON_BASE_DMG * (int) itemMaterial.getStrenght()) * Dungeon.getCurrentFloor().get().getFloorNumber());
     }
 
     public Weapon(String name, Model model, Materials itemMaterial, int damage){

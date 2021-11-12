@@ -15,51 +15,48 @@ import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.net.ConnectingWorker;
+import com.rogurea.resources.Colors;
 import com.rogurea.player.Player;
 import com.rogurea.resources.GameResources;
-import com.rogurea.net.JDBСQueries;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class MainMenu {
 
     private static final DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 
-    private static Panel BasePanel;
+    private static Panel basePanel;
 
-    private static Panel NewGamePanel;
+    private static Panel newGamePanel;
 
     private static Screen GUIWindow;
 
-    public static MultiWindowTextGUI WindowsGUI;
+    public static MultiWindowTextGUI windowsGUI;
 
-    private static final BasicWindow MenuWindows = new BasicWindow();
+    private static final BasicWindow MENU_WINDOWS = new BasicWindow();
 
-    private static final BasicWindow NewGameWindow = new BasicWindow();
+    private static final BasicWindow NEW_GAME_WINDOW = new BasicWindow();
 
     private static final BasicWindow STATUS_WINDOW = new BasicWindow();
 
-    private static TerminalPosition CenterOfScreen;
+    private static TerminalPosition centerOfScreen;
 
-    private static int Normal = 0;
+    private static final int NORMAL = 0;
 
-    private static int CorruptedSaveFile = 1;
+    private static final int CORRUPTED_SAVE_FILE = 1;
 
     private static String checkedResources = null;
 
     private static void startMainMenuRP(){
         Debug.toLog("[DISCORD_RP]Start main menu presence");
+
         DiscordRichPresence mainMenuRP = new DiscordRichPresence.Builder("Ready to start").setDetails("In Main Menu").setBigImage("icon","Roguera").build();
+
         DiscordRPC.discordUpdatePresence(mainMenuRP);
+
         Debug.toLog("[DISCORD_RP] RP set");
     }
 
@@ -84,19 +81,19 @@ public class MainMenu {
 
             Roguera.terminals.add(GUIWindow);
 
-            CenterOfScreen = new TerminalPosition(
+            centerOfScreen = new TerminalPosition(
                     GUIWindow.getTerminalSize().getColumns()/2-10,
                     GUIWindow.getTerminalSize().getRows()/2);
 
-            WindowsGUI = new MultiWindowTextGUI(GUIWindow, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLACK));
+            windowsGUI = new MultiWindowTextGUI(GUIWindow, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLACK));
 
-            WindowsGUI.setEOFWhenNoWindows(true);
+            windowsGUI.setEOFWhenNoWindows(true);
 
-            WindowsGUI.getBackgroundPane().setTheme(new SimpleTheme(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK));
+            windowsGUI.getBackgroundPane().setTheme(new SimpleTheme(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK));
 
-            Label logo = new Label(GameResources.LOGO).setPosition(CenterOfScreen);
+            Label logo = new Label(GameResources.LOGO).setPosition(centerOfScreen);
 
-            WindowsGUI.getBackgroundPane().setComponent(logo);
+            windowsGUI.getBackgroundPane().setComponent(logo);
 
             OpenMenuWindow();
         } catch (IOException e) {
@@ -109,46 +106,46 @@ public class MainMenu {
             case 0: {Debug.toLog("[MAIN_MENU]: All good"); break;}
             case 1: {
                 Label errormessage = new Label("Saving file has been corrupted").setForegroundColor(TextColor.ANSI.RED_BRIGHT);
-                BasePanel.addComponent(errormessage);
+                basePanel.addComponent(errormessage);
                 break;
             }
             case 2:{
                 Label errormessage = new Label("This nickname is already in use").setForegroundColor(TextColor.ANSI.RED_BRIGHT);
-                NewGamePanel.addComponent(errormessage);
+                newGamePanel.addComponent(errormessage);
                 break;
             }
         }
     }
 
     private static void OpenNewGameWindow() {
-        NewGameWindow.setTitle("New game");
+        NEW_GAME_WINDOW.setTitle("New game");
 
         ConstructNewGamePanel();
 
-        WindowsGUI.addWindow(NewGameWindow);
+        windowsGUI.addWindow(NEW_GAME_WINDOW);
 
-        NewGameWindow.setPosition(CenterOfScreen);
+        NEW_GAME_WINDOW.setPosition(centerOfScreen);
 
-        WindowsGUI.setActiveWindow(NewGameWindow).waitForWindowToClose(NewGameWindow);
+        windowsGUI.setActiveWindow(NEW_GAME_WINDOW).waitForWindowToClose(NEW_GAME_WINDOW);
     }
 
     private static void ConstructNewGamePanel(){
-        NewGamePanel = new Panel();
+        newGamePanel = new Panel();
 
-        NewGamePanel.setLayoutManager(new LinearLayout());
+        newGamePanel.setLayoutManager(new LinearLayout());
 
-        NewGamePanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+        newGamePanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         TextBox nickname = new TextBox(new TerminalSize(10,1));
 
-        NewGamePanel.addComponent(nickname.withBorder(Borders.singleLine("Enter your nickname"))).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+        newGamePanel.addComponent(nickname.withBorder(Borders.singleLine("Enter your nickname"))).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
-        NewGamePanel.addComponent(new Button("Back to menu", () ->{
-            WindowsGUI.getActiveWindow().close();
+        newGamePanel.addComponent(new Button("Back to menu", () ->{
+            windowsGUI.getActiveWindow().close();
             OpenMenuWindow();
         })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
-        NewGamePanel.addComponent(new Button("Start game", () -> {
+        newGamePanel.addComponent(new Button("Start game", () -> {
             Dungeon.player = new Player();
             if(nickname.getText().length() > 0) {
                 Debug.toLog("[MAIN_MENU] get input nickname: " + nickname.getText());
@@ -162,13 +159,13 @@ public class MainMenu {
             try {
                 GUIWindow.close();
 
-                WindowsGUI.getActiveWindow().close();
+                windowsGUI.getActiveWindow().close();
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
             try {
-                BasePanel = null;
+                basePanel = null;
 
                 Main.newGame();
 
@@ -179,11 +176,11 @@ public class MainMenu {
             }
         })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
-        NewGameWindow.setComponent(NewGamePanel);
+        NEW_GAME_WINDOW.setComponent(newGamePanel);
     }
     private static void OpenMenuWindow() {
 
-        if (BasePanel == null)
+        if (basePanel == null)
             ConstructMenuPanel();
 
         Panel loadingPanel = new Panel();
@@ -194,82 +191,82 @@ public class MainMenu {
 
         loadingWindow.setComponent(loadingPanel.withBorder(Borders.doubleLine()));
 
-        WindowsGUI.addWindow(loadingWindow);
+        windowsGUI.addWindow(loadingWindow);
 
-        loadingWindow.setPosition(CenterOfScreen);
+        loadingWindow.setPosition(centerOfScreen);
 
-        Future<Optional<Connection>> sqlSocket = Executors.newSingleThreadExecutor().submit(new ConnectingWorker());
+        //Future<Optional<Connection>> sqlSocket = Executors.newSingleThreadExecutor().submit(new ConnectingWorker());
 
-        try {
-            WindowsGUI.setActiveWindow(loadingWindow).updateScreen();
+        /*try {
+            windowsGUI.setActiveWindow(loadingWindow).updateScreen();
             sqlSocket.get().ifPresentOrElse(JDBСQueries::setConnection, () -> Debug.toLog("[JDBC] Error on connecting to the database"));
             loadingWindow.close();
         } catch (ExecutionException | InterruptedException | IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
-        WindowsGUI.removeWindow(loadingWindow);
+        windowsGUI.removeWindow(loadingWindow);
 
-        MenuWindows.setComponent(BasePanel.withBorder(Borders.singleLine("Main menu")));
+        MENU_WINDOWS.setComponent(basePanel.withBorder(Borders.singleLine("Main menu")));
 
-        Panel statusPanel = new Panel();
+        /*Panel statusPanel = new Panel();
 
         statusPanel.withBorder(Borders.singleLine("Online status"));
 
         statusPanel.addComponent(new Label((JDBСQueries.checkConnect() ? "Connected" : "Not connected"))
                 .setForegroundColor((JDBСQueries.checkConnect() ? TextColor.ANSI.GREEN_BRIGHT : TextColor.ANSI.RED_BRIGHT)));
 
-        STATUS_WINDOW.setComponent(statusPanel);
+        STATUS_WINDOW.setComponent(statusPanel);*/
 
-        WindowsGUI.addWindow(MenuWindows);
+        windowsGUI.addWindow(MENU_WINDOWS);
 
-        WindowsGUI.addWindow(STATUS_WINDOW);
+        //windowsGUI.addWindow(STATUS_WINDOW);
 
-        MenuWindows.setPosition(CenterOfScreen);
+        MENU_WINDOWS.setPosition(centerOfScreen);
 
         STATUS_WINDOW.setPosition(new TerminalPosition(0, 20));
 
-        WindowsGUI.setActiveWindow(MenuWindows).waitForWindowToClose(MenuWindows);
+        windowsGUI.setActiveWindow(MENU_WINDOWS).waitForWindowToClose(MENU_WINDOWS);
 
         System.exit(1);
     }
 
     private static void ConstructMenuPanel(){
-        BasePanel = new Panel();
+        basePanel = new Panel();
 
-        BasePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+        basePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
 
-        if(SaveLoadSystem.SaveFileExists()){
+        if(SaveLoadSystem.saveFileExists()){
             Debug.toLog("[MAIN_MENU]Save file was found");
-            BasePanel.addComponent(new Button("Continue game from last save", () -> {
+            basePanel.addComponent(new Button("Continue game from last save", () -> {
                 try {
-                    SaveLoadSystem.loadGame(SaveLoadSystem.GetSaveFileName());
+                    SaveLoadSystem.loadGame(SaveLoadSystem.getSaveFileName());
 
-                    Main.loadGame();
+                    Main.disableNewGame();
 
-                    CheckErrorCode(Normal);
+                    CheckErrorCode(NORMAL);
 
-                    WindowsGUI.getActiveWindow().close();
+                    windowsGUI.getActiveWindow().close();
 
                     GUIWindow.close();
 
                     Main.startSequence();
                 } catch (IOException | ClassNotFoundException | InterruptedException e) {
-                    Debug.toLog("ERROR: Saving file has been obsoleted.");
+                    Debug.toLog(Colors.RED_BRIGHT+"[ERROR][MAIN_MENU]: Saving file has been obsoleted.");
                     e.printStackTrace();
-                    CheckErrorCode(CorruptedSaveFile);
+                    CheckErrorCode(CORRUPTED_SAVE_FILE);
                 }
             }));
         } else{
             Debug.toLog("[MAIN_MENU]Save files was not found");
         }
 
-        BasePanel.addComponent(new Button("New Game", ()-> {
-            WindowsGUI.getActiveWindow().close();
+        basePanel.addComponent(new Button("New Game", ()-> {
+            windowsGUI.getActiveWindow().close();
             OpenNewGameWindow();
         }));
 
-        BasePanel.addComponent(new Button("Quit", () -> {
+        basePanel.addComponent(new Button("Quit", () -> {
             /*try {
                 Debug.log("=== Instance ended by quit from menu === ");
                 Player.nickName = "MenuLog";
@@ -278,7 +275,7 @@ public class MainMenu {
                 e.printStackTrace();
             }*/
             DiscordRPC.discordShutdown();
-            WindowsGUI.getActiveWindow().close();
+            windowsGUI.getActiveWindow().close();
             try {
                 GUIWindow.close();
             } catch (IOException e) {

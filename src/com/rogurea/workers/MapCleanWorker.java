@@ -1,7 +1,9 @@
-package com.rogurea.base;
+package com.rogurea.workers;
 
+import com.rogurea.base.Debug;
 import com.rogurea.creatures.Mob;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.player.Player;
 import com.rogurea.view.Draw;
 import com.rogurea.view.ViewObjects;
 
@@ -45,7 +47,7 @@ public class MapCleanWorker implements Runnable {
 
         Dungeon.getCurrentRoom().getCells()
                 .forEach(cell -> {
-                    if (cell.getFromCell().model.get().equals(Dungeon.player.getModel()) && cell.getFromCell().id != Dungeon.player.id)
+                    if (cell.getFromCell() instanceof Player && cell.getFromCell().id != Dungeon.player.id)
                         cell.clear();
                 });
     }

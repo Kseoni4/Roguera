@@ -4,8 +4,10 @@
 
 package com.rogurea.gamemap;
 
+import com.rogurea.Main;
 import com.rogurea.base.Debug;
 import com.rogurea.creatures.Creature;
+import com.rogurea.exceptions.NoSuchRoomException;
 import com.rogurea.items.Chest;
 import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.view.*;
@@ -13,6 +15,7 @@ import com.rogurea.player.Player;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.rogurea.view.ViewObjects.logView;
@@ -31,14 +34,14 @@ public class Dungeon {
 
     public static ArrayList<Floor> floors = new ArrayList<>();
 
-    private static int currentFloorNumber = 0;
+    public static int currentFloorNumber = 0;
 
     private static final Predicate<Room> ByFirstRoom = Room -> Room.roomNumber == 1;
 
     private static final Predicate<Room> ByPlayer = Room -> Room.roomNumber == player.getCurrentRoom();
 
     public static void generate(){
-        Debug.toLog("[GENERATE] Start generate rooms sequence");
+        Debug.toLog("[DUNGEON] Start generate rooms sequence");
 
         currentFloorNumber = 1;
 
@@ -53,8 +56,17 @@ public class Dungeon {
         getCurrentRoom().startMobAIThreads();
     }
 
-    public static void loadDungeonFromSave(){
-        currentFloorNumber = Dungeon.player.getPlayerData().getCurrentFloor().getFloorNumber();
+    public static void reloadDungeonAfterLoad(){
+
+        Debug.toLog("[DUNGEON] Reload instance...");
+
+        PutPlayerOnMap(getCurrentRoom(), player.playerPosition);
+
+        ViewObjects.mapView.setRoom(getCurrentRoom());
+
+        getCurrentRoom().startMobAIThreads();
+
+        /*currentFloorNumber = Dungeon.player.getPlayerData().getCurrentFloor().getFloorNumber();
 
         floors.add(0, Dungeon.player.getPlayerData().getCurrentFloor());
 
@@ -66,7 +78,7 @@ public class Dungeon {
 
         ViewObjects.mapView.setRoom(Dungeon.savedRoom);
 
-        Dungeon.savedRoom.startMobAIThreads();
+        Dungeon.savedRoom.startMobAIThreads();*/
     }
 
     public static Room getRoom(Predicate<Room> RoomFilter){
@@ -74,14 +86,15 @@ public class Dungeon {
     }
 
     public static Room getCurrentRoom(){
-        return rooms.stream().filter(ByPlayer).findFirst().orElse(null);
+        Optional<Room> room = rooms.stream().filter(ByPlayer).findFirst();
+        return room.orElseGet(() -> rooms.stream().filter(Objects::nonNull).findFirst().get());
     }
 
-    public static Floor getCurrentFloor(){
-        return floors.stream().filter(floor -> floor.getFloorNumber() == currentFloorNumber).findFirst().orElse(null);
+    public static Optional<Floor> getCurrentFloor(){
+        return floors.stream().filter(floor -> floor.getFloorNumber() == currentFloorNumber).findFirst();
     }
 
-    public static void RegenRoom() {
+    public static void regenRoom() {
 
         getCurrentRoom().endMobAIThreads();
 

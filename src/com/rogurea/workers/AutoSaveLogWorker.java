@@ -1,6 +1,7 @@
-package com.rogurea.base;
+package com.rogurea.workers;
 
 import com.rogurea.GameLoop;
+import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
 import com.rogurea.view.ViewObjects;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalField;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -45,35 +47,42 @@ public class AutoSaveLogWorker implements Runnable{
 
         try{
             while(!Thread.currentThread().isInterrupted()){
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.SECONDS.sleep(3);
                 saveLogToFile();
             }
         } catch (InterruptedException | FileNotFoundException e){
-            if(Optional.ofNullable(e.getCause()).isPresent() && !(e.getCause().equals(InterruptedException.class))) {
+            if(Optional.ofNullable(e.getCause()).isPresent()) {
                 Debug.toLog(Colors.RED_BRIGHT + "[ERROR] Error in autosave log worker:");
                 e.printStackTrace();
             } else {
                 try {
                     saveLogToFile();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                } catch (IOException | ConcurrentModificationException ex) {
+                    Debug.toLog("[AUTO_SAVE_LOG_WORKER] Try to restart...");
+                    run();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Debug.toLog("[AUTO_SAVE_LOG_WORKER] Ended");
     }
     private void saveLogToFile() throws IOException {
         fileOutputStream = new FileOutputStream(logFile);
+        try {
+            for (String string : Debug.getDebugLog()) {
+                string += "\n";
+                fileOutputStream.write(string.getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (ConcurrentModificationException e) {
+            Debug.toLog(Colors.RED_BRIGHT + "[ERROR] Error in autosave log worker:");
+            e.printStackTrace();
+        } finally {
+            fileOutputStream.flush();
 
-        for(String string : Debug.getDebugLog()){
-            string += "\n";
-            fileOutputStream.write(string.getBytes(StandardCharsets.UTF_8));
+            fileOutputStream.close();
         }
 
-        fileOutputStream.flush();
-
-        fileOutputStream.close();
     }
 
     private String getLocalTime(){

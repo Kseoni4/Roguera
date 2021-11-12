@@ -18,6 +18,7 @@ import com.rogurea.items.Potion;
 import com.rogurea.resources.Colors;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
@@ -95,8 +96,11 @@ public class TraderWindow extends Window {
         this.traderItemCollection = itemCollection;
 
         this.itemCollection = this.traderItemCollection;
+        String s = "";
+        if(!itemCollection.isEmpty())
+            s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).toList().get(0).getName();
 
-        makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(0,itemCollection.size()));
+        makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(s.length(),itemCollection.size()));
 
         makeMenu();
 
@@ -125,7 +129,10 @@ public class TraderWindow extends Window {
                     Draw.reset(this);
                     playerItemCollection = Dungeon.player.Inventory;
                     this.itemCollection = playerItemCollection;
-                    makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(0,itemCollection.size()));
+                    String s = "";
+                    if(!itemCollection.isEmpty())
+                        s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).toList().get(0).getName();
+                    makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(s.length(),itemCollection.size()));
                     fillElements(sellAction);
                     itemCursorUI = new CursorUI(itemElements);
                     itemOptions();
@@ -141,10 +148,8 @@ public class TraderWindow extends Window {
             int stats = 0;
             if (item instanceof Equipment) {
                 stats = ((Equipment) item).getStats();
-            } else if (item instanceof Potion) {
-                stats = ((Potion) item).getAmount();
             }
-            Debug.toLog("[TRADER]Put in menu potion: " +item.toString());
+            //Debug.toLog("[TRADER]Put in menu potion: " +item.toString());
             itemElements.add(new Element(
                     item.getName(),
                     item.model.toString() + " " + item.getName() + " [+" + item.model.getModelColor()+stats +Colors.R+"] " + Colors.GOLDEN+"$"+item.getSellPrice()+Colors.R,

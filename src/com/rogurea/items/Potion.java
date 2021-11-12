@@ -14,10 +14,10 @@ import static com.rogurea.view.ViewObjects.infoGrid;
 public class Potion extends Equipment implements Usable {
 
     private enum PotionType {
-        HEAL (101, Colors.GREEN_BRIGHT),
-        ATK_BUF (RogueraGameSystem.getPBonus(), Colors.RED_BRIGHT),
-        DEF_BUF (RogueraGameSystem.getPBonus()+1, Colors.BLUE_BRIGHT),
-        SCORE_BUF (RogueraGameSystem.getPScoreBonus(), Colors.VIOLET);
+        HEAL (101, Colors.GREEN_PASTEL),
+        ATK_BUF (RogueraGameSystem.getPBonus(), Colors.RED_PASTEL),
+        DEF_BUF (RogueraGameSystem.getPBonus()+1, Colors.BLUE_PASTEL),
+        SCORE_BUF (RogueraGameSystem.getPScoreBonus(), Colors.VIOLET_PASTEL);
 
         private final int bound;
         private final String color;
@@ -41,8 +41,10 @@ public class Potion extends Equipment implements Usable {
         super(name, model, "buffer");
         constructPotionType();
         this.tag += ".potion."+this.potionType.name().toLowerCase();
-        this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50) + this.amount * (this.potionType.name().equals("SCORE_BUF") ? 500 : 1));
-        this.rename(getName() + this.potionType.name());
+        this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50)
+                + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 1500 : 2)
+        ));
+        this.rename(getName() + " " +this.potionType.name().substring(0,3));
         Debug.toLog("[POTION]"+getName() +" color: "+ model.getModelColor()+"#");
 /*
    Debug.toLog("Create potion: \n\t" +
@@ -54,7 +56,7 @@ public class Potion extends Equipment implements Usable {
     private void constructPotionType(){
         int l = PotionType.values().length;
         this.potionType = PotionType.values()[ThreadLocalRandom.current().nextInt(l)];
-        this.amount = ThreadLocalRandom.current().nextInt(1, this.potionType.bound);
+        this.amount = ThreadLocalRandom.current().nextInt(2, this.potionType.bound);
         this.model.changeColor(this.potionType.color);
     }
 

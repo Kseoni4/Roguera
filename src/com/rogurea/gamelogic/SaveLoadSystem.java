@@ -2,75 +2,104 @@ package com.rogurea.gamelogic;
 
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.net.JDBСQueries;
+import com.rogurea.gamemap.Floor;
 import com.rogurea.player.Player;
 import com.rogurea.player.PlayerData;
+import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.ViewObjects;
 
-import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SaveLoadSystem {
-    private static File CurrentSaveFile;
+
+    private static File currentSaveFile;
+
+    private static PlayerData playerDataFile;
+
+    private static ObjectOutputStream saveFileStream;
+
+    private static File saveFile;
+
+    private static File saveFileTemp;
+
+    private static final String DIRECTORY = "./saves/";
+
+    private static final String EXTENSION = ".sav";
 
     public static void saveGame() throws IOException {
 
-        Player player = Dungeon.player;
+        createSaveDirectory();
 
-        String playerName = ViewObjects.getTrimString(player.getPlayerData().getPlayerName());
+        playerDataFile = Dungeon.player.getPlayerData();
 
-        File saveDirectory = new File("saves/");
+        putDataInSaveFile();
 
-        saveDirectory.mkdir();
+        String playerName = ViewObjects.getTrimString(playerDataFile.getPlayerName());
 
-        CurrentSaveFile = new File(saveDirectory.getName()+"/"+playerName+".sav");
+        String saveFileName = DIRECTORY + playerName + EXTENSION;
 
-        Debug.toLog("[SAVE]: Saving game...");
+        //JDBСQueries.updUserHash(String.valueOf(Dungeon.player.getPlayerData().getScoreHash().hashCode()));
+                            //"./saves/player228.sav"
+        saveFile = new File(saveFileName);
 
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-                new FileOutputStream(CurrentSaveFile)
-        );
+        saveFileStream = new ObjectOutputStream(new FileOutputStream(saveFile));
 
-        PlayerData savePlayerFile = Dungeon.player.getPlayerData();
+        try {
 
-        JDBСQueries.updUserHash(String.valueOf(Dungeon.player.getPlayerData().getScoreHash().hashCode()));
+            trySaveToTemp();
 
-        savePlayerFile.setSaveFileVersion(GameResources.VERSION);
+        }  catch (IOException e){
+            Debug.toLog(Colors.RED_BRIGHT+"[ERROR][SAVE] Error with save file");
+            e.printStackTrace();
+            return;
+        }
 
-        //savePlayerFile.CurrentDungeonLenght = Dungeon.CurrentDungeonLenght;
+        saveFileStream.writeObject(playerDataFile);
 
-        //Debug.log("SAVE: Current dungeon length " + savePlayerFile.CurrentDungeonLenght);
+        saveFileStream.flush();
 
-        savePlayerFile.setScoreHash(savePlayerFile.getScoreHash());
+        saveFileStream.close();
 
-        savePlayerFile.setCurrentRoom(Dungeon.getCurrentRoom());
+        Debug.toLog("[SAVE] room " + playerDataFile.getCurrentRoom().roomNumber + " has saved");
 
-        savePlayerFile.setCurrentFloor(Dungeon.getCurrentFloor());
+        Debug.toLog("[SAVE] success! " + saveFileName + " has created");
 
-        savePlayerFile.setPlayerPositionData(Dungeon.player.playerPosition);
+        Debug.toLog("[SAVE] remove temp file");
 
-        savePlayerFile.setHP(Dungeon.player.getHP());
-
-        savePlayerFile.setPlayerInventory(Dungeon.player.Inventory);
-
-        savePlayerFile.setPlayerEquipment(Dungeon.player.Equipment);
-
-        Debug.toLog("[SAVE]: room " + savePlayerFile.getCurrentRoom().roomNumber + " has saved");
-
-         objectOutputStream.writeObject(savePlayerFile);
-
-        Debug.toLog("[SAVE]: success! " + player.getPlayerData().getPlayerName()+".sav has created");
+        saveFileTemp.delete();
     }
 
-    public static void loadGame(String SaveFileName) throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(
-                new FileInputStream(SaveFileName)
+    public static void loadGame(String saveFileName) throws IOException, ClassNotFoundException {
+
+        FileInputStream saveFileInputStream = new FileInputStream(saveFileName);
+
+        ObjectInputStream saveObjectInputStream = new ObjectInputStream(saveFileInputStream);
+
+        Debug.toLog("[LOAD]Loading game from file: " + saveFileName);
+
+        PlayerData savedFile = (PlayerData) saveObjectInputStream.readObject();
+
+
+        try {
+            getDataFromSavedFile(savedFile);
+        } catch (IndexOutOfBoundsException e){
+            Debug.toLog(Colors.RED_BRIGHT+"[ERROR][LOAD] load game was failed. See stacktrace:");
+            e.printStackTrace();
+        }
+
+        saveObjectInputStream.close();
+
+        saveFileInputStream.close();
+
+        Debug.toLog("[LOAD]Save file is loaded");
+
+        /*ObjectInputStream objectInputStream = new ObjectInputStream(
+                new FileInputStream(saveFileName)
         );
 
-        Debug.toLog("[LOAD]Loading game from file: " + SaveFileName);
+        Debug.toLog("[LOAD]Loading game from file: " + saveFileName);
 
         PlayerData loadedFile;
 
@@ -100,13 +129,66 @@ public class SaveLoadSystem {
 
         //GetRandom.SetRNGSeed(loadedFile.getRandomSeed());
 
-        Debug.toLog("[LOAD]Save file is loaded");
+        Debug.toLog("[LOAD]Save file is loaded");*/
     }
 
-    public static String GetSaveFileName() {
+    private static void createSaveDirectory(){
+                                    //"./saves/"
+        File saveDirectory = new File(DIRECTORY);
+
+        if(!saveDirectory.exists()) {
+            saveDirectory.mkdir();
+        }
+    }
+
+    private static void putDataInSaveFile(){
+        playerDataFile.setPlayerPositionData(Dungeon.player.playerPosition);
+        playerDataFile.setPlayerInventory(Dungeon.player.Inventory);
+        playerDataFile.setPlayerQuickEquipment(Dungeon.player.quickEquipment);
+        playerDataFile.setPlayerEquipment(Dungeon.player.Equipment);
+        playerDataFile.setSaveFileVersion(GameResources.VERSION);
+        playerDataFile.setCurrentFloor(Dungeon.getCurrentFloor().get());
+        playerDataFile.setCurrentRoom(Dungeon.getCurrentRoom());
+    }
+
+    private static void getDataFromSavedFile(PlayerData savedFile) throws IndexOutOfBoundsException {
+        Dungeon.player = new Player(savedFile);
+
+        int floorNumber = savedFile.getCurrentFloor().getFloorNumber();
+
+        Floor.setCounterFromLoad(floorNumber);
+
+        Dungeon.currentFloorNumber = floorNumber;
+
+        Dungeon.floors.add(savedFile.getCurrentFloor());
+
+        Dungeon.rooms = savedFile.getCurrentFloor().getRooms();
+
+        Dungeon.savedRoom = savedFile.getCurrentRoom();
+
+        Dungeon.player.setCurrentRoom((byte) savedFile.getCurrentRoom().roomNumber);
+
+        //int scoreHash = JDBСQueries.getUserScoreHash();
+
+    }
+
+    private static void trySaveToTemp() throws IOException {
+
+        saveFileTemp = new File(DIRECTORY + "_temp_" + EXTENSION);
+
+        ObjectOutputStream saveFileTempStream = new ObjectOutputStream(new FileOutputStream(saveFileTemp));
+
+        saveFileTempStream.writeObject(playerDataFile);
+
+        saveFileTempStream.flush();
+
+        saveFileTempStream.close();
+     }
+
+    public static String getSaveFileName() {
         File directory = new File("./saves/");
 
-        ArrayList<File> files = new ArrayList<File>(List.of(Objects.requireNonNull(directory.listFiles(((dir, name) -> name.endsWith(".sav"))))));
+        ArrayList<File> files = new ArrayList<>(List.of(Objects.requireNonNull(directory.listFiles(((dir, name) -> name.endsWith(".sav"))))));
 
         files.sort(Comparator.comparingLong(File::lastModified));
 
@@ -120,14 +202,18 @@ public class SaveLoadSystem {
         }
     }
 
-    public static boolean SaveFileExists(){
+    public static boolean saveFileExists(){
         File directory = new File("./saves/");
 
         File[] files = directory.listFiles((dir, name) -> name.endsWith(".sav"));
-
-        return files.length > 0;
+        if(files != null) {
+            return files.length > 0;
+        } else {
+            return false;
+        }
     }
-    public static boolean DeleteSaveFile(){
-        return CurrentSaveFile.delete();
+
+    public static boolean deleteSaveFile(){
+        return currentSaveFile.delete();
     }
 }

@@ -98,7 +98,7 @@ public class InventoryView implements IViewBlock {
     private void placeModels(Model m, String place, int d, int y) {
         String msg = "".concat("[").concat("%").concat("]").concat("_dmg_");
         TerminalView.drawBlockInTerminal(invViewGraphics, msg, inventoryPosition.x, inventoryPosition.y + y);
-        TerminalView.drawBlockInTerminal(invViewGraphics, "|" + d + "|".concat(place), inventoryPosition.getRelative(msg.indexOf("_dmg_"), 0).x, inventoryPosition.y + y);
+        TerminalView.drawBlockInTerminal(invViewGraphics, "|" + d + "|"+"("+m.getModelName()+")", inventoryPosition.getRelative(msg.indexOf("_dmg_"), 0).x, inventoryPosition.y + y);
         TerminalView.putCharInTerminal(invViewGraphics, m.get(), inventoryPosition.getRelative(msg.indexOf("%"), 0).x, inventoryPosition.y + y);
     }
 
@@ -106,7 +106,7 @@ public class InventoryView implements IViewBlock {
         int i = 0;
         for(;i < 5; i++){
             String msg = "".concat("[").concat(""+(i+1)).concat("]");
-            TerminalView.drawBlockInTerminal(invViewGraphics, msg, inventoryPosition.getRelative(25,i));
+            TerminalView.drawBlockInTerminal(invViewGraphics, msg, inventoryPosition.getRelative(32,i));
         }
     }
 
@@ -118,7 +118,7 @@ public class InventoryView implements IViewBlock {
                 quickEqpElements.add(new Element(
                         eqp.getName(),
                         eqp.model.toString(),
-                        inventoryPosition.getRelative(28, quickEqpList.indexOf(eqp)),
+                        inventoryPosition.getRelative(35, quickEqpList.indexOf(eqp)),
                         accessItem
                 ));
                 Element element = quickEqpElements.get(quickEqpList.indexOf(eqp));

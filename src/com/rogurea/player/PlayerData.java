@@ -14,7 +14,6 @@ import com.rogurea.items.Equipment;
 import com.rogurea.items.Item;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameVariables;
-import com.rogurea.net.JDBСQueries;
 import com.rogurea.view.Draw;
 import com.rogurea.view.ViewObjects;
 
@@ -28,6 +27,7 @@ import java.util.HashMap;
 
 public class PlayerData implements Serializable {
     private String playerName;
+    private String token;
     private int playerID = 1;
     private int HP;
     private int maxHP = 100;
@@ -47,51 +47,60 @@ public class PlayerData implements Serializable {
     private byte[] scoreHashMD5;
     private static MessageDigest md;
     private int kills = 0;
-    private Position playerPositionData;
-    private Room currentRoom;
-    private Floor currentFloor;
+    private Position playerSavePositionData;
+    private Room currentRoomSave;
+    private Floor currentFloorSave;
     private String saveFileVersion;
-    private ArrayList<Item> playerInventory;
-    private HashMap<String, Equipment> playerEquipment;
+    private ArrayList<Item> playerSaveInventory;
+    private HashMap<String, Equipment> playerSaveEquipment;
+    private ArrayList<Equipment> playerSaveQuickEquipment;
+
+    public ArrayList<Equipment> getPlayerQuickEquipment() {
+        return playerSaveQuickEquipment;
+    }
+
+    public void setPlayerQuickEquipment(ArrayList<Equipment> playerQuickEquipment) {
+        this.playerSaveQuickEquipment = playerQuickEquipment;
+    }
 
     public HashMap<String, Equipment> getPlayerEquipment() {
-        return playerEquipment;
+        return playerSaveEquipment;
     }
 
     public void setPlayerEquipment(HashMap<String, Equipment> playerEquipment) {
-        this.playerEquipment = playerEquipment;
+        this.playerSaveEquipment = playerEquipment;
     }
 
     public ArrayList<Item> getPlayerInventory() {
-        return playerInventory;
+        return playerSaveInventory;
     }
 
     public void setPlayerInventory(ArrayList<Item> playerInventory) {
-        this.playerInventory = playerInventory;
+        this.playerSaveInventory = playerInventory;
     }
 
     public Position getPlayerPositionData() {
-        return playerPositionData;
+        return playerSavePositionData;
     }
 
     public void setPlayerPositionData(Position playerPositionData) {
-        this.playerPositionData = playerPositionData;
+        this.playerSavePositionData = playerPositionData;
     }
 
     public Room getCurrentRoom() {
-        return currentRoom;
+        return currentRoomSave;
     }
 
     public void setCurrentRoom(Room currentRoom) {
-        this.currentRoom = currentRoom;
+        this.currentRoomSave = currentRoom;
     }
 
     public Floor getCurrentFloor() {
-        return currentFloor;
+        return currentFloorSave;
     }
 
     public void setCurrentFloor(Floor currentFloor) {
-        this.currentFloor = currentFloor;
+        this.currentFloorSave = currentFloor;
     }
 
     public String getSaveFileVersion() {
@@ -102,11 +111,10 @@ public class PlayerData implements Serializable {
         this.saveFileVersion = saveFileVersion;
     }
 
-
     /**
      * Обновление характеристик по имени поля класса
-     * @param stat
-     * @param amount
+     * @param stat имя характеристики
+     * @param amount значение
      */
     public void recountStats(String stat, int amount){
         try{
@@ -146,12 +154,12 @@ public class PlayerData implements Serializable {
 
     public void setScore(int score) {
         if(checkScoreHash()){
-            Debug.toLog("[PLAYER_DATA]"+Colors.GREEN_BRIGHT+"Score is not compromised!");
+            //Debug.toLog("[PLAYER_DATA]"+Colors.GREEN_BRIGHT+"Score is not compromised!");
             this.score += score * scoreMultiplier;
             updateHash();
-            JDBСQueries.updateUserScore();
+            //JDBСQueries.updateUserScore();
         } else {
-            Debug.toLog("[PLAYER_DATA]"+Colors.RED_BRIGHT+"Score is compromised!");
+            //Debug.toLog("[PLAYER_DATA]"+Colors.RED_BRIGHT+"Score is compromised!");
             this.score = 0;
             updateHash();
         }
@@ -165,11 +173,11 @@ public class PlayerData implements Serializable {
     private void updateHash(){
         md.update(String.valueOf(this.score).getBytes());
         scoreHashMD5 = md.digest();
-        JDBСQueries.updUserHash(String.valueOf(scoreHashMD5.hashCode()));
+        //JDBСQueries.updUserHash(String.valueOf(scoreHashMD5.hashCode()));
     }
 
     public boolean checkSavedScoreHash(int hash){
-        return scoreHashMD5.hashCode() == hash;
+        return Arrays.hashCode(scoreHashMD5) == hash;
     }
 
     public byte[] getScoreHash(){
@@ -197,10 +205,11 @@ public class PlayerData implements Serializable {
 
         return new String[]{
                 "Score: ".concat(Colors.VIOLET).concat(String.valueOf(score)).concat(" ").concat((scoreMultiplier > 1 ? "x"+scoreMultiplier : "")),
-                "Floor: ".concat(Colors.PINK).concat(String.valueOf(Dungeon.getCurrentFloor().getFloorNumber()))+Colors.R+" Room: ".concat(Colors.MAGENTA).concat(String.valueOf(Dungeon.getCurrentRoom().roomNumber)),
+                "Floor: ".concat(Colors.PINK).concat(String.valueOf(Dungeon.getCurrentFloor().get().getFloorNumber()))+Colors.R+" Room: ".concat(Colors.MAGENTA).concat(String.valueOf(Dungeon.getCurrentRoom().roomNumber)),
                 "Name: ".concat(Colors.GREEN_BRIGHT).concat(playerName),
                 "Health: " + Colors.RED_BRIGHT.concat(String.valueOf(HP)),
-                "Level: "+Colors.CYAN.concat(String.valueOf(level))+" EXP:"+exp+"/"+requiredEXP,
+                "Level: "+Colors.CYAN.concat(String.valueOf(level)),
+                "EXP: "+Colors.CYAN_BRIGHT+exp+"/"+requiredEXP,
                 "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money)),
                 "ATK: "+Colors.ORANGE.concat(""+(_atkPotionBonus+_atk+_baseAtk)),
                 "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_defPotionBonus+_def+_baseDef))
@@ -230,7 +239,8 @@ public class PlayerData implements Serializable {
     }
 
     public void setMoney(int money) {
-        setScore(money/3);
+        if(money > 0)
+            setScore(money/3);
         Money += money;
     }
 
@@ -321,9 +331,21 @@ public class PlayerData implements Serializable {
     public void updBaseATK(){
         this._baseAtk = RogueraGameSystem.getBaseATK();
     }
+    public void updBaseDEF(){
+        this._baseDef = RogueraGameSystem.getBaseDEF();
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public void updRequiredEXP(){
         this.requiredEXP = RogueraGameSystem.getRequirementEXP();
+        this.exp = 0;
     }
 
     public int getRequiredEXP() {
@@ -336,7 +358,7 @@ public class PlayerData implements Serializable {
                 "Base characteristics: \n\t" +
                     "ATK: "+this._baseAtk+"\n\t" +
                     "DEF: "+this._baseDef+"\n" +
-                "Base + Equipment: \n\t" +
+                "Equipment: \n\t" +
                     "_ATK: "+this._atk+"\n\t" +
                     "_DEF: "+this._def+"\n" +
                 "Potion bonus: \n\t" +

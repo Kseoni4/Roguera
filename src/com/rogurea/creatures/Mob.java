@@ -31,7 +31,7 @@ public class Mob extends Creature{
         this.dead = true;
     }
 
-    private int experiencePoints;
+    protected int experiencePoints;
 
     @Override
     public int getDamageByEquipment() {
@@ -50,9 +50,9 @@ public class Mob extends Creature{
 
         this.tag += ".mob";
 
-        this.baseATK = Dungeon.getCurrentFloor().getFloorNumber();
+        this.baseATK = Dungeon.getCurrentFloor().get().getFloorNumber();
 
-        this.baseDEF = Dungeon.getCurrentFloor().getFloorNumber();
+        this.baseDEF = Dungeon.getCurrentFloor().get().getFloorNumber();
 
         this.model.changeModel(name.charAt(0));
 
@@ -65,7 +65,7 @@ public class Mob extends Creature{
     }
 
     private void calculateEXP() {
-        experiencePoints = (int) Math.round(Dungeon.getCurrentFloor().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.2d));
+        experiencePoints = (int) Math.round(Dungeon.getCurrentFloor().get().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.2d));
     }
 
     public int getExperiencePoints(){
@@ -98,18 +98,18 @@ public class Mob extends Creature{
     @Override
     public String toString(){
       return "[INFO]Mob: ".concat(this.getName()).concat("\n\t")
-              .concat("HP:"+String.valueOf(this.getHP()))
+              .concat("HP:"+ this.getHP())
               .concat("\n\t")
               .concat("Base ATK: " + this.baseATK)
               .concat("\n\t")
               .concat("Base DEF: " + this.baseDEF)
               .concat("\n\t")
-              .concat("DMG: "+String.valueOf(this.getDamageByEquipment()))
+              .concat("DMG: "+ this.getDamageByEquipment())
               .concat("\n\t")
               .concat("Items in inventory:")
               .concat("\n------------------------")
               .concat("\n")
               .concat(Arrays.deepToString(this.creatureInventory.toArray()))
               .concat("\n------------------------");
-    };
+    }
 }

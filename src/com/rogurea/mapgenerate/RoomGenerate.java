@@ -5,6 +5,7 @@
 package com.rogurea.mapgenerate;
 
 
+import com.rogurea.Main;
 import com.rogurea.base.Debug;
 import com.rogurea.creatures.NPC;
 import com.rogurea.gamelogic.MobFactory;
@@ -23,41 +24,41 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RoomGenerate implements Serializable {
 
-    public static Random random = null;
+    public static Random random = GetRandom.RNGenerator;
 
     public enum RoomSize {
-        SMALL{
+        SMALL {
             @Override
             public byte[] GetWidghtX() {
+                return new byte[]{
+                        15, 16, 17
+                };
+            }
+
+            @Override
+            public byte[] GetHeightY() {
                 return new byte[]{
                         11, 12, 14
                 };
             }
 
+        },
+        MIDDLE {
             @Override
-            public byte[] GetHeightY() {
-                return new byte[] {
-                        11, 12, 13
+            public byte[] GetWidghtX() {
+                return new byte[]{
+                        17, 18, 19
                 };
             }
 
-            },
-        MIDDLE{
             @Override
-            public byte[] GetWidghtX() {
+            public byte[] GetHeightY() {
                 return new byte[]{
                         12, 15, 16
                 };
             }
-
-            @Override
-            public byte[] GetHeightY() {
-                return new byte[] {
-                        11, 13, 15
-                };
-            }
         },
-        BIG{
+        BIG {
             @Override
             public byte[] GetWidghtX() {
                 return new byte[]{
@@ -67,7 +68,7 @@ public class RoomGenerate implements Serializable {
 
             @Override
             public byte[] GetHeightY() {
-                return new byte[] {
+                return new byte[]{
                         19, 22, 23
                 };
             }
@@ -82,26 +83,32 @@ public class RoomGenerate implements Serializable {
         }
     }
 
-    public static void generateRoomSequence(int floorNumber){
+    public static void generateRoomSequence(int floorNumber) {
         random = GetRandom.RNGenerator;
+
+        Debug.toLog("[ROOM_GENERATE] Generate room sequence on floor " + floorNumber);
 
         Dungeon.rooms = new ArrayList<>();
 
-        Dungeon.floors.add(floorNumber, new Floor());
+        Dungeon.floors.add(new Floor());
 
         RoomSize[] roomSizes = RoomSize.values();
 
-        for(byte i = (byte) Dungeon.rooms.size(); i < Dungeon.DungeonRoomsCount; i++){
+        if (!Main.isNewGame()) {
+            floorNumber = Dungeon.floors.size() - 1;
+            Debug.toLog("[DUNGEON] new floor number by size: " + floorNumber);
+        }
+
+        for (byte i = (byte) Dungeon.rooms.size(); i < Dungeon.DungeonRoomsCount; i++) {
 
             int RandomRoomSize = random.nextInt(3);
 
             byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
 
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
-            if(i >= Dungeon.DungeonRoomsCount-1){
-                Dungeon.rooms.add(new Room((i+1), Widght, Height, roomSizes[RandomRoomSize], true));
-            }
-            else {
+            if (i >= Dungeon.DungeonRoomsCount - 1) {
+                Dungeon.rooms.add(new Room((i + 1), Widght, Height, roomSizes[RandomRoomSize], true));
+            } else {
                 Dungeon.rooms.add(new Room((i + 1), Widght, Height, roomSizes[RandomRoomSize]));
             }
             Dungeon.floors.get(floorNumber).putRoomInFloor(Dungeon.rooms.get(i));
@@ -109,22 +116,21 @@ public class RoomGenerate implements Serializable {
         ConnectRooms();
     }
 
-    public static void ConnectRooms(){
+    public static void ConnectRooms() {
 
         Dungeon.rooms.sort(Comparator.comparingInt(value -> value.roomNumber));
 
         Dungeon.rooms.forEach(room -> {
-            if(!room.isEndRoom)
+            if (!room.isEndRoom)
                 room.LinkRooms(Dungeon.rooms.get(room.roomNumber));
             else
                 room.LinkRooms(Dungeon.rooms.get(0));
         });
-
     }
 
     public static void generateRoomStructure(Room room) {
 
-        Debug.toLog("[GENERATE] Generate room: "+room.roomNumber+"(floor "+room.floorNumber+")");
+        Debug.toLog("[GENERATE_ROOM] Generate room: " + room.roomNumber + "(floor " + room.floorNumber + ")");
 
         room.ClearCells();
 
@@ -144,19 +150,15 @@ public class RoomGenerate implements Serializable {
 
         MapEditor.PlaceDoors(room, room.getCells(), pgp.ExitPoint);
 
-        int randomChestCount = ThreadLocalRandom.current().nextInt(0,2);
+        int randomChestCount = ThreadLocalRandom.current().nextInt(0, 2);
 
-        for(int i = 0; i < randomChestCount;i++) {
+        for (int i = 0; i < randomChestCount; i++) {
             Position randomPos = room.positionsInsidePerimeter.get(random.nextInt(room.positionsInsidePerimeter.size()));
 
-            if(!isWallsOnSides(room.getCell(randomPos).getCellsAround())){
-                MapEditor.setIntoCell(new Chest(),
-                        room.positionsInsidePerimeter.get(
-                                random.nextInt(room.positionsInsidePerimeter.size()
-                                )
-                        )
-                );
+            while (isWallsOnSides(room.getCell(randomPos).getCellsAround())) {
+                randomPos = room.positionsInsidePerimeter.get(random.nextInt(room.positionsInsidePerimeter.size()));
             }
+            MapEditor.setIntoCell(new Chest(), randomPos);
         }
 
         int randomGoldCount = ThreadLocalRandom.current().nextInt(0,6);
@@ -181,7 +183,7 @@ public class RoomGenerate implements Serializable {
     }
 
     private static boolean isWallsOnSides(Cell[] cells){
-        return Arrays.stream(cells).filter(cell -> cell.isWall()).count() > 1;
+        return Arrays.stream(cells).filter(Cell::isWall).count() > 1;
     }
 
     private static void placeTrader(Room room){
@@ -195,14 +197,24 @@ public class RoomGenerate implements Serializable {
 }
 
     private static void placeMobs(Room room){
-        int randomMobCount = ThreadLocalRandom.current().nextInt(0,5) * Dungeon.getCurrentFloor().getFloorNumber();
+        if(!(Dungeon.getCurrentFloor().get().getFloorNumber() % 10 == 0 && Dungeon.getCurrentRoom().isEndRoom)) {
+            int randomMobCount = Math.min(ThreadLocalRandom.current().nextInt(0, Dungeon.getCurrentFloor().get().getFloorNumber()+1),5);
 
-        for(int i = 0; i < randomMobCount; i++){
-            MapEditor.setIntoCell(MobFactory.newMob(),room.positionsInsidePerimeter.get(
-                    random.nextInt(room.positionsInsidePerimeter.size()
-                    )
-            ));
+            for (int i = 0; i < randomMobCount; i++) {
+                MapEditor.setIntoCell(MobFactory.newMob(), room.positionsInsidePerimeter.get(
+                        random.nextInt(room.positionsInsidePerimeter.size()
+                        )
+                ));
+            }
+        } else {
+            placeBoss(room);
         }
+    }
+
+    private static void placeBoss(Room room){
+        MapEditor.setIntoCell(MobFactory.newBoss(), room.positionsInsidePerimeter.get(
+                random.nextInt(room.positionsInsidePerimeter.size())
+        ));
     }
     /*
 

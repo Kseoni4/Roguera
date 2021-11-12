@@ -2,15 +2,12 @@ package com.rogurea.gamelogic;
 
 
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.net.JDBСQueries;
 import com.rogurea.resources.GameVariables;
 
-import javax.sound.sampled.*;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RogueraGameSystem {
 
@@ -19,8 +16,15 @@ public class RogueraGameSystem {
      * Вычисляется как X = Level^p * ProgressionCoefficient
      * @return значение прогрессии на текущем уровне игрока
      */
-    public static int getBaseProgression(){
+    public static int getBaseLevelProgression(){
         return (int) ((int) Math.pow(Dungeon.player.getPlayerData().getLevel(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT);
+    }
+
+    public static int getBaseFloorProgression(){
+        AtomicInteger floorNumber = new AtomicInteger(1);
+        Dungeon.getCurrentFloor().ifPresent(floor -> floorNumber.set(floor.getFloorNumber()));
+
+        return (int) ((int) Math.pow(floorNumber.get(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT);
     }
 
     /**
@@ -29,7 +33,7 @@ public class RogueraGameSystem {
      * @return количество требуемого опыта округлённоё до целого.
      */
     public static int getRequirementEXP(){
-        return (int) Math.round(getBaseProgression() * Math.pow(10,2));
+        return (int) Math.round(getBaseLevelProgression() * Math.pow(10,2));
     }
 
     public static int getNextHP(){
@@ -37,15 +41,19 @@ public class RogueraGameSystem {
     }
 
     public static int getBaseATK(){
-        return getBaseProgression()/5;
+        return getBaseLevelProgression()/5;
+    }
+
+    public static int getBaseDEF(){
+        return getBaseLevelProgression()/5 + 1;
     }
 
     public static int getPBonus(){
-        return (int) (Math.sqrt(getBaseProgression())*2);
+        return (int) (Math.sqrt(getBaseFloorProgression())*2);
     }
 
     public static int getPScoreBonus(){
-        return (int) ((Math.pow(Math.log(getBaseProgression()),2)) / 2) + 1;
+        return Math.max((int) ((Math.pow(Math.log(getBaseFloorProgression()),2)) / 2) + 4,2);
     }
 
     public static boolean isVariablesOk(){
@@ -71,10 +79,10 @@ public class RogueraGameSystem {
         }
         int intSum = Float.floatToIntBits(sum);
 
-        byte[] encodedValues = Base64.getEncoder().encode(new String(""+intSum).getBytes());
+        byte[] encodedValues = Base64.getEncoder().encode(("" + intSum).getBytes());
 
         String s = new String(encodedValues);
 
-        return JDBСQueries.getGetVariableHash().equals(s);
+        return false;
     }
 }

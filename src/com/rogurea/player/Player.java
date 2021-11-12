@@ -7,6 +7,7 @@ package com.rogurea.player;
 import com.rogurea.GameLoop;
 import com.rogurea.creatures.Creature;
 import com.rogurea.base.Debug;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.items.*;
@@ -53,7 +54,7 @@ public class Player extends Creature {
 
     public ArrayList<Item> Inventory = new ArrayList<>();
 
-    public final ArrayList<Equipment> quickEquipment = new ArrayList<>(5);
+    public ArrayList<Equipment> quickEquipment = new ArrayList<>(5);
 
     public void putUpItem(Item item){
         //Debug.toLog("[PLAYER]Picked up item: "+item.toString());
@@ -81,7 +82,7 @@ public class Player extends Creature {
         if(equipment instanceof Weapon){
             if(getEquipmentFromSlot("FirstWeapon").isPresent() && isGreaterStats(equipment, "FirstWeapon")) {
                 switchEquipment(equipment, "FirstWeapon");
-            }else if(!getEquipmentFromSlot("FirstWeapon").isPresent()) {
+            }else if(getEquipmentFromSlot("FirstWeapon").isEmpty()) {
                 putIntoEquipment(equipment, "FirstWeapon");
             } else {
                 //Debug.toLog("\ninto inventory");
@@ -91,7 +92,7 @@ public class Player extends Creature {
         else if(equipment instanceof Armor){
             if(getEquipmentFromSlot("Armor").isPresent() && isGreaterStats(equipment, "Armor")){
                 switchEquipment(equipment, "Armor");
-            } else if(!getEquipmentFromSlot("Armor").isPresent()) {
+            } else if(getEquipmentFromSlot("Armor").isEmpty()) {
                 putIntoEquipment(equipment, "Armor");
             } else {
                 //Debug.toLog("\ninto inventory");
@@ -155,9 +156,7 @@ public class Player extends Creature {
 
     {
         Equipment.put("FirstWeapon", null);
-        Equipment.put("SecondWeapon", com.rogurea.items.Equipment.BLANK);
-        Equipment.put("Armor", com.rogurea.items.Equipment.BLANK);
-        Equipment.put("Amulet", com.rogurea.items.Equipment.BLANK);
+        Equipment.put("Armor", null);
     }
 
     public Cell getFrontCell(){
@@ -203,16 +202,43 @@ public class Player extends Creature {
 
         this.cellPosition = this.playerPosition;
 
-        playerRichPresence = new DiscordRichPresence.Builder("Ready to crawling dungeon").setStartTimestamps(Instant.now().getEpochSecond()).setBigImage("icon","Roguera").build();
+        playerRichPresence = new DiscordRichPresence.Builder("Ready to crawling dungeon")
+                .setStartTimestamps(Instant.now().getEpochSecond()).setBigImage("icon","Roguera").build();
 
         pname = ViewObjects.getTrimString(playerData.getPlayerName());
     }
 
     public Player(PlayerData playerData){
-        this();
+        super();
+
+        this.tag += ".player";
+
+        setModel(new Model("Player", Colors.GREEN_BRIGHT, GameResources.PLAYER_MODEL));
+
+        this.setPlayerData(playerData);
+
         this.playerPosition = playerData.getPlayerPositionData();
+
         this.HP = playerData.getHP();
+
         this.currentRoom = (byte) playerData.getCurrentRoom().roomNumber;
+
+        this.name = playerData.getPlayerName();
+
+        this.cellPosition = playerData.getPlayerPositionData();
+
+        this.playerPosition = playerData.getPlayerPositionData();
+
+        this.Inventory = getPlayerData().getPlayerInventory();
+
+        this.Equipment = getPlayerData().getPlayerEquipment();
+
+        this.quickEquipment = getPlayerData().getPlayerQuickEquipment();
+
+        playerRichPresence = new DiscordRichPresence.Builder("Ready to crawling dungeon")
+                .setStartTimestamps(Instant.now().getEpochSecond()).setBigImage("icon","Roguera").build();
+
+        this.pname = this.name;
     }
 
     @Override
@@ -238,8 +264,9 @@ public class Player extends Creature {
     }
 
     public void updateRichPresence(){
-        playerRichPresence.details = pname+" is crawling dungeon";
-        playerRichPresence.state = "Floor "+Dungeon.getCurrentFloor().getFloorNumber() + "|" + " Room " +currentRoom;
+        pname = ViewObjects.getTrimString(playerData.getPlayerName());
+        playerRichPresence.details = pname+"(LVL "+playerData.getLevel()+")"+" is crawling dungeon";
+        playerRichPresence.state = "Floor "+Dungeon.getCurrentFloor().get().getFloorNumber() + "|" + " Room " +currentRoom;
         DiscordRPC.discordUpdatePresence(playerRichPresence);
     }
 
@@ -258,6 +285,19 @@ public class Player extends Creature {
     @Override
     public int getDefenceByEquipment(){
         return this.playerData.get_baseDef() + this.getPlayerData().get_def() + this.getPlayerData().get_defPotionBonus(); //+ findEquipmentInInventoryByTag("item.equipment.armor.").getStats();
+    }
+
+    public void checkNewLevel(){
+        if(this.playerData.getExp() >= this.playerData.getRequiredEXP()){
+            this.playerData.setLevel(this.playerData.getLevel() + 1);
+            this.playerData.updBaseATK();
+            this.playerData.updRequiredEXP();
+            this.playerData.updBaseDEF();
+            this.playerData.setMaxHP(RogueraGameSystem.getNextHP());
+
+            logView.playerAction("get the new level!");
+            Draw.call(infoGrid.getFirstBlock());
+        }
     }
 
     public void setPlayerData(PlayerData playerData){

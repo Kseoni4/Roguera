@@ -48,12 +48,12 @@ public class Cell implements Serializable {
     public void removeFromCell() {
         if(lastObjectIndex < 0)
             lastObjectIndex = 0;
-        gameObjects.remove(lastObjectIndex);
-        UpdateLastItemCounter();
+        removeFromCell(gameObjects.get(lastObjectIndex));
     }
 
     public void removeFromCell(GameObject gameObject){
         this.gameObjects.remove(gameObject);
+        this.linkedRoom.gameObjects.remove(gameObject);
         UpdateLastItemCounter();
     }
 

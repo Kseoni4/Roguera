@@ -16,6 +16,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
 import com.rogurea.mapgenerate.MapEditor;
+import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.ui.InventoryView;
 import com.rogurea.view.ui.LogView;
@@ -206,8 +207,9 @@ public class TerminalView {
         try {
             textgui.putCSIStyledString(x, y, data);
         }  catch (IllegalArgumentException e){
-            Debug.toLog("[DISPLAY_ERROR]"+ Arrays.toString(e.getStackTrace()));
-            Debug.toLog("[DISPLAY_ERROR] data string was "+data);
+            Debug.toLog(Colors.RED_BRIGHT+"[ERROR][DISPLAY] something draw wrong, see stacktrace:");
+            e.printStackTrace();
+            Debug.toLog(Colors.RED_BRIGHT+"[ERROR][DISPLAY] data string was: \n\t["+data+"]");
         }
     }
 

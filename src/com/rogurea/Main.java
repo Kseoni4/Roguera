@@ -1,6 +1,5 @@
 package com.rogurea;
 
-import com.rogurea.base.AutoSaveLogWorker;
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.GameResources;
@@ -18,7 +17,7 @@ public class Main {
     public Main() {
     }
 
-    public static void loadGame() {
+    public static void disableNewGame() {
         newGame = false;
     }
 
@@ -48,7 +47,7 @@ public class Main {
         if (newGame) {
             Dungeon.generate();
         } else {
-            Dungeon.loadDungeonFromSave();
+            Dungeon.reloadDungeonAfterLoad();
         }
 
         TerminalView.reDrawAll(IViewBlock.empty);
@@ -57,13 +56,17 @@ public class Main {
 
         try {
             gameLoop.start();
-        } catch (Exception var2) {
-            var2.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             GameLoop.endGameSequence();
         }
 
-        gameLoop = null;
-        System.out.println("\u001b[38;5;200m[SYSTEM] End of main");
+        Debug.toLog("[SYSTEM] Nullification of game loop");
+
+        Debug.toLog("\u001b[38;5;200m[SYSTEM] End of main");
+
+        Debug.toLog("[SYSTEM] Back to the main menu");
+
         MainMenu.start(0);
     }
 }

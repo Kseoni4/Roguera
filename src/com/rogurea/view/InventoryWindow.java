@@ -17,6 +17,7 @@ import com.rogurea.items.Item;
 import com.rogurea.resources.Colors;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
 
 public class InventoryWindow extends Window {
@@ -37,7 +38,10 @@ public class InventoryWindow extends Window {
     public InventoryWindow(ArrayList<Item> itemCollection) {
         super();
         this.itemCollection = itemCollection;
-        makeWindow(_inventoryWindowPosition, _inventoryWindowSize.withRelative(0,itemCollection.size()));
+        String s = "";
+        if(!itemCollection.isEmpty())
+            s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).toList().get(0).getName();
+        makeWindow(_inventoryWindowPosition, _inventoryWindowSize.withRelative(s.length(),itemCollection.size()));
         fillElements();
         cursorUI = new CursorUI(elements);
     }

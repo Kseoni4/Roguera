@@ -18,7 +18,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.7:0711:1653";
+    public static final String VERSION = "v0.2.8:1211:1325";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -30,16 +30,23 @@ public class GameResources {
 
     private static final ArrayList<String> MOB_NAMES = new ArrayList<>();
 
+    private static final ArrayList<String> WEAPON_NAMES = new ArrayList<>();
+
+    private static final ArrayList<String> ARMOR_NAMES = new ArrayList<>();
+
     private static final String[] resources = {
             "MapStructure",
             "Equipment",
             "InventoryStructure",
-            "Entity"
+            "Entity",
+            "bosses"
     };
 
     private static final String[] textResources = {
             "whoops",
-            "mobnames"
+            "mobnames",
+            "weaponnames",
+            "armornames"
     };
 
     public static void loadFont(){
@@ -66,6 +73,8 @@ public class GameResources {
         MODEL_HASH_MAP.clear();
         MOB_NAMES.clear();
         WHOOPS_TEXT.clear();
+        WEAPON_NAMES.clear();
+        ARMOR_NAMES.clear();
     }
 
     public static void loadResources() {
@@ -113,6 +122,14 @@ public class GameResources {
                     case "mobnames":
                         MOB_NAMES.addAll(Arrays.asList(map));
                         break;
+                    case "weaponnames":
+                        WEAPON_NAMES.addAll(Arrays.asList(map));
+                        WEAPON_NAMES.removeIf(s -> s.length() >= 30);
+                        break;
+                    case "armornames":
+                        ARMOR_NAMES.addAll(Arrays.asList(map));
+                        ARMOR_NAMES.removeIf(s -> s.length() >= 30);
+                        break;
                 }
             }catch (IOException e){
                 Debug.toLog(e.getMessage());
@@ -149,9 +166,13 @@ public class GameResources {
         return MOB_NAMES;
     }
 
+    public static ArrayList<String> getWeaponNames() { return WEAPON_NAMES;}
+
+    public static ArrayList<String> getArmorNames() { return ARMOR_NAMES;}
+
     public static HashMap<Character, Runnable> getKeyMap(){
         HashMap<Character, Runnable> _keymap = new HashMap<>();
-        _keymap.put('r', Dungeon::RegenRoom);
+        _keymap.put('r', Dungeon::regenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         //_keymap.put('i', () -> ViewObjects.inventoryView.openToInput());
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));

@@ -1,4 +1,4 @@
-package com.rogurea.view;
+package com.rogurea.workers;
 
 import com.rogurea.base.Debug;
 import com.rogurea.base.GameObject;
@@ -6,6 +6,7 @@ import com.rogurea.creatures.Creature;
 import com.rogurea.creatures.Mob;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.player.Player;
+import com.rogurea.view.Draw;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

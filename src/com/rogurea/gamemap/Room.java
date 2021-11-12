@@ -11,7 +11,8 @@ import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
-import com.rogurea.view.DrawLootWorker;
+import com.rogurea.workers.DrawLootWorker;
+import com.rogurea.workers.MapCleanWorker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -246,10 +247,9 @@ public class Room implements Serializable {
         if (getObjectsByTag("creature.mob").length > 0) {
             mobThreads.execute(new DrawLootWorker());
             mobThreads.execute(new MapCleanWorker());
+            Debug.toLog("[Room "+ roomNumber +"] mob threads has started");
         }
-
         mobThreads.shutdown();
-        Debug.toLog("[Room "+ roomNumber +"] mob threads has started");
     }
 
     public void endMobAIThreads() {
@@ -259,7 +259,7 @@ public class Room implements Serializable {
                 if (mobThreads.awaitTermination(2, TimeUnit.SECONDS)) {
                     boolean isTerm = mobThreads.isTerminated();
                     Debug.toLog("[Room] threads is " + (isTerm ? Colors.GREEN_BRIGHT : Colors.RED_BRIGHT + "not") + " terminated");
-                    gameObjects.removeIf(go -> (go.tag.startsWith("creature.mob") && ((Creature) go).getHP() <= 0));
+                    gameObjects.removeIf(go -> (go != null && go.tag.startsWith("creature.mob") && ((Creature) go).getHP() <= 0));
                     Debug.toLog("[Room " + roomNumber + "] mob threads has ended");
                 }
             } catch (InterruptedException e) {
