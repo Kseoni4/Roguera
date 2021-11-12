@@ -15,8 +15,6 @@ Old-school ASCII roguelike game, that I made for learning Java.
 ### О, а как выглядит?
 <img src="https://github.com/Kseoni4/Roguera/blob/f44c9f27c0b0578894f464f3e716bc451e31bae1/Screenshots/Roguera_0.2.8_1.png" />
 
-<img src="https://github.com/Kseoni4/Roguera/blob/f44c9f27c0b0578894f464f3e716bc451e31bae1/Screenshots/Roguera_0.2.8_2.png" />
-
 ### Что ещё интересного?
 
 * Рогалик написан на версии Java 11, с использованием фреймворка - эмулятора терминала - <a href="https://github.com/mabe02/lanterna">Lanterna</a>.
