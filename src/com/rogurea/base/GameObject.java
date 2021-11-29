@@ -32,4 +32,9 @@ public abstract class GameObject implements Serializable {
         this.cellPosition = cell.position;
         cell.gameObjects.add(this);
     }
+
+    @Override
+    public String toString(){
+        return this.model.toString();
+    }
 }

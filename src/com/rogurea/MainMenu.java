@@ -15,6 +15,7 @@ import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.SaveLoadSystem;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.net.RogueraSpring;
 import com.rogurea.resources.Colors;
 import com.rogurea.player.Player;
 import com.rogurea.resources.GameResources;
@@ -23,6 +24,7 @@ import net.arikia.dev.drpc.DiscordRichPresence;
 
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class MainMenu {
 
@@ -48,7 +50,13 @@ public class MainMenu {
 
     private static final int CORRUPTED_SAVE_FILE = 1;
 
-    private static String checkedResources = null;
+    private static final int NICK_NAME_IS_BANNED_FOR_USE = 3;
+
+    private static final int EXIT_CODE = 3;
+
+    private static final int NEW_GAME_CODE = 1;
+
+    private static final int LOAD_GAME_CODE = 2;
 
     private static void startMainMenuRP(){
         Debug.toLog("[DISCORD_RP]Start main menu presence");
@@ -114,6 +122,11 @@ public class MainMenu {
                 newGamePanel.addComponent(errormessage);
                 break;
             }
+            case 3:{
+                Label errormessage = new Label("This nickname is banned for use!").setForegroundColor(TextColor.ANSI.RED_BRIGHT);
+                newGamePanel.addComponent(errormessage);
+                break;
+            }
         }
     }
 
@@ -149,31 +162,32 @@ public class MainMenu {
             Dungeon.player = new Player();
             if(nickname.getText().length() > 0) {
                 Debug.toLog("[MAIN_MENU] get input nickname: " + nickname.getText());
-
+                try {
+                    if(!RogueraSpring.checkNickName(nickname.getText())){
+                        CheckErrorCode(NICK_NAME_IS_BANNED_FOR_USE);
+                        return;
+                    }
+                } catch (URISyntaxException | IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Dungeon.player.getPlayerData().setPlayerName(nickname.getText());
 
                 Debug.toLog("[MAIN_MENU] Set nickname " + Dungeon.player.getPlayerData().getPlayerName());
             } else {
                 Debug.toLog("[MAIN_MENU] set random nickname");
             }
+            Roguera.codeOfMenu = 1;
             try {
                 GUIWindow.close();
 
                 windowsGUI.getActiveWindow().close();
 
+                basePanel = null;
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try {
-                basePanel = null;
 
-                Main.newGame();
-
-                Main.startSequence();
-
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
         })).setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
 
         NEW_GAME_WINDOW.setComponent(newGamePanel);
@@ -195,32 +209,11 @@ public class MainMenu {
 
         loadingWindow.setPosition(centerOfScreen);
 
-        //Future<Optional<Connection>> sqlSocket = Executors.newSingleThreadExecutor().submit(new ConnectingWorker());
-
-        /*try {
-            windowsGUI.setActiveWindow(loadingWindow).updateScreen();
-            sqlSocket.get().ifPresentOrElse(JDBСQueries::setConnection, () -> Debug.toLog("[JDBC] Error on connecting to the database"));
-            loadingWindow.close();
-        } catch (ExecutionException | InterruptedException | IOException e) {
-            e.printStackTrace();
-        }*/
-
         windowsGUI.removeWindow(loadingWindow);
 
         MENU_WINDOWS.setComponent(basePanel.withBorder(Borders.singleLine("Main menu")));
 
-        /*Panel statusPanel = new Panel();
-
-        statusPanel.withBorder(Borders.singleLine("Online status"));
-
-        statusPanel.addComponent(new Label((JDBСQueries.checkConnect() ? "Connected" : "Not connected"))
-                .setForegroundColor((JDBСQueries.checkConnect() ? TextColor.ANSI.GREEN_BRIGHT : TextColor.ANSI.RED_BRIGHT)));
-
-        STATUS_WINDOW.setComponent(statusPanel);*/
-
         windowsGUI.addWindow(MENU_WINDOWS);
-
-        //windowsGUI.addWindow(STATUS_WINDOW);
 
         MENU_WINDOWS.setPosition(centerOfScreen);
 
@@ -228,7 +221,9 @@ public class MainMenu {
 
         windowsGUI.setActiveWindow(MENU_WINDOWS).waitForWindowToClose(MENU_WINDOWS);
 
-        System.exit(1);
+        if(Roguera.codeOfMenu == 0){
+            System.exit(0);
+        }
     }
 
     private static void ConstructMenuPanel(){
@@ -242,16 +237,18 @@ public class MainMenu {
                 try {
                     SaveLoadSystem.loadGame(SaveLoadSystem.getSaveFileName());
 
-                    Main.disableNewGame();
-
                     CheckErrorCode(NORMAL);
 
                     windowsGUI.getActiveWindow().close();
 
                     GUIWindow.close();
 
-                    Main.startSequence();
-                } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                    windowsGUI = null;
+
+                    GUIWindow = null;
+
+                    Roguera.codeOfMenu = LOAD_GAME_CODE;
+                } catch (IOException | ClassNotFoundException e) {
                     Debug.toLog(Colors.RED_BRIGHT+"[ERROR][MAIN_MENU]: Saving file has been obsoleted.");
                     e.printStackTrace();
                     CheckErrorCode(CORRUPTED_SAVE_FILE);
@@ -267,13 +264,7 @@ public class MainMenu {
         }));
 
         basePanel.addComponent(new Button("Quit", () -> {
-            /*try {
-                Debug.log("=== Instance ended by quit from menu === ");
-                Player.nickName = "MenuLog";
-                Debug.SaveLogToFile();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }*/
+
             DiscordRPC.discordShutdown();
             windowsGUI.getActiveWindow().close();
             try {
@@ -281,10 +272,7 @@ public class MainMenu {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.exit(0);
+            Roguera.codeOfMenu = EXIT_CODE;
         }));
-/*        Label checkConnect = new Label("Online");
-        BasePanel.addComponent(checkConnect);*/
-        //BasePanel.addComponent();
     }
 }

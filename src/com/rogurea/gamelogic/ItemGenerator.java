@@ -25,8 +25,11 @@ public class ItemGenerator {
 
     public static Equipment getRandomWeaponEquipment() {
         Model wp = GameResources.getModel(weaponModels[GetRandom.RNGenerator.nextInt(weaponModels.length)]);
+
         wp.changeName(GameResources.getWeaponNames().get(GetRandom.RNGenerator.nextInt(GameResources.getWeaponNames().size())));
+
         Model _wp = new Model(wp.getModelName(), wp.get().getCharacter());
+
         return new Weapon(_wp.getModelName(),
                 _wp,
                 Item.Materials.values()[GetRandom.RNGenerator.nextInt(Math.min(Dungeon.getCurrentFloor().get().getFloorNumber(),Item.Materials.values().length))]);

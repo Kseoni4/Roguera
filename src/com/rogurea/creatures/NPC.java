@@ -58,7 +58,7 @@ public class NPC extends Creature {
 
     public NPC(String npcName, NPCConsumeAction<ArrayList<Item>> npcAction) {
         super(1, npcName);
-        Debug.toLog("[NPC] " + npcName + " creating");
+        //Debug.toLog("[NPC] " + npcName + " creating");
         this.npcAction = npcAction;
         this.tag += ".npc";
         this.cellPosition = new Position(2, 2);

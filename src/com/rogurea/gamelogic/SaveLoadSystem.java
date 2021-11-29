@@ -28,6 +28,10 @@ public class SaveLoadSystem {
 
     private static final String EXTENSION = ".sav";
 
+    /**
+     * Сохранение данных игрока в файл
+     * @throws IOException если сохранение не удалось
+     */
     public static void saveGame() throws IOException {
 
         createSaveDirectory();
@@ -40,8 +44,6 @@ public class SaveLoadSystem {
 
         String saveFileName = DIRECTORY + playerName + EXTENSION;
 
-        //JDBСQueries.updUserHash(String.valueOf(Dungeon.player.getPlayerData().getScoreHash().hashCode()));
-                            //"./saves/player228.sav"
         saveFile = new File(saveFileName);
 
         saveFileStream = new ObjectOutputStream(new FileOutputStream(saveFile));
@@ -69,6 +71,8 @@ public class SaveLoadSystem {
         Debug.toLog("[SAVE] remove temp file");
 
         saveFileTemp.delete();
+
+        Debug.toLog("[SAVE]Player data info: "+playerDataFile.toString());
     }
 
     public static void loadGame(String saveFileName) throws IOException, ClassNotFoundException {
@@ -94,42 +98,6 @@ public class SaveLoadSystem {
         saveFileInputStream.close();
 
         Debug.toLog("[LOAD]Save file is loaded");
-
-        /*ObjectInputStream objectInputStream = new ObjectInputStream(
-                new FileInputStream(saveFileName)
-        );
-
-        Debug.toLog("[LOAD]Loading game from file: " + saveFileName);
-
-        PlayerData loadedFile;
-
-        Dungeon.player = new Player();
-
-        loadedFile = (PlayerData) objectInputStream.readObject();
-
-        Dungeon.player.setCurrentRoom((byte) loadedFile.getCurrentRoom().roomNumber);
-
-        Dungeon.player.setPlayerData(loadedFile);
-
-        Dungeon.player.playerPosition = loadedFile.getPlayerPositionData();
-
-        Debug.toLog("[LOAD] Player ID from loadingFile: "+loadedFile.getPlayerID());
-
-        Debug.toLog("[LOAD] Player ID from save: "+Dungeon.player.getPlayerData().getPlayerID());
-
-        int scoreHash = JDBСQueries.getUserScoreHash();
-
-        Debug.toLog("[LOAD]Player name: " + Dungeon.player.getName());
-
-        Dungeon.savedRoom = loadedFile.getCurrentRoom();
-
-        Dungeon.player.Inventory = loadedFile.getPlayerInventory();
-
-        Dungeon.player.Equipment = loadedFile.getPlayerEquipment();
-
-        //GetRandom.SetRNGSeed(loadedFile.getRandomSeed());
-
-        Debug.toLog("[LOAD]Save file is loaded");*/
     }
 
     private static void createSaveDirectory(){
@@ -149,6 +117,8 @@ public class SaveLoadSystem {
         playerDataFile.setSaveFileVersion(GameResources.VERSION);
         playerDataFile.setCurrentFloor(Dungeon.getCurrentFloor().get());
         playerDataFile.setCurrentRoom(Dungeon.getCurrentRoom());
+        playerDataFile.set_atkPotionBonus(0);
+        playerDataFile.set_defPotionBonus(0);
     }
 
     private static void getDataFromSavedFile(PlayerData savedFile) throws IndexOutOfBoundsException {

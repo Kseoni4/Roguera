@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class MapCleanWorker implements Runnable {
     @Override
     public void run() {
-        Debug.toLog("[MAP_CLEAN_WORKER] Started");
+        //Debug.toLog("[MAP_CLEAN_WORKER] Started");
         while(!Thread.currentThread().isInterrupted()) {
             try {
                 if(isMobsNotAlive()) {
@@ -29,7 +29,7 @@ public class MapCleanWorker implements Runnable {
                 break;
             }
         }
-        Debug.toLog("[MAP_CLEAN_WORKER] Ended");
+        //Debug.toLog("[MAP_CLEAN_WORKER] Ended");
     }
 
     private boolean isMobsNotAlive(){
@@ -38,12 +38,12 @@ public class MapCleanWorker implements Runnable {
 
     private void cleanPlayerDuplicates() {
 
-        Debug.toLog("[MAP_CLEAN_WORKER] Try to clean duplicates");
+        //Debug.toLog("[MAP_CLEAN_WORKER] Try to clean duplicates");
         boolean isRemoved = Dungeon.getCurrentRoom().getObjectsSet()
                 .removeIf(gameObject ->
                         gameObject.model.get().equals(Dungeon.player.getModel()) && gameObject.id != Dungeon.player.id);
 
-        Debug.toLog("[MAP_CLEAN_WORKER] "+(isRemoved ? "duplicate(s) has been removed from room GameObject set" : "no duplicates has been found or removed from room GameObject set"));
+        //Debug.toLog("[MAP_CLEAN_WORKER] "+(isRemoved ? "duplicate(s) has been removed from room GameObject set" : "no duplicates has been found or removed from room GameObject set"));
 
         Dungeon.getCurrentRoom().getCells()
                 .forEach(cell -> {

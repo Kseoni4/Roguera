@@ -246,7 +246,7 @@ public class Room implements Serializable {
         }
         if (getObjectsByTag("creature.mob").length > 0) {
             mobThreads.execute(new DrawLootWorker());
-            mobThreads.execute(new MapCleanWorker());
+            //mobThreads.execute(new MapCleanWorker());
             Debug.toLog("[Room "+ roomNumber +"] mob threads has started");
         }
         mobThreads.shutdown();

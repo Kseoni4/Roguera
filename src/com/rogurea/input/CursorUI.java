@@ -7,6 +7,7 @@ package com.rogurea.input;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Position;
+import com.rogurea.resources.Colors;
 import com.rogurea.view.Element;
 
 import java.util.ArrayList;
@@ -45,7 +46,13 @@ public class CursorUI {
             case ArrowDown: {Move(DOWN); break;}
             case ArrowUp: {Move(UP); break;}
             case Enter: {
-                elements.get(indexOfElement).ElementAction.run(); break;}
+                try {
+                    elements.get(indexOfElement).ElementAction.run();
+                } catch (IndexOutOfBoundsException e) {
+                    Debug.toLog(Colors.RED_BRIGHT + "[ERROR][CURSOR_UI] No such element on index");
+                }
+                break;
+            }
         }
         setCursorPositionByIndex();
     }

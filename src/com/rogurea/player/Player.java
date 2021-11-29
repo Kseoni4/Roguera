@@ -109,10 +109,31 @@ public class Player extends Creature {
             if(item instanceof Potion)
                 quickEquipment.add((Equipment) item);
             else {
-                Inventory.add(item);
+                if(Inventory.size() < 10) {
+                    Inventory.add(item);
+                } else {
+                    logView.putLog("Your inventory is full!");
+                }
             }
         } else {
-            Inventory.add(item);
+            if(Inventory.size() < 10) {
+                Inventory.add(item);
+            } else {
+                logView.putLog("Your inventory is full!");
+            }
+        }
+    }
+
+    public void putIntoQuickMenu(Item item, int index){
+        if(index < 6){
+            //Debug.toLog("[PLAYER_INVENTORY] Put item "+item+ " into quick menu on index "+ index);
+            try {
+                if(quickEquipment.toArray().length < 5) {
+                    quickEquipment.add(index - 1, (com.rogurea.items.Equipment) item);
+                }
+            } catch (IndexOutOfBoundsException e){
+                Debug.toLog(Colors.RED_BRIGHT+"[ERROR][PLAYER_INVENTORY] Index " + index + " out of bounds");
+            }
         }
     }
 
@@ -121,14 +142,23 @@ public class Player extends Creature {
     }
 
     public void equipItemIntoFirstSlot(Equipment eq){
-        switchEquipment(eq, "FirstWeapon");
+        if(eq instanceof Weapon)
+            switchEquipment(eq, "FirstWeapon");
+        else if(eq instanceof Armor)
+            switchEquipment(eq, "Armor");
     }
 
     public void equipItemFromQuickSlot(Equipment eq){
         int index = quickEquipment.indexOf(eq);
         quickEquipment.remove(eq);
-        quickEquipment.add(index, Equipment.remove("FirstWeapon"));
-        putIntoEquipment(eq, "FirstWeapon");
+        String place = "";
+        if(eq instanceof Weapon){
+            place = "FirstWeapon";
+        } else if(eq instanceof Armor){
+            place = "Armor";
+        }
+        quickEquipment.add(index, Equipment.remove(place));
+        putIntoEquipment(eq, place);
     }
 
     private void switchEquipment(Equipment toEquip, String place){
@@ -265,7 +295,7 @@ public class Player extends Creature {
 
     public void updateRichPresence(){
         pname = ViewObjects.getTrimString(playerData.getPlayerName());
-        playerRichPresence.details = pname+"(LVL "+playerData.getLevel()+")"+" is crawling dungeon";
+        playerRichPresence.details = pname+" (LVL "+playerData.getLevel()+")";
         playerRichPresence.state = "Floor "+Dungeon.getCurrentFloor().get().getFloorNumber() + "|" + " Room " +currentRoom;
         DiscordRPC.discordUpdatePresence(playerRichPresence);
     }

@@ -16,15 +16,15 @@ public class RogueraGameSystem {
      * Вычисляется как X = Level^p * ProgressionCoefficient
      * @return значение прогрессии на текущем уровне игрока
      */
-    public static int getBaseLevelProgression(){
-        return (int) ((int) Math.pow(Dungeon.player.getPlayerData().getLevel(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT);
+    public static double getBaseLevelProgression(){
+        return Math.pow(Dungeon.player.getPlayerData().getLevel(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT;
     }
 
-    public static int getBaseFloorProgression(){
+    public static double getBaseFloorProgression(){
         AtomicInteger floorNumber = new AtomicInteger(1);
         Dungeon.getCurrentFloor().ifPresent(floor -> floorNumber.set(floor.getFloorNumber()));
 
-        return (int) ((int) Math.pow(floorNumber.get(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT);
+        return Math.pow(floorNumber.get(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT;
     }
 
     /**
@@ -40,12 +40,20 @@ public class RogueraGameSystem {
         return Dungeon.player.getHP() + 10;
     }
 
-    public static int getBaseATK(){
-        return getBaseLevelProgression()/5;
+    public static int getPlayerBaseATK(){
+        return (int) Math.round((getBaseLevelProgression()/2)+1);
     }
 
-    public static int getBaseDEF(){
-        return getBaseLevelProgression()/5 + 1;
+    public static int getPlayerBaseDEF(){
+        return (int) Math.round(Math.sqrt(getBaseLevelProgression()) + 2);
+    }
+
+    public static int getMobBaseATK(){
+        return (int) Math.round(getBaseFloorProgression()*1.5);
+    }
+
+    public static int getMobBaseDEF(){
+        return (int) Math.round(Math.sqrt(getBaseFloorProgression()));
     }
 
     public static int getPBonus(){

@@ -40,6 +40,8 @@ public class Dungeon {
 
     private static final Predicate<Room> ByPlayer = Room -> Room.roomNumber == player.getCurrentRoom();
 
+    private static final Predicate<Room> ByNumber = Room -> Room.roomNumber == 10;
+
     public static void generate(){
         Debug.toLog("[DUNGEON] Start generate rooms sequence");
 
@@ -47,7 +49,7 @@ public class Dungeon {
 
         RoomGenerate.generateRoomSequence(0);
 
-        RoomGenerate.generateRoomStructure(getRoom(room -> room.roomNumber == 1));
+        RoomGenerate.generateRoomStructure(getRoom(ByFirstRoom));
 
         PutPlayerOnMap(getRoom(ByFirstRoom),getRoom(ByFirstRoom).getTopCenterCellPosition().getRelative(0,1));
 
@@ -65,20 +67,6 @@ public class Dungeon {
         ViewObjects.mapView.setRoom(getCurrentRoom());
 
         getCurrentRoom().startMobAIThreads();
-
-        /*currentFloorNumber = Dungeon.player.getPlayerData().getCurrentFloor().getFloorNumber();
-
-        floors.add(0, Dungeon.player.getPlayerData().getCurrentFloor());
-
-        Floor.setCounterFromLoad(currentFloorNumber);
-
-        rooms = Dungeon.player.getPlayerData().getCurrentFloor().getRooms();
-
-        PutPlayerOnMap(Dungeon.savedRoom, Dungeon.player.playerPosition);
-
-        ViewObjects.mapView.setRoom(Dungeon.savedRoom);
-
-        Dungeon.savedRoom.startMobAIThreads();*/
     }
 
     public static Room getRoom(Predicate<Room> RoomFilter){
@@ -106,7 +94,7 @@ public class Dungeon {
                 room -> room.roomNumber == player.getCurrentRoom()
         ).findAny().orElse(null)));
 
-        PutPlayerOnMap(Dungeon.getCurrentRoom(), new Position(3,3));
+        PutPlayerOnMap(Dungeon.getCurrentRoom(), Dungeon.getCurrentRoom().getTopCenterCellPosition().getRelative(0,1));
 
         ViewObjects.mapView.setRoom(getRoom(ByPlayer));
 

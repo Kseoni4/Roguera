@@ -21,11 +21,15 @@ public class Roguera {
 
     public static ArrayList<Closeable> terminals = new ArrayList<>();
 
-    public static void main(String[] args) throws IOException {
+    private static final int RESET_CODE = 0;
+
+    public static int codeOfMenu = RESET_CODE;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         checkCLI(args);
 
-        Debug.toLog("[START_UP] CLI args: "+Arrays.toString(args));
+        Debug.toLog("[START_UP] CLI args: " + Arrays.toString(args));
 
         Debug.toLog("SYSTEM PROPERTIES: \n\t"
                 + "OS: " + System.getProperties().getProperty("os.name") + "\n\t"
@@ -33,18 +37,19 @@ public class Roguera {
                 + "System version: " + System.getProperties().getProperty("os.version") + "\n\t"
                 + "Java version: " + System.getProperties().getProperty("java.version") + "\n\t"
                 + "Java RE: " + System.getProperties().getProperty("java.runtime.version") + "\n\t"
-                + "Java VM Version: " + System.getProperties().getProperty("java.vm.specification.version") + "\n\t"
-                + "Java Сompiler Version: " + System.getProperties().getProperty("java.compiler") + "\n\t"
+                + "Java Specification Version: "+System.getProperties().getProperty("java.specification.version")+"\n\t"
+                + "Java VM Version: " + System.getProperties().getProperty("java.vm.version") + "\n\t"
+                + "Java Compiler Version: " + System.getProperties().getProperty("java.compiler") + "\n\t"
                 + "Java Сlass version: " + System.getProperties().getProperty("java.class.version")
         );
 
-        Debug.toLog("[VERSION]"+ GameResources.VERSION);
+        Debug.toLog("[VERSION]" + GameResources.VERSION);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Debug.toLog("[DISCORD_RP]Closing Discord hook." );
-            Debug.toLog("[DRAW_CALL] Count: "+ Draw.DrawCallCount);
-            Debug.toLog("[DRAW_RESET] Count: "+ Draw.DrawResetCount);
-            Debug.toLog("[DRAW_INIT] Count: "+ Draw.DrawInitCount);
+            Debug.toLog("[DISCORD_RP]Closing Discord hook.");
+            Debug.toLog("[DRAW_CALL] Count: " + Draw.DrawCallCount);
+            Debug.toLog("[DRAW_RESET] Count: " + Draw.DrawResetCount);
+            Debug.toLog("[DRAW_INIT] Count: " + Draw.DrawInitCount);
             DiscordRPC.discordShutdown();
             //JDBСQueries.closeConnection();
         }));
@@ -53,9 +58,28 @@ public class Roguera {
 
         DiscordRPC.discordRunCallbacks();
 
-        MainMenu.start(0);
+        while (true) {
 
-        DiscordRPC.discordShutdown();
+            MainMenu.start(0);
+
+            switch (codeOfMenu) {
+                case 1:
+                    Main.enableNewGame();
+                    Main.startSequence();
+                    break;
+                case 2:
+                    Main.disableNewGame();
+                    Main.startSequence();
+                    break;
+                case 3:
+                    DiscordRPC.discordShutdown();
+                    System.exit(0);
+                    break;
+            }
+            Debug.toLog("[SYSTEM] Back to the main menu");
+
+            codeOfMenu = RESET_CODE;
+        }
     }
     private static void checkCLI(String[] args){
         for(String argument : args){

@@ -167,7 +167,7 @@ public class PlayerData implements Serializable {
     }
 
     public void addScoreMultiplier(int amount){
-        this.scoreMultiplier = amount;
+        this.scoreMultiplier += amount;
     }
 
     private void updateHash(){
@@ -211,8 +211,8 @@ public class PlayerData implements Serializable {
                 "Level: "+Colors.CYAN.concat(String.valueOf(level)),
                 "EXP: "+Colors.CYAN_BRIGHT+exp+"/"+requiredEXP,
                 "Gold: "+Colors.GOLDEN.concat(String.valueOf(Money)),
-                "ATK: "+Colors.ORANGE.concat(""+(_atkPotionBonus+_atk+_baseAtk)),
-                "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_defPotionBonus+_def+_baseDef))
+                "ATK: "+Colors.ORANGE.concat(""+(_atkPotionBonus+_atk+_baseAtk)).concat(_atkPotionBonus > 0 ? " "+Colors.RED_PASTEL+"(+"+_atkPotionBonus+")" :""),
+                "DEF: "+Colors.BLUE_BRIGHT.concat(""+(_defPotionBonus+_def+_baseDef)).concat(_defPotionBonus > 0 ? " "+Colors.BLUE_PASTEL+"(+"+_defPotionBonus+")":"")
         };
     }
 
@@ -329,10 +329,10 @@ public class PlayerData implements Serializable {
     }
 
     public void updBaseATK(){
-        this._baseAtk = RogueraGameSystem.getBaseATK();
+        this._baseAtk = RogueraGameSystem.getPlayerBaseATK();
     }
     public void updBaseDEF(){
-        this._baseDef = RogueraGameSystem.getBaseDEF();
+        this._baseDef = RogueraGameSystem.getPlayerBaseDEF();
     }
 
     public String getToken() {
@@ -368,5 +368,22 @@ public class PlayerData implements Serializable {
                     "ATK + _ATK + _ATK_PBONUS: "+(this._baseAtk+this._atk+this._atkPotionBonus)+"\n\t" +
                     "DEF + _DEF + _DEF_PBONUS: "+(this._baseDef+this._def+this._defPotionBonus);
         Debug.toLog(info);
+    }
+    @Override
+    public String toString(){
+        return "Player: "+ this.playerName+"\n" +
+        "Base characteristics: \n\t" +
+        "ATK: "+ this._baseAtk+"\n\t" +
+        "DEF: "+ this._baseDef+"\n" +
+        "Equipment: \n\t" +
+        "_ATK: "+ this._atk+"\n\t" +
+        "_DEF: "+ this._def+"\n" +
+        "Potion bonus: \n\t" +
+        "_ATK_PBONUS: "+ this._atkPotionBonus+"\n\t" +
+        "_DEF_PBONUS: "+ this._defPotionBonus+"\n\t" +
+        "Score: "+ this.score+"\n\t" +
+        "Score multiplier: "+ this.scoreMultiplier + "\n\t" +
+        "Kills: "+ this.kills+"\n\t" +
+        "Money: "+ this.Money+"\n";
     }
 }

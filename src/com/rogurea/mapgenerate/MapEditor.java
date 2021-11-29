@@ -14,6 +14,7 @@ import com.rogurea.gamemap.Room;
 import com.rogurea.resources.GameResources;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
@@ -91,9 +92,14 @@ public class MapEditor {
 
         GameObject[] lineBuffer = new GameObject[Length];
 
+        //Debug.toLog("[MAP_EDITOR] Draw line: dir."+drawDirection.name() + " lenght: " +Length);
+
         for(int i = 0;i < Length; i++){
             lineBuffer[i] = drawDirection.getCell();
         }
+
+        //Debug.toLog("[MAP_EDITOR] Line buffer: " + Arrays.toString(lineBuffer));
+
         return lineBuffer;
     }
 
@@ -138,7 +144,10 @@ public class MapEditor {
     }
 
     static void InsertLine(ArrayList<Cell> CurrentRoomCells, GameObject gObj, int x, int y){
-        setIntoCell(CurrentRoomCells, gObj, new Position(x,y));
+        //Debug.toLog("[MAP_EDITOR] Insert shape " + gObj.model.toString() + " into position "+ x + "|" + y);
+        if(GenerateRules.IsNotOutOfBoundsRule(new Position(x,y), CurrentRoomCells)) {
+            setIntoCell(CurrentRoomCells, gObj, new Position(x, y));
+        }
     }
 
     static void PlaceDoors(Room room, ArrayList<Cell> CurrentRoomCells, Position ExitPoint){
@@ -189,6 +198,7 @@ public class MapEditor {
     }
 
     public static void setIntoCell(GameObject gameObject, int y, int x){
+        //Debug.toLog("[MAP_EDITOR] Insert object " + gameObject.model.toString() + " into position "+ x + "|" + y);
         currentRoomForEdit.getCell(x,y).putIntoCell(gameObject);
     }
 
@@ -223,6 +233,37 @@ public class MapEditor {
             }
         }
         return 0;
+    }
+
+
+    public static void placeCorner(DrawDirection pD, DrawDirection cD, Position fP) {
+        if(pD ==DrawDirection.DOWN && cD == DrawDirection.RIGHT
+                || pD == DrawDirection.LEFT && cD == DrawDirection.UP)
+            setIntoCell(BorderObjects.LBCorner, fP);
+
+        if(pD == DrawDirection.RIGHT && cD == DrawDirection.DOWN
+                || pD == DrawDirection.UP && cD == DrawDirection.LEFT)
+            setIntoCell(BorderObjects.RTCorner, fP);
+
+        if(pD == DrawDirection.UP && cD == DrawDirection.RIGHT
+                || pD == DrawDirection.LEFT && cD == DrawDirection.DOWN)
+            setIntoCell(BorderObjects.LTCorner, fP);
+
+        if(pD == DrawDirection.DOWN && cD == DrawDirection.LEFT
+                ||pD == DrawDirection.RIGHT && cD == DrawDirection.UP)
+            setIntoCell(BorderObjects.RBCorner, fP);
+
+        if(pD == DrawDirection.RIGHT && cD == DrawDirection.LEFT)
+            setIntoCell(BorderObjects.HWall, fP);
+
+        if(pD == DrawDirection.LEFT && cD ==DrawDirection.RIGHT)
+            setIntoCell(BorderObjects.HWall, fP);
+
+        if(pD == DrawDirection.UP && cD == DrawDirection.DOWN)
+            setIntoCell(BorderObjects.VWall, fP);
+
+        if(pD == DrawDirection.DOWN && cD == DrawDirection.UP)
+            setIntoCell(BorderObjects.VWall, fP);
     }
 
     /*static boolean OutOfBounds(int XY, int OFX, int OFY, int CRX, int CRY, int SX, int SY){
@@ -281,5 +322,9 @@ public class MapEditor {
         static GameObject LBCorner = new Border(GameResources.getModel("LBCorner"));
 
         static GameObject LTCorner = new Border(GameResources.getModel("LTCorner"));
+
+        static GameObject BCenter = new Border(GameResources.getModel("BCenter"));
+
+        static GameObject TCenter = new Border(GameResources.getModel("TCenter"));
     }
 }

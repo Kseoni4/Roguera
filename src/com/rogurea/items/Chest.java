@@ -9,7 +9,7 @@ import com.rogurea.gamelogic.ItemGenerator;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.Model;
-import com.rogurea.view.InventoryWindow;
+import com.rogurea.view.ChestContainsWindow;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,7 +29,7 @@ public class Chest extends Entity {
                         + Colors.R
                         + item.getName()).concat(" ");
             }
-            new InventoryWindow(loot).show();
+            new ChestContainsWindow(loot).show();
         };
     }
 

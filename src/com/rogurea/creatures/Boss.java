@@ -10,19 +10,27 @@ import com.rogurea.resources.GetRandom;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Boss extends Mob{
+public class Boss extends Mob {
 
-    private static String[] bossNames = {"Alpha","Omega","OmegaBig","Null","Zero"};
+    private static final String[] bossNames = {"Alpha","Omega","OmegaBig","Null","Zero"};
 
     public Boss() {
         super(100, bossNames[ThreadLocalRandom.current().nextInt(bossNames.length)]);
+
         this.tag += ".boss."+name;
+
         this.model.changeModel(GameResources.getModel(this.name).get().getCharacter());
+
         this.model.changeColor(Colors.MAGENTA);
-        this.baseATK = Dungeon.getCurrentFloor().get().getFloorNumber();
-        this.baseDEF = Dungeon.getCurrentFloor().get().getFloorNumber();
-        this.HP = 100 + RogueraGameSystem.getBaseFloorProgression()*2;
+
+        this.baseATK = RogueraGameSystem.getMobBaseATK();
+
+        this.baseDEF = RogueraGameSystem.getMobBaseDEF();
+
+        this.HP = 100 + (int) RogueraGameSystem.getBaseFloorProgression()*3;
+
         creatureInventory.add(ItemGenerator.getSpecialBossWeapon());
+
         creatureInventory.add(ItemGenerator.getSpecialBossArmor());
     }
 }

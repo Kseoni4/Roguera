@@ -4,14 +4,20 @@ import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
+import com.rogurea.resources.GetRandom;
 import com.rogurea.resources.Model;
 import com.rogurea.view.Draw;
+import com.rogurea.workers.PotionEffectWorker;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
 
 public class Potion extends Equipment implements Usable {
+
+    public static ExecutorService effectWrks = Executors.newCachedThreadPool();
 
     private enum PotionType {
         HEAL (101, Colors.GREEN_PASTEL),
@@ -32,6 +38,24 @@ public class Potion extends Equipment implements Usable {
 
     private PotionType potionType;
 
+    private int effectTimer = 0;
+
+    public void setPotionType(PotionType potionType) {
+        this.potionType = potionType;
+    }
+
+    public int getEffectTimer() {
+        return effectTimer;
+    }
+
+    public void setEffectTimer(int effectTimer) {
+        this.effectTimer = effectTimer;
+    }
+
+    public PotionType getPotionType() {
+        return this.potionType;
+    }
+
     @Override
     public Integer getStats() {
         return amount;
@@ -41,39 +65,27 @@ public class Potion extends Equipment implements Usable {
         super(name, model, "buffer");
         constructPotionType();
         this.tag += ".potion."+this.potionType.name().toLowerCase();
-        this.setSellPrice(ThreadLocalRandom.current().nextInt(1,50)
-                + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 1500 : 2)
-        ));
+        this.setSellPrice(
+                (int) (RogueraGameSystem.getPBonus()*Math.pow(Dungeon.getCurrentFloor().get().getFloorNumber(),Math.E)
+                                        + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 150 : ThreadLocalRandom.current().nextInt(2,4)
+                        ))));
         this.rename(getName() + " " +this.potionType.name().substring(0,3));
-        Debug.toLog("[POTION]"+getName() +" color: "+ model.getModelColor()+"#");
-/*
-   Debug.toLog("Create potion: \n\t" +
-                "Type: "+this.potionType.name()+"\n\t"+
-                "Amount: "+this.amount+"\n\t"+
-                "Price: "+this.getSellPrice());*/
     }
 
     private void constructPotionType(){
         int l = PotionType.values().length;
-        this.potionType = PotionType.values()[ThreadLocalRandom.current().nextInt(l)];
-        this.amount = ThreadLocalRandom.current().nextInt(2, this.potionType.bound);
+        this.potionType = PotionType.values()[GetRandom.getRandomPotionTypeIndex()];
+        int min = (int) Math.round(RogueraGameSystem.getPBonus()*Math.sqrt(Math.E/5)-1);
+        int max = this.potionType.bound * Dungeon.getCurrentFloor().get().getFloorNumber();
+/*        Debug.toLog("[POTION] Minimum amount = " + min);
+        Debug.toLog("[POTION] Maximum amount = " + max);*/
+        this.amount = ThreadLocalRandom.current().nextInt(min, max);
         this.model.changeColor(this.potionType.color);
     }
 
     @Override
     public void use() {
-        switch (this.potionType){
-            case HEAL:
-                Dungeon.player.getPlayerData().setHP(Math.min(Dungeon.player.getPlayerData().getMaxHP(),Dungeon.player.getHP() + amount)); break;
-            case ATK_BUF:
-                Dungeon.player.getPlayerData().set_atkPotionBonus(Dungeon.player.getPlayerData().get_atkPotionBonus() + amount); break;
-            case DEF_BUF:
-                Dungeon.player.getPlayerData().set_defPotionBonus(Dungeon.player.getPlayerData().get_defPotionBonus() + amount); break;
-            case SCORE_BUF :
-                Dungeon.player.getPlayerData().addScoreMultiplier(amount); break;
-        }
-        Draw.call(infoGrid.getFirstBlock());
-        Draw.call(infoGrid.getThirdBlock());
+        effectWrks.execute(new PotionEffectWorker(this, potionType.name()));
     }
 
     public int getAmount() {

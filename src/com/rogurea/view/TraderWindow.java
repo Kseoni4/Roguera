@@ -20,6 +20,7 @@ import com.rogurea.resources.Colors;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
 import static com.rogurea.view.ViewObjects.logView;
@@ -98,7 +99,7 @@ public class TraderWindow extends Window {
         this.itemCollection = this.traderItemCollection;
         String s = "";
         if(!itemCollection.isEmpty())
-            s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).toList().get(0).getName();
+            s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).collect(Collectors.toList()).get(0).getName();
 
         makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(s.length(),itemCollection.size()));
 
@@ -131,7 +132,7 @@ public class TraderWindow extends Window {
                     this.itemCollection = playerItemCollection;
                     String s = "";
                     if(!itemCollection.isEmpty())
-                        s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).toList().get(0).getName();
+                        s = itemCollection.stream().sorted(Comparator.comparing(Item::getName)).collect(Collectors.toList()).get(0).getName();
                     makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(s.length(),itemCollection.size()));
                     fillElements(sellAction);
                     itemCursorUI = new CursorUI(itemElements);

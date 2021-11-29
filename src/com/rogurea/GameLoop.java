@@ -4,29 +4,35 @@
 
 package com.rogurea;
 
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
-import com.rogurea.net.RogueraSpring;
-import com.rogurea.workers.AutoSaveLogWorker;
 import com.rogurea.base.Debug;
-import com.rogurea.exceptions.NickNameAlreadyUsed;
 import com.rogurea.gamelogic.ItemGenerator;
 import com.rogurea.gamelogic.SaveLoadSystem;
-import com.rogurea.workers.UpdaterWorker;
-import com.rogurea.gamemap.*;
+import com.rogurea.gamemap.Dungeon;
+import com.rogurea.gamemap.Floor;
+import com.rogurea.gamemap.Room;
 import com.rogurea.input.Input;
+import com.rogurea.items.Potion;
+import com.rogurea.net.RogueraSpring;
 import com.rogurea.player.KeyController;
 import com.rogurea.player.MoveController;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
+import com.rogurea.view.Animation;
 import com.rogurea.view.Draw;
 import com.rogurea.view.TerminalView;
 import com.rogurea.view.ViewObjects;
+import com.rogurea.workers.AutoSaveLogWorker;
+import com.rogurea.workers.PlayerMovementWorker;
+import com.rogurea.workers.UpdaterWorker;
 import net.arikia.dev.drpc.DiscordRPC;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -45,20 +51,27 @@ public class GameLoop {
 
     public static int playTime;
 
+    public static ExecutorService updWrk;
+
+    public static ExecutorService movingWrk;
+
     public GameLoop(){
 
     }
-    public static ExecutorService updWrk;
 
     public void start() throws InterruptedException, URISyntaxException, IOException {
 
         Dungeon.player.getPlayerData().updBaseATK();
 
+        Dungeon.player.getPlayerData().updBaseDEF();
+
         updWrk = Executors.newSingleThreadExecutor();
 
-        startPlayTime = LocalDateTime.now();
+        movingWrk = Executors.newSingleThreadExecutor();
 
-        Debug.toLog(startPlayTime.toLocalTime().toString());
+        Potion.effectWrks = Executors.newCachedThreadPool();
+
+        startPlayTime = LocalDateTime.now();
 
         if(Main.isNewGame()) {
             logView.playerAction("entered the dungeon... Good luck!");
@@ -98,27 +111,31 @@ public class GameLoop {
 
         Draw.call(ViewObjects.mapView);
 
+        Draw.call(ViewObjects.infoGrid.getFirstBlock());
+
         Debug.toLog("[GAME_LOOP] Starting gameloop on "+startPlayTime);
+
+        movingWrk.execute(new PlayerMovementWorker());
+
+        movingWrk.shutdown();
 
         while (isNotEscapePressed() && isNotClosed() && !Thread.currentThread().isInterrupted()) {
 
             Dungeon.player.updateRichPresence();
 
-            Input.waitForInput().ifPresent(keyStroke -> TerminalView.keyStroke = keyStroke);
-
             if(TerminalView.keyStroke.getKeyType().equals(KeyType.EOF)){
                 break;
             }
 
-            KeyController.getKey(TerminalView.keyStroke.getCharacter());
-
-            MoveController.movePlayer(TerminalView.keyStroke);
-
             if (Dungeon.player.getPlayerData().getHP() <= 0) {
+
+                new Animation().deadAnimation(Dungeon.player);
 
                 logView.playerAction(Colors.RED_BRIGHT + "are dead. Game over!");
 
                 logView.action(Colors.WHITE_BRIGHT + "Press enter to quit.");
+
+                movingWrk.shutdownNow();
 
                 Input.waitForInput().get().getKeyType().equals(KeyType.Enter);
 
@@ -128,12 +145,10 @@ public class GameLoop {
             Dungeon.player.checkNewLevel();
 
             DiscordRPC.discordRunCallbacks();
+
+            TimeUnit.MILLISECONDS.sleep(100);
         }
         endPlayTime = LocalDateTime.now();
-
-        Debug.toLog(endPlayTime.toString());
-
-        Debug.toLog(String.valueOf(endPlayTime.minusSeconds(startPlayTime.getSecond()).getSecond()));
 
         calculatePlayTime();
 
@@ -163,15 +178,14 @@ public class GameLoop {
             updWrk.shutdownNow();
         }
 
-        if(autoLogWorker != null) {
-            Debug.toLog("[SHUTDOWN] Auto log worker");
-            autoLogWorker.shutdownNow();
-            try {
-                autoLogWorker.awaitTermination(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(Potion.effectWrks != null){
+            Debug.toLog("[SHUTDOWN] potion effect workers");
+            Potion.effectWrks.shutdownNow();
         }
+
+        Debug.toLog("[SHUTDOWN] Player moving worker");
+        movingWrk.shutdownNow();
+
         if(Dungeon.rooms != null && Dungeon.floors != null) {
             Debug.toLog("[SHUTDOWN] End mob threads");
             Dungeon.rooms.forEach(Room::endMobAIThreads);
@@ -186,6 +200,7 @@ public class GameLoop {
             Dungeon.floors.clear();
 
             Dungeon.rooms.clear();
+
         }
 
         Debug.toLog("[SHUTDOWN] Reset dungeon variables");
@@ -204,23 +219,23 @@ public class GameLoop {
         System.gc();
     }
 
-    private void calculatePlayTime(){
+    public static void calculatePlayTime(){
 
-        int minutes = endPlayTime.minusMinutes(startPlayTime.getMinute()).getMinute();
+        int minutes = LocalDateTime.now().minusMinutes(startPlayTime.getMinute()).getMinute();
 
         if(minutes > 0){
             playTime = minutes;
         } else {
-            playTime = endPlayTime.minusSeconds(startPlayTime.getSecond()).getSecond();
+            playTime = LocalDateTime.now().minusSeconds(startPlayTime.getSecond()).getSecond();
         }
+    }
+
+    private boolean isNotClosed(){
+       return TerminalView.terminal != null;
     }
 
     private boolean isNotEscapePressed(){
         KeyType keyType = TerminalView.keyStroke.getKeyType();
         return keyType != KeyType.Escape;
-    }
-
-    private boolean isNotClosed(){
-       return TerminalView.terminal != null;
     }
 }

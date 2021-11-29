@@ -25,15 +25,6 @@ public class Model implements Serializable {
         return Colors.GetTextColor(modelColor);
     }
 
-/*    public void reloadModel(){
-        _model = new TextCharacter(' ');
-        if(!modelBColor.equals("")){
-            settingModelWithBColor();
-        } else {
-            settingModel();
-        }
-    }*/
-
     private TextCharacter settingModel(){
        return new TextCharacter(modelSymbol).withForegroundColor(getTextColor(modelColor));
     }
@@ -50,20 +41,17 @@ public class Model implements Serializable {
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
         this.modelColor = modelColor;
-        //settingModel();
     }
 
     public Model(String modelName, String modelFColor, String modelBColor, char modelSymbol){
         this(modelName, modelSymbol);
         this.modelColor = modelFColor;
         this.modelBColor = modelBColor;
-        //settingModelWithBColor();
     }
 
     public Model(String modelName, char modelSymbol){
         this.modelName = modelName;
         this.modelSymbol = modelSymbol;
-        //settingModel();
     }
 
     public Model changeName(String modelName){
@@ -87,19 +75,16 @@ public class Model implements Serializable {
 
     public Model changeColor(String modelColor){
         this.modelColor = modelColor;
-        //settingModel();
         return this;
     }
 
     public Model changeBColor(String modelBColor){
         this.modelBColor = modelBColor;
-        //settingModelWithBColor();
         return this;
     }
 
     public Model changeModel(char modelSymbol){
         this.modelSymbol = modelSymbol;
-        //settingModel();
         return this;
     }
 

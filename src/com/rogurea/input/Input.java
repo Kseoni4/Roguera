@@ -19,11 +19,11 @@ public class Input {
     private static KeyStroke GetKey(){
         try {
             return TerminalView.terminal.readInput();
-        } catch (IOException e) {
-            Debug.toLog("[INPUT] Window closed");
-            return null;
+        } catch (IOException | RuntimeException e) {
+            Debug.toLog("[INPUT] Input closed");
+            return KeyStroke.fromString(" ");
         }
-    };
+    }
 
     public static Optional<KeyStroke> waitForInput(){
         return Optional.ofNullable(GetKey());

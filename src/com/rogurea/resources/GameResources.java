@@ -6,6 +6,8 @@ package com.rogurea.resources;
 
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.mapgenerate.PGPv2;
+import com.rogurea.view.InventoryWindow;
 import com.rogurea.view.PlayerInfoWindow;
 import com.rogurea.view.ViewObjects;
 
@@ -18,7 +20,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.8:1211:1325";
+    public static final String VERSION = "v0.2.9:2911:0941-RC5";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -79,12 +81,12 @@ public class GameResources {
 
     public static void loadResources() {
         for(String file : resources){
-            String showload = "[RESOURCES]= Loading resources from " + file + ".res =";
+            String showload = "[RESOURCES] Loading resources from " + file + ".res ";
             Debug.toLog(showload);
             try {
                 String[] map = loadAssets(file);
 
-                Debug.toLog("[RESOURCES] Getting string: " + Arrays.toString(map));
+                Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
 
                 putStringsIntoMap(map);
             } catch (IOException e) {
@@ -92,18 +94,20 @@ public class GameResources {
             }
         }
         loadTextResources();
-        Debug.toLog("[RESOURCES]= Loading resources is ended =");
+        Debug.toLog("[RESOURCES] Loading resources is ended ");
     }
 
     private static String[] loadAssets(String file) throws IOException {
-        InputStream asset = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
+        InputStream assetStream = GameResources.class.getResourceAsStream(FILE_PATH +file+ FILE_EXTENSION);
 
         byte[] buffer = new byte[1024];
 
-        assert asset != null;
-        int len = asset.read(buffer);
+        assert assetStream != null;
+        int len = assetStream.read(buffer);
 
         byte[] inputstring = Arrays.copyOf(buffer, len);
+
+        assetStream.close();
 
         return new String(inputstring, StandardCharsets.UTF_8).split(",|\r\n|\n");
     }
@@ -113,7 +117,7 @@ public class GameResources {
             try {
                 String[] map = loadAssets(file);
 
-                Debug.toLog("[RESOURCES]= Getting string: " + Arrays.toString(map));
+                Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
 
                 switch (file){
                     case "whoops":
@@ -143,7 +147,7 @@ public class GameResources {
         }
         catch (NullPointerException e){
             Debug.toLog(Colors.ORANGE+"[RESOURCE]: Get model error: no such symbol for name " + modelname);
-            System.out.printf(Colors.ORANGE+"[RESOURCES]Get model error: no such symbol for name \"%s\"\n",modelname);
+            System.out.printf(Colors.ORANGE+"[RESOURCES] Get model error: no such symbol for name \"%s\"\n",modelname);
             return new Model();
         }
     }
@@ -153,7 +157,7 @@ public class GameResources {
             char model = array[i].charAt(0);
 
             String name = array[i-1];
-            Debug.toLog("[RESOURCE]: Map ["+name+"-"+model+"]");
+            Debug.toLog("[RESOURCE]: Map ["+name+" to "+model+"]");
             MODEL_HASH_MAP.put(name, new Model(name, model));
         }
     }
@@ -172,17 +176,16 @@ public class GameResources {
 
     public static HashMap<Character, Runnable> getKeyMap(){
         HashMap<Character, Runnable> _keymap = new HashMap<>();
-        _keymap.put('r', Dungeon::regenRoom);
+        //_keymap.put('r', Dungeon::regenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
-        //_keymap.put('i', () -> ViewObjects.inventoryView.openToInput());
+        _keymap.put('i', () -> new InventoryWindow().show());
+        _keymap.put('g', () -> new PGPv2().generateRoomStructure());
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));
         _keymap.put('2', () -> ViewObjects.inventoryView.useItem(1));
         _keymap.put('3', () -> ViewObjects.inventoryView.useItem(2));
         _keymap.put('4', () -> ViewObjects.inventoryView.useItem(3));
         _keymap.put('5', () -> ViewObjects.inventoryView.useItem(4));
-        //_keymap.put('c', logBlock::Clear);
-        _keymap.put('i', () -> Dungeon.player.getPlayerData().getInfo());
-        //_keymap.put(InventoryContainer.getMenuKey(), inventoryMenuUI::show);;
+        _keymap.put('p', () -> Dungeon.player.getPlayerData().getInfo());
 
         return _keymap;
     }

@@ -27,6 +27,8 @@ public abstract class Window implements IViewBlock {
 
     private static int _idCounter = 0;
 
+    protected static boolean isOpen;
+
     protected TerminalSize _windowSize;
 
     private TerminalPosition _localZeroPoint;
@@ -39,11 +41,17 @@ public abstract class Window implements IViewBlock {
 
     private TextColor _bgColor = Colors.GetTextColor(Colors.BLACK);
 
+    public static boolean isOpen(){
+        return isOpen;
+    }
+
     public void show(){
+        isOpen = true;
         Draw.init(this);
         Draw.call(this);
         input();
         Draw.reset(this);
+        isOpen = false;
         TerminalView.reDrawAll(IViewBlock.empty);
     }
 

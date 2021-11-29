@@ -9,9 +9,11 @@ import com.rogurea.view.ViewObjects;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     private static boolean newGame = true;
+
     public static ExecutorService autoLogWorker;
 
     public Main() {
@@ -25,11 +27,11 @@ public class Main {
         return newGame;
     }
 
-    public static void newGame() {
+    public static void enableNewGame() {
         newGame = true;
     }
 
-    public static void startSequence() throws IOException, InterruptedException {
+    public static void startSequence() throws IOException {
         autoLogWorker = Executors.newSingleThreadExecutor();
 
         Debug.toLog("[GAME]Start sequence");
@@ -61,12 +63,16 @@ public class Main {
             GameLoop.endGameSequence();
         }
 
-        Debug.toLog("[SYSTEM] Nullification of game loop");
+        if(autoLogWorker != null) {
+            Debug.toLog("[SHUTDOWN] Auto log worker");
+            autoLogWorker.shutdownNow();
+            try {
+                autoLogWorker.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
-        Debug.toLog("\u001b[38;5;200m[SYSTEM] End of main");
-
-        Debug.toLog("[SYSTEM] Back to the main menu");
-
-        MainMenu.start(0);
+        Debug.toLog("\u001b[38;5;200m[SYSTEM] End of main sequence");
     }
 }

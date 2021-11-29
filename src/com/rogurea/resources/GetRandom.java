@@ -4,6 +4,7 @@
 
 package com.rogurea.resources;
 
+import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Position;
 
@@ -31,14 +32,31 @@ public class GetRandom {
     }
 
     public static int getRandomGoldAmount(){
-        int leftBound = RogueraGameSystem.getBaseFloorProgression();
-        int rightBound = RogueraGameSystem.getBaseFloorProgression() * 2;
+        int leftBound = (int) RogueraGameSystem.getBaseFloorProgression();
+        int rightBound = (int) (RogueraGameSystem.getBaseFloorProgression() * 3);
         return ThreadLocalRandom.current().nextInt(leftBound, rightBound);
     }
 
     public static int getRandomMobHP(){
-        int leftBound = RogueraGameSystem.getBaseFloorProgression();
-        int rightBound = RogueraGameSystem.getBaseFloorProgression() * 3;
+        int leftBound = (int) RogueraGameSystem.getBaseFloorProgression();
+        int rightBound = (int) (RogueraGameSystem.getBaseFloorProgression() * 3);
         return ThreadLocalRandom.current().nextInt(leftBound,rightBound);
+    }
+
+    public static int getRandomPotionTypeIndex(){
+       if(rollD20() >= 17){
+           return 3;
+       } else {
+         return RNGenerator.nextInt(3);
+       }
+    }
+
+    public static int rollD20(){
+        int diceSum = 0;
+        for(int i = 0; i < 20; i++){
+            diceSum += RNGenerator.nextInt(2);
+        }
+        //Debug.toLog("[RANDOM][ROLL_D20] Dice sum = "+diceSum);
+        return diceSum;
     }
 }

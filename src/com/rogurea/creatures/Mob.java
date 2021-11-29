@@ -6,6 +6,7 @@ package com.rogurea.creatures;
 
 import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.ItemGenerator;
+import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.items.Item;
@@ -50,9 +51,9 @@ public class Mob extends Creature{
 
         this.tag += ".mob";
 
-        this.baseATK = Dungeon.getCurrentFloor().get().getFloorNumber();
+        this.baseATK = RogueraGameSystem.getMobBaseATK();
 
-        this.baseDEF = Dungeon.getCurrentFloor().get().getFloorNumber();
+        this.baseDEF = RogueraGameSystem.getMobBaseDEF();
 
         this.model.changeModel(name.charAt(0));
 

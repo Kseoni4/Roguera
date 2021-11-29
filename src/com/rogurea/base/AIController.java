@@ -82,7 +82,7 @@ public class AIController implements Runnable {
 
         Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
 
-        Animation.deadAnimation(this.creature);
+        new Animation().deadAnimation(this.creature);
 
         ((Mob) this.creature).dropLoot();
 
@@ -95,17 +95,19 @@ public class AIController implements Runnable {
     }
 
     private boolean isTargetDead(){
-       return this.target.getHP() <= 0;
+        if(target != null)
+            return this.target.getHP() <= 0;
+        else {
+            return true;
+        }
     }
 
     private boolean checkPlayer(){
         ArrayList<Cell> cells = Dungeon.getCurrentRoom().getCells();
 
-        //Debug.toLog("[AI][Mob] "+creature.getName() + " finding player...");
         if(cells.stream().anyMatch(cell -> cell.getFromCell() instanceof Player)){
             target = (Creature) cells.stream().filter(cell -> cell.getFromCell() instanceof Player).findAny().get().getFromCell();
             targetPosition = target.cellPosition;
-            //Debug.toLog("[AI][Mob] "+creature.getName() + " Find "+target.getName()+" on position "+targetPosition.toString());
             return true;
         }
         return false;
@@ -115,21 +117,18 @@ public class AIController implements Runnable {
         ArrayList<Position> pathToTarget = updatePath();
 
         int steps = 0;
-        //Debug.toLog("[AI][Mob] "+creature.getName() + " moving to target...");
         while(!isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()){
             try {
                 Position nextPosition = pathToTarget.get(steps);
 
-               // Debug.toLog("[AI][POS] "+steps);
-               // Debug.toLog("[AI][Mob] "+creature.getName() + " move to " + nextPosition);
-
-                creature.moveTo(nextPosition);
+                if(!(Dungeon.getCurrentRoom().getCell(nextPosition).getFromCell() instanceof Creature)) {
+                    creature.moveTo(nextPosition);
+                }
 
                 TimeUnit.MILLISECONDS.sleep(350);
 
                 steps++;
                 if (!isTargetNotMove() && steps >= pathToTarget.size()/2) {
-                   // Debug.toLog("[AI][Mob] "+creature.getName() + " target is moved, break");
                     break;
                 }
 
@@ -140,7 +139,6 @@ public class AIController implements Runnable {
         }
         try {
             if(isTargetNear()){
-                //Debug.toLog("[AI][Mob] "+creature.getName() + " target is near, fight!");
                 Events.encounter(this.creature, this.target);
             }
         }catch (NullPointerException e) {

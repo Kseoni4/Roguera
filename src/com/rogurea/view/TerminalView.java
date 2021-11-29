@@ -125,20 +125,13 @@ public class TerminalView {
 
             terminal.flush();
 
-            //terminal.enterPrivateMode();
-
-            //terminal.clearScreen();
-
             terminal.setCursorVisible(false);
 
             terminal.newTextGraphics().putString(new TerminalPosition(50, 50), "LOADING...");
 
             terminal.flush();
 
-            //Debug.log("RENDERING: Terminal init");
-
         } catch (IOException e) {
-            //Debug.log(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -159,6 +152,8 @@ public class TerminalView {
                 terminal.clearScreen();
 
                 terminal.close();
+
+                terminal = null;
             } catch (IOException e){
                 e.printStackTrace();
             }
@@ -208,7 +203,9 @@ public class TerminalView {
             textgui.putCSIStyledString(x, y, data);
         }  catch (IllegalArgumentException e){
             Debug.toLog(Colors.RED_BRIGHT+"[ERROR][DISPLAY] something draw wrong, see stacktrace:");
+
             e.printStackTrace();
+
             Debug.toLog(Colors.RED_BRIGHT+"[ERROR][DISPLAY] data string was: \n\t["+data+"]");
         }
     }

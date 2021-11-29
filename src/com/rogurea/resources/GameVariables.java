@@ -29,6 +29,7 @@ public class GameVariables {
     /* Variables for items */
 
     public static final int WEAPON_BASE_DMG = 2;
+
     public static final int ARMOR_BASE_DEF = 1;
 
     public static final HashMap<String, Float> MATERIAL_POWER;

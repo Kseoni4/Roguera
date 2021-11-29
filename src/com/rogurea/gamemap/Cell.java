@@ -6,6 +6,7 @@ package com.rogurea.gamemap;
 
 import com.rogurea.base.Debug;
 import com.rogurea.base.GameObject;
+import com.rogurea.resources.Colors;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class Cell implements Serializable {
                 return EditorEntity.EMPTY_CELL;
             }
         } catch (IndexOutOfBoundsException e){
-            Debug.toLog("[CELL|"+position.toString()+"|] Error out of bounds, return empty");
+            Debug.toLog(Colors.RED_BRIGHT+"[ERROR][CELL|"+position.toString()+"|] Error out of bounds, return empty");
             return EditorEntity.EMPTY_CELL;
         }
     }

@@ -8,16 +8,20 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.rogurea.base.Debug;
+import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
+import com.rogurea.items.Potion;
 import com.rogurea.resources.Colors;
+import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
-import com.rogurea.view.Draw;
-import com.rogurea.view.IViewBlock;
-import com.rogurea.view.TerminalView;
-import com.rogurea.view.ViewObjects;
+import com.rogurea.view.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class InfoGrid implements IViewBlock {
 
@@ -52,6 +56,10 @@ public class InfoGrid implements IViewBlock {
     private Model borderLUCorner;
 
     private TextGraphics _infoGridGraphics;
+
+    private HashMap<String, Integer> bonusTimerMap = new HashMap<>();
+
+    private int bonusTimer = 0;
 
     public InfoGrid() {
         _viewBlocks = new ArrayList<>();
@@ -127,12 +135,6 @@ public class InfoGrid implements IViewBlock {
         }
         TerminalView.putCharInTerminal(_infoGridGraphics, borderLUCorner.get(), _pointYX);
         TerminalView.putCharInTerminal(_infoGridGraphics, borderCRCorner.get(), _zeroPointBlock3.getRelative(-1,-1));
-
-            /*for (int y = center.y; y <= ViewObjects.mapView.size.getRows(); y++) {
-                TerminalView.putCharInTerminal(_infoGridGraphics, borderVWall.get(), center.getRelative(0, y - center.y));
-            }*/
-            /*
-            TerminalView.putCharInTerminal(BordersViewGraphics, borderCRCorner.get(), center.getRelative(0, -(center.y - 2)));*/
     }
 
     public Position get_pointYX() {
@@ -165,21 +167,8 @@ public class InfoGrid implements IViewBlock {
 
     @Override
     public void Draw() {
-/*        System.out.println("Window size");
-        System.out.println("Window height " + TerminalView.windowHeight);
-        System.out.println("Window wight " + TerminalView.windowWight);
-        System.out.println("Left point start " + ViewObjects.mapView.size.getColumns());
-        System.out.println(_pointXY.toString());
-        System.out.println(_pointYX.toString());*/
-        //TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('1'), _zeroPointBlock1);
-        //TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('2'), _zeroPointBlock2);
-        /*TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('3'), _zeroPointBlock3);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('0'), _startPointXY);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _pointXY);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _pointYX);
-        TerminalView.putCharInTerminal(_infoGridGraphics, new TextCharacter('.'), _zeroPointBlock3.getRelative(0,-1));*/
         drawBorders();
-        if(!_viewBlocks.isEmpty()){
+        if (!_viewBlocks.isEmpty()) {
             _viewBlocks.forEach(Draw::call);
         }
         drawKeyInfo();
@@ -196,6 +185,52 @@ public class InfoGrid implements IViewBlock {
 
         _infoGridGraphics.fillRectangle(new TerminalPosition(0,_leastBottomY-1), new TerminalSize(_leastRightX,1),new TextCharacter(' ').withBackgroundColor(Colors.GetTextColor(Colors.B_BLUE_BRIGHT)));
         TerminalView.drawBlockInTerminal(_infoGridGraphics, info, new Position(0, _leastBottomY-1));
+    }
+
+    Semaphore syncAdd = new Semaphore(2,true);
+
+    public void putPotionBonusInfo(Potion potion) throws InterruptedException {
+        syncAdd.acquire();
+/*        if(bonusTimer >= 0){
+            bonusTimer += potion.getEffectTimer();
+        }*/
+        int currentTime = 0;
+        if(bonusTimerMap.get(potion.model.toString()) != null) {
+            currentTime = bonusTimerMap.get(potion.model.toString());
+        }
+        bonusTimerMap.put(potion.model.toString(), currentTime+potion.getEffectTimer());
+        syncAdd.release();
+    }
+
+    Semaphore syncTimer = new Semaphore(1,true);
+
+    public void drawPotionTimer(Potion potion) throws InterruptedException {
+        syncTimer.acquire();
+
+        String mdl = potion.model.toString();
+        int i = 0;
+        for(; i < bonusTimerMap.size(); i++){
+            if(bonusTimerMap.keySet().toArray()[i].equals(mdl)){
+                break;
+            }
+        }
+
+        if(bonusTimerMap.get(mdl) > 0){
+            if(!Window.isOpen()) {
+                TerminalView.drawBlockInTerminal(_infoGridGraphics, "" + mdl + " " + bonusTimerMap.get(mdl) + "  ", _zeroPointBlock1.getRelative(0, 10 + i));
+            }
+            bonusTimerMap.put(mdl, bonusTimerMap.get(mdl) - 1);
+        }
+        if(!Window.isOpen()) {
+            Draw.flush();
+        }
+        TimeUnit.SECONDS.sleep(1);
+        syncTimer.release();
+    }
+
+    public void clearTimers(){
+        _infoGridGraphics.fillRectangle(_zeroPointBlock1.getRelative(0,10).toTerminalPosition(), new TerminalSize(5,3),' ');
+        Draw.flush();
     }
 
     @Override

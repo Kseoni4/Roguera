@@ -86,11 +86,17 @@ public class RoomGenerate implements Serializable {
     public static void generateRoomSequence(int floorNumber) {
         random = GetRandom.RNGenerator;
 
-        Debug.toLog("[ROOM_GENERATE] Generate room sequence on floor " + floorNumber);
+        Debug.toLog("[ROOM_GENERATE] Generate room sequence on floor " + Dungeon.currentFloorNumber);
 
         Dungeon.rooms = new ArrayList<>();
 
         Dungeon.floors.add(new Floor());
+
+        if(floorNumber > Dungeon.floors.size()){
+            while(floorNumber >= Dungeon.floors.size()){
+                Dungeon.floors.add(new Floor());
+            }
+        }
 
         RoomSize[] roomSizes = RoomSize.values();
 
@@ -106,6 +112,13 @@ public class RoomGenerate implements Serializable {
             byte Height = roomSizes[RandomRoomSize].GetHeightY()[random.nextInt(3)];
 
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
+
+            if((floorNumber+1) % 10 == 0 && (i + 1) == 10){
+                Height = roomSizes[2].GetHeightY()[2];
+
+                Widght = roomSizes[2].GetWidghtX()[2];
+            }
+
             if (i >= Dungeon.DungeonRoomsCount - 1) {
                 Dungeon.rooms.add(new Room((i + 1), Widght, Height, roomSizes[RandomRoomSize], true));
             } else {
@@ -142,7 +155,7 @@ public class RoomGenerate implements Serializable {
 
         MapEditor.SetRoomForEdit(room);
 
-        room.setCells(pgp.GenerateRoom(room.getCells()));
+        room.setCells(pgp.generateRoom(room.getCells()));
 
         room.makePerimeter();
 

@@ -1,6 +1,5 @@
 package com.rogurea.net;
 
-import com.mysql.cj.xdevapi.JsonString;
 import com.rogurea.GameLoop;
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
@@ -73,6 +72,8 @@ public class RogueraSpring {
     public static void updateGameSession() throws URISyntaxException, IOException, InterruptedException {
         sm.acquire();
 
+        GameLoop.calculatePlayTime();
+
         var values = new HashMap<String, String>() {{
             put("\"kills\"", String.valueOf(Dungeon.player.getPlayerData().getKills()));
             put ("\"money_earned\"", ""+Dungeon.player.getPlayerData().getMoney());
@@ -80,6 +81,7 @@ public class RogueraSpring {
             put ("\"last_room\"", ""+Dungeon.getCurrentRoom().roomNumber);
             put ("\"score_earned\"",""+Dungeon.player.getPlayerData().getScore());
             put ("\"items\"",""+Dungeon.player.Inventory.size());
+            put ("\"play_time\"",""+GameLoop.playTime);
             put ("\"id_session\"",""+GameLoop.gameSessionId);
         }};
 
@@ -98,7 +100,7 @@ public class RogueraSpring {
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(putRequest, HttpResponse.BodyHandlers.ofString());
 
-        //Debug.toLog("[HTTP_PUT][GAME_SESSION] Update Result: "+response.body());
+       // Debug.toLog("[HTTP_PUT][GAME_SESSION] Update Result: "+response.body());
 
         sm.release();
     }
@@ -115,6 +117,28 @@ public class RogueraSpring {
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(putRequest, HttpResponse.BodyHandlers.ofString());
 
-        //Debug.toLog("[HTTP_PUT][GAME_SESSION] Finalized Result: "+response.body());
+       // Debug.toLog("[HTTP_PUT][GAME_SESSION] Finalized Result: "+response.body());
+    }
+
+    public static boolean checkNickName(String nickName) throws URISyntaxException, IOException, InterruptedException {
+        getRequest = HttpRequest.newBuilder().uri(
+                new URI(Credentials.ROGUERA_URL
+                        +Credentials.USERS
+                        +"/checkNameForValid"
+                        +Credentials.USER_NICKNAME
+                        +nickName))
+                .GET()
+                .build();
+        HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+        String result = response.body();
+        Debug.toLog("[HTTP_GET][CHECK_NICKNAME] Result for "+ nickName+" is "+result);
+        if(result.equals("false")){
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalField;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class AutoSaveLogWorker implements Runnable{
 
     private String fileName;
 
-    private File logDirectory = new File("logs/");
+    private final File logDirectory = new File("logs/");
 
     @Override
     public void run() {
@@ -63,23 +64,25 @@ public class AutoSaveLogWorker implements Runnable{
                 }
             }
         } catch (IOException e) {
+            Debug.toLog(Colors.RED_BRIGHT + "[ERROR] Error in autosave log worker:");
             e.printStackTrace();
         }
         Debug.toLog("[AUTO_SAVE_LOG_WORKER] Ended");
     }
     private void saveLogToFile() throws IOException {
         fileOutputStream = new FileOutputStream(logFile);
+
+        ArrayList<String> bufferLog = Debug.getDebugLog();
+
         try {
-            for (String string : Debug.getDebugLog()) {
+            for (String string : bufferLog) {
                 string += "\n";
                 fileOutputStream.write(string.getBytes(StandardCharsets.UTF_8));
             }
-        } catch (ConcurrentModificationException e) {
+        } catch (IOException e) {
             Debug.toLog(Colors.RED_BRIGHT + "[ERROR] Error in autosave log worker:");
             e.printStackTrace();
         } finally {
-            fileOutputStream.flush();
-
             fileOutputStream.close();
         }
 

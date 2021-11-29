@@ -25,9 +25,9 @@ public class MoveController {
 
     private static Position newPos = new Position();
 
-    public static void movePlayer(KeyStroke key){
+    public static void movePlayer(Optional<KeyStroke> key){
 
-        Optional<KeyType> keyType = Optional.ofNullable(key.getKeyType());
+        Optional<KeyType> keyType = Optional.ofNullable(key.get().getKeyType());
 
         keyType.ifPresent(pointer -> {
             switch (pointer) {
@@ -44,7 +44,7 @@ public class MoveController {
                     move(new Position(player.playerPosition.x + 1, player.playerPosition.y));
                     break;
                 case Character:
-                    moveByWASD(key.getCharacter());
+                    moveByWASD(key.get().getCharacter());
                     break;
             }
         });
