@@ -238,10 +238,11 @@ public class PlayerData implements Serializable {
         return Money;
     }
 
-    public void setMoney(int money) {
+    public boolean setMoney(int money) {
         if(money > 0)
             setScore(money/3);
         Money += money;
+        return true;
     }
 
     public int getAttempt() {

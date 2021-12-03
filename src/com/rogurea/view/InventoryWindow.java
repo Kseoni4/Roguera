@@ -11,6 +11,7 @@ import com.rogurea.input.CursorUI;
 import com.rogurea.input.Input;
 import com.rogurea.items.Equipment;
 import com.rogurea.items.Item;
+import com.rogurea.items.Usable;
 import com.rogurea.player.Player;
 import com.rogurea.resources.Colors;
 import com.rogurea.view.ui.InfoGrid;
@@ -81,11 +82,13 @@ public class InventoryWindow extends Window {
                             if (key.get().getKeyType() == KeyType.Character){
                                 int num = Integer.parseInt(String.valueOf(key.get().getCharacter()));
                                 if(Dungeon.player.quickEquipment.size() >= num){
-                                    Dungeon.player.Inventory.add(Dungeon.player.quickEquipment.remove(num-1));
-                                    fillElements();
-                                    Draw.reset(infoGrid.getThirdBlock());
-                                    Draw.call(infoGrid.getThirdBlock());
-                                    Draw.call(this);
+                                    if(Dungeon.player.tryToPutIntoInventory(Dungeon.player.quickEquipment.get(num-1))) {
+                                        Dungeon.player.quickEquipment.remove(num - 1);
+                                        fillElements();
+                                        Draw.reset(infoGrid.getThirdBlock());
+                                        Draw.call(infoGrid.getThirdBlock());
+                                        Draw.call(this);
+                                    }
                                 }
                             }
                         }
@@ -158,9 +161,14 @@ public class InventoryWindow extends Window {
             int index = cursorUI.indexOfElement;
             Item item = Dungeon.player.Inventory.get(index);
 
-            Dungeon.player.equipItemIntoFirstSlot((Equipment) item);
-            Dungeon.player.Inventory.remove(item);
-            menuElements.remove(index);
+            if(Dungeon.player.equipItemIntoFirstSlot((Equipment) item)) {
+                Dungeon.player.Inventory.remove(item);
+                menuElements.remove(index);
+            } else if(item instanceof Usable) {
+                ((Usable) item).use();
+                Dungeon.player.Inventory.remove(item);
+                menuElements.remove(index);
+            }
 
             Draw.reset(InventoryWindow.this);
             InventoryWindow.this.fillElements();
@@ -189,20 +197,23 @@ public class InventoryWindow extends Window {
             Optional<KeyStroke> keyStroke = Input.waitForInput();
             if(keyStroke.isPresent()) {
                 if (keyStroke.get().getKeyType() == KeyType.Character) {
+
                     Character number = keyStroke.get().getCharacter();
+
                     int numberOfSlot = Integer.parseInt(String.valueOf(number));
+
                     if(Dungeon.player.quickEquipment.size() >= numberOfSlot-1) {
-                        Dungeon.player.putIntoQuickMenu(item, numberOfSlot);
+                        if(Dungeon.player.putIntoQuickMenu(item, numberOfSlot)) {
 
-                        Dungeon.player.Inventory.remove(item);
-                        InventoryWindow.this.menuElements.remove(index);
+                            Dungeon.player.Inventory.remove(item);
+                            InventoryWindow.this.menuElements.remove(index);
 
-                        if(menuElements.size() < 2){
-                            contextMenuIsOpen = false;
+                            if (menuElements.size() < 2) {
+                                contextMenuIsOpen = false;
+                            }
+
+                            InventoryWindow.this.fillElements();
                         }
-
-                        InventoryWindow.this.fillElements();
-
                         Draw.call(infoGrid.getThirdBlock());
                         Draw.call(InventoryWindow.this);
                     }
@@ -220,6 +231,9 @@ public class InventoryWindow extends Window {
         public ContextMenuWindow(Item item, Position position, TerminalSize size) {
             super(position.toTerminalPosition(), size);
             this.selectedItem = item;
+            if(selectedItem instanceof Usable){
+                menuOptions[0] = "Use";
+            }
             drawContextMenu();
             contextMenuCursor = new CursorUI(contextMenuElements);
         }

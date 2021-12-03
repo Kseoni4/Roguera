@@ -20,7 +20,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.9:2911:0941-RC5";
+    public static final String VERSION = "v0.2.9:0112:2344-RC5";
 
     public static final char EMPTY_CELL = ' ';
 

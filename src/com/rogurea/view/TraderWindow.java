@@ -74,21 +74,22 @@ public class TraderWindow extends Window {
     private final Runnable buyAction = () -> {
         Item item = traderItemCollection.get(itemCursorUI.indexOfElement);
         if(Dungeon.player.getPlayerData().getMoney() >= item.getSellPrice()){
-            Dungeon.player.putUpItem(item);
+            if(Dungeon.player.putUpItem(item)) {
 
-            traderItemCollection.remove(item);
+                traderItemCollection.remove(item);
 
-            Dungeon.player.getPlayerData().setMoney(-item.getSellPrice());
+                Dungeon.player.getPlayerData().setMoney(-item.getSellPrice());
 
-            logView.playerAction("buy the "+item.model.getModelColorName()+" for "+Colors.GOLDEN+item.getSellPrice());
+                logView.playerAction("buy the " + item.model.getModelColorName() + " for " + Colors.GOLDEN + item.getSellPrice());
 
-            fillElements(this.buyAction);
+                fillElements(this.buyAction);
 
-            itemCursorUI = new CursorUI(itemElements);
+                itemCursorUI = new CursorUI(itemElements);
 
-            Draw.call(infoGrid.getFirstBlock());
+                Draw.call(infoGrid.getFirstBlock());
 
-            Draw.call(infoGrid.getThirdBlock());
+                Draw.call(infoGrid.getThirdBlock());
+            }
         }
     };
 
@@ -117,10 +118,15 @@ public class TraderWindow extends Window {
         this.menuElements.add(
                 new Element("Buy", "BUY", new Position(2, 0), ()->{
                     Draw.reset(this);
+
                     this.itemCollection = traderItemCollection;
+
                     makeWindow(_traderWindowPosition, _traderWindowSize.withRelative(0,itemCollection.size()));
+
                     fillElements(buyAction);
+
                     itemCursorUI = new CursorUI(itemElements);
+
                     itemOptions();
                 })
         );

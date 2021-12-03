@@ -104,12 +104,14 @@ public class MoveController {
         }
 
         if(object.tag.startsWith("item")){
-            Item _item = (Item) nextCell.getAndRemoveFromCell();
+            Item _item = (Item) nextCell.getFromCell();
             if(object instanceof FogPart) {
                 nextCell.clear();
             }
-            player.putUpItem(_item);
-            Draw.call(inventoryView);
+            if(player.putUpItem(_item)) {
+                nextCell.removeFromCell();
+                Draw.call(inventoryView);
+            }
         }
 
         if(object.tag.startsWith("creature.mob")){

@@ -4,7 +4,6 @@
 
 package com.rogurea.player;
 
-import com.rogurea.GameLoop;
 import com.rogurea.creatures.Creature;
 import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.RogueraGameSystem;
@@ -22,9 +21,6 @@ import net.arikia.dev.drpc.DiscordRichPresence;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -56,84 +52,96 @@ public class Player extends Creature {
 
     public ArrayList<Equipment> quickEquipment = new ArrayList<>(5);
 
-    public void putUpItem(Item item){
+    public boolean putUpItem(Item item) {
         //Debug.toLog("[PLAYER]Picked up item: "+item.toString());
-        if(item instanceof Equipment){
-            autoEquip((Equipment) item);
-        }
-        else if (item instanceof Gold){
-            getPlayerData().setMoney(((Gold) item).getAmount());
-        }
-        else {
+        if (item instanceof Equipment) {
+            return autoEquip((Equipment) item);
+        } else if (item instanceof Gold) {
+           return getPlayerData().setMoney(((Gold) item).getAmount());
+        } else {
             //Debug.toLog("\ninto inventory");
-            putIntoInventory(item);
+            if (putIntoInventory(item)) {
+
+                logView.playerActionPickUp(item.getName());
+
+                Draw.call(infoGrid.getFirstBlock());
+
+                Draw.call(ViewObjects.infoGrid.getThirdBlock());
+
+                return true;
+            }
+            return false;
         }
-        logView.playerActionPickUp(item.getName());
-        Draw.call(infoGrid.getFirstBlock());
-        Draw.call(ViewObjects.infoGrid.getThirdBlock());
     }
 
     private boolean isGreaterStats(Item item, String key){
        return ((Equipment) item).getStats() > getEquipmentFromSlot(key).orElse(com.rogurea.items.Equipment.BLANK).getStats();
     }
 
-    private void autoEquip(Equipment equipment){
+    private boolean autoEquip(Equipment equipment){
         //removeBlank();
         if(equipment instanceof Weapon){
             if(getEquipmentFromSlot("FirstWeapon").isPresent() && isGreaterStats(equipment, "FirstWeapon")) {
-                switchEquipment(equipment, "FirstWeapon");
+                return switchEquipment(equipment, "FirstWeapon");
             }else if(getEquipmentFromSlot("FirstWeapon").isEmpty()) {
-                putIntoEquipment(equipment, "FirstWeapon");
+                return putIntoEquipment(equipment, "FirstWeapon");
             } else {
                 //Debug.toLog("\ninto inventory");
-                putIntoInventory(equipment);
+                return putIntoInventory(equipment);
             }
         }
         else if(equipment instanceof Armor){
             if(getEquipmentFromSlot("Armor").isPresent() && isGreaterStats(equipment, "Armor")){
-                switchEquipment(equipment, "Armor");
+                return switchEquipment(equipment, "Armor");
             } else if(getEquipmentFromSlot("Armor").isEmpty()) {
-                putIntoEquipment(equipment, "Armor");
+                return putIntoEquipment(equipment, "Armor");
             } else {
                 //Debug.toLog("\ninto inventory");
-                putIntoInventory(equipment);
+                return putIntoInventory(equipment);
             }
         } else {
             //Debug.toLog("\ninto inventory");
-            putIntoInventory(equipment);
+            return putIntoInventory(equipment);
         }
     }
 
-    private void putIntoInventory(Item item){
-        if(quickEquipment.toArray().length < 5){
-            if(item instanceof Potion)
-                quickEquipment.add((Equipment) item);
+    private boolean putIntoInventory(Item item) {
+        if (quickEquipment.toArray().length < 5) {
+            if (item instanceof Potion)
+                return quickEquipment.add((Equipment) item);
             else {
-                if(Inventory.size() < 10) {
-                    Inventory.add(item);
-                } else {
-                    logView.putLog("Your inventory is full!");
-                }
+               return tryToPutIntoInventory(item);
             }
         } else {
-            if(Inventory.size() < 10) {
-                Inventory.add(item);
-            } else {
-                logView.putLog("Your inventory is full!");
-            }
+            return tryToPutIntoInventory(item);
         }
     }
 
-    public void putIntoQuickMenu(Item item, int index){
+    public boolean tryToPutIntoInventory(Item item) {
+        if (Inventory.size() < 10) {
+            return Inventory.add(item);
+        } else {
+            logView.putLog("Your inventory is full!");
+            return false;
+        }
+    }
+
+    public boolean putIntoQuickMenu(Item item, int index){
         if(index < 6){
             //Debug.toLog("[PLAYER_INVENTORY] Put item "+item+ " into quick menu on index "+ index);
             try {
                 if(quickEquipment.toArray().length < 5) {
                     quickEquipment.add(index - 1, (com.rogurea.items.Equipment) item);
+                    return true;
+                } else {
+                    return false;
                 }
             } catch (IndexOutOfBoundsException e){
                 Debug.toLog(Colors.RED_BRIGHT+"[ERROR][PLAYER_INVENTORY] Index " + index + " out of bounds");
+                return false;
             }
+        } else {
+            return false;
         }
     }
 
@@ -141,11 +149,12 @@ public class Player extends Creature {
           return Optional.ofNullable(Equipment.get(key));
     }
 
-    public void equipItemIntoFirstSlot(Equipment eq){
+    public boolean equipItemIntoFirstSlot(Equipment eq){
         if(eq instanceof Weapon)
-            switchEquipment(eq, "FirstWeapon");
+           return switchEquipment(eq, "FirstWeapon");
         else if(eq instanceof Armor)
-            switchEquipment(eq, "Armor");
+           return switchEquipment(eq, "Armor");
+        return false;
     }
 
     public void equipItemFromQuickSlot(Equipment eq){
@@ -161,15 +170,16 @@ public class Player extends Creature {
         putIntoEquipment(eq, place);
     }
 
-    private void switchEquipment(Equipment toEquip, String place){
-        Inventory.add(Equipment.remove(place));
-        putIntoEquipment(toEquip, place);
+    private boolean switchEquipment(Equipment toEquip, String place){
+        putIntoInventory(Equipment.remove(place));
+        return putIntoEquipment(toEquip, place);
     }
 
-    private void putIntoEquipment(Equipment equipment, String place){
+    private boolean putIntoEquipment(Equipment equipment, String place){
         Equipment.put(place, equipment);
         playerData.recountStats(equipment.equipmentStat, equipment.getStats());
         Draw.call(infoGrid.getFirstBlock());
+        return true;
     }
 
     private void removeBlank(){

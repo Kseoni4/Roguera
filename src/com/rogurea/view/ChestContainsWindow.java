@@ -57,11 +57,15 @@ public class ChestContainsWindow extends Window {
                     item.model.toString()+" "+item.getName()+" ["+ ((Equipment) item).getStats() +"]",
                     new Position(1,this.itemCollection.indexOf(item)),
                     () -> {
-                            Dungeon.player.putUpItem(item);
-                            this.itemCollection.remove(item);
-                            //Debug.toLog(item.getFullInfo());
-                            this.fillElements();
-                            cursorUI = new CursorUI(elements);
+                            if(Dungeon.player.putUpItem(item)) {
+                                this.itemCollection.remove(item);
+
+                                //Debug.toLog(item.getFullInfo());
+
+                                this.fillElements();
+
+                                cursorUI = new CursorUI(elements);
+                            }
                     }
             ));
             //elements.get(this.itemCollection.indexOf(item)).ElementPointerPosition.x++;
