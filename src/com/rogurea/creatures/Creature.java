@@ -16,7 +16,7 @@ import com.rogurea.view.ViewObjects;
 
 import java.util.ArrayList;
 
-public class Creature extends GameObject {
+public class Creature extends GameObject implements Movable {
     protected int HP;
 
     protected String name;
@@ -75,5 +75,5 @@ public class Creature extends GameObject {
 
     public Creature(){
         this.tag = "creature";
-    };
+    }
 }

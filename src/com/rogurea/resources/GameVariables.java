@@ -73,6 +73,8 @@ public class GameVariables {
 
     public static final double PROGRESSION_COEFFICIENT = 5;
 
+    public static final double LEVEL_PROGRESSION_COEFFICIENT = 1.2;
+
     public static final short BASE_PLAYER_ATK = 1;
 
     public static final short BASE_PLAYER_DEF = 1;

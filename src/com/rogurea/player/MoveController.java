@@ -19,6 +19,7 @@ import com.rogurea.view.ViewObjects;
 import java.util.Optional;
 
 import static com.rogurea.gamemap.Dungeon.player;
+import static com.rogurea.view.ViewObjects.infoGrid;
 import static com.rogurea.view.ViewObjects.inventoryView;
 
 public class MoveController {
@@ -111,6 +112,7 @@ public class MoveController {
             if(player.putUpItem(_item)) {
                 nextCell.removeFromCell();
                 Draw.call(inventoryView);
+                Draw.call(infoGrid);
             }
         }
 

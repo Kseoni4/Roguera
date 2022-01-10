@@ -163,7 +163,7 @@ public class MainMenu {
             if(nickname.getText().length() > 0) {
                 Debug.toLog("[MAIN_MENU] get input nickname: " + nickname.getText());
                 try {
-                    if(!RogueraSpring.checkNickName(nickname.getText())){
+                    if(Roguera.isOnline() && !RogueraSpring.checkNickName(nickname.getText())){
                         CheckErrorCode(NICK_NAME_IS_BANNED_FOR_USE);
                         return;
                     }

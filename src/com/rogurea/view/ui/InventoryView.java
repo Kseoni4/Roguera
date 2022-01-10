@@ -79,6 +79,7 @@ public class InventoryView implements IViewBlock {
 
     @Override
     public void Draw() {
+        Reset();
         drawEquipment();
         drawItemQuickSlots();
         drawItems();
@@ -130,7 +131,6 @@ public class InventoryView implements IViewBlock {
     @Override
     public void Reset() {
         invViewGraphics.fillRectangle(inventoryPosition.toTerminalPosition(), new TerminalSize(TerminalView.windowWight*2,5), ' ');
-        Draw.call(this);
     }
 
     /*private TextGraphics invViewGraphics;

@@ -15,13 +15,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ItemGenerator {
 
-    private static String[] weaponModels = {"ShortSword", "LongSword", "Knife"};
+    private static final String[] weaponModels = {"ShortSword", "LongSword", "Knife"};
 
-    private static String[] armorModels = {"Chest", "Hat", "Leg"};
+    private static final String[] armorModels = {"Chest", "Hat", "Leg"};
 
-    private static String[] bossWeaponNames = {"Sword of Darkness", "Power of Doom", "Abyss Demolish", "Eternity Sufferer"};
+    private static final String[] bossWeaponNames = {"Sword of Darkness", "Power of Doom", "Abyss Demolish", "Eternity Sufferer"};
 
-    private static String[] bossArmorNames = {"Armor of Abyss", "Strength of Stars", "Armodium Suit", "Vortex of Power"};
+    private static final String[] bossArmorNames = {"Armor of Abyss", "Strength of Stars", "Armodium Suit", "Vortex of Power"};
 
     public static Equipment getRandomWeaponEquipment() {
         Model wp = GameResources.getModel(weaponModels[GetRandom.RNGenerator.nextInt(weaponModels.length)]);
@@ -54,7 +54,7 @@ public class ItemGenerator {
 
     public static Weapon getSpecialBossWeapon(){
         int randomNameIndex = ThreadLocalRandom.current().nextInt(bossWeaponNames.length);
-        int weaponDamage = (int) (RogueraGameSystem.getBaseFloorProgression()*Math.sqrt((Dungeon.getCurrentFloor().get().getFloorNumber()/2)));
+        int weaponDamage = (int) (RogueraGameSystem.getBaseFloorProgression())*2;//*Math.sqrt((Dungeon.getCurrentFloor().get().getFloorNumber()/2)));
         Weapon bossWeapon = new Weapon(bossWeaponNames[randomNameIndex],GameResources.getModel("LongSword"), Item.Materials.DIAMOND);
         bossWeapon.setDamage(weaponDamage);
         bossWeapon.model.changeName(bossWeapon.getName());
@@ -64,7 +64,7 @@ public class ItemGenerator {
 
     public static Armor getSpecialBossArmor(){
         int randomNameIndex = ThreadLocalRandom.current().nextInt(bossArmorNames.length);
-        int armorDef = (int) (RogueraGameSystem.getBaseFloorProgression()*Math.sqrt((Dungeon.getCurrentFloor().get().getFloorNumber()/2)));
+        int armorDef = (int) (RogueraGameSystem.getBaseFloorProgression()*2);
         Armor bossArmor = new Armor(bossArmorNames[randomNameIndex],GameResources.getModel("Chest"), Item.Materials.DIAMOND);
         bossArmor.setDefence(armorDef);
         bossArmor.model.changeName(bossArmor.getName());

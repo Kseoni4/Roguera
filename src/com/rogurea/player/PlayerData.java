@@ -27,7 +27,7 @@ import java.util.HashMap;
 
 public class PlayerData implements Serializable {
     private String playerName;
-    private String token;
+    private String token = "";
     private int playerID = 1;
     private int HP;
     private int maxHP = 100;
@@ -127,7 +127,7 @@ public class PlayerData implements Serializable {
             this.getClass().getDeclaredField("_"+stat).setInt(this,amount);
 
         } catch (NoSuchFieldException | IllegalAccessException e){
-            Debug.toLog("No such field: "+"_"+stat);
+            Debug.toLog("[ERROR][REFLECTION]No such field: "+"_"+stat);
         }
     }
 

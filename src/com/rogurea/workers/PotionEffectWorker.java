@@ -4,6 +4,7 @@ import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.items.Potion;
 import com.rogurea.view.Draw;
+import com.rogurea.view.Window;
 
 import java.sql.Time;
 import java.util.concurrent.TimeUnit;
@@ -14,9 +15,9 @@ public class PotionEffectWorker implements Runnable{
 
     private final int EFFECT_SECONDS_MINIMUM_TIME = 10;
 
-    private Potion potion;
+    private final Potion potion;
 
-    private String type;
+    private final String type;
 
     public PotionEffectWorker(Potion potion, String type){
         this.potion = potion;
@@ -47,7 +48,10 @@ public class PotionEffectWorker implements Runnable{
         } catch (InterruptedException e){
             e.getMessage();
         }
-        Draw.call(infoGrid.getFirstBlock());
+
+        if(!Window.isOpen()){
+            Draw.call(infoGrid.getFirstBlock());
+        }
         Debug.toLog("[POTION_EFFECT_WORKER] Worker of "+potion.getName()+" was ended");
     }
 
@@ -62,7 +66,9 @@ public class PotionEffectWorker implements Runnable{
 
         Debug.toLog("[POTION_EFFECT_WORKER] Worker of "+potion.getName()+" was started");
 
-        Draw.call(infoGrid.getFirstBlock());
+        if(!Window.isOpen()) {
+            Draw.call(infoGrid.getFirstBlock());
+        }
 
         while(timer > 0) {
 

@@ -20,7 +20,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.9:0112:2344-RC5";
+    public static final String VERSION = "v0.2.9:0501:1353-RC8";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -128,11 +128,11 @@ public class GameResources {
                         break;
                     case "weaponnames":
                         WEAPON_NAMES.addAll(Arrays.asList(map));
-                        WEAPON_NAMES.removeIf(s -> s.length() >= 30);
+                        WEAPON_NAMES.removeIf(s -> s.length() >= 24);
                         break;
                     case "armornames":
                         ARMOR_NAMES.addAll(Arrays.asList(map));
-                        ARMOR_NAMES.removeIf(s -> s.length() >= 30);
+                        ARMOR_NAMES.removeIf(s -> s.length() >= 24);
                         break;
                 }
             }catch (IOException e){
@@ -146,8 +146,8 @@ public class GameResources {
             return MODEL_HASH_MAP.get(modelname);
         }
         catch (NullPointerException e){
-            Debug.toLog(Colors.ORANGE+"[RESOURCE]: Get model error: no such symbol for name " + modelname);
-            System.out.printf(Colors.ORANGE+"[RESOURCES] Get model error: no such symbol for name \"%s\"\n",modelname);
+            Debug.toLog(Colors.ORANGE+"[WARNING][RESOURCES] Get model error: no such symbol for name " + modelname);
+            System.out.printf(Colors.ORANGE+"[WARNING][RESOURCES] Get model error: no such symbol for name \"%s\"\n",modelname);
             return new Model();
         }
     }

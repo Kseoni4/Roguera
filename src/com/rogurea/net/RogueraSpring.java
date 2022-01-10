@@ -38,8 +38,10 @@ public class RogueraSpring {
 
     public static String createNewUser(String nickName) throws URISyntaxException, IOException, InterruptedException {
 
+        String tokenID = Dungeon.player.getPlayerData().getToken();
+
         postRequest = HttpRequest.newBuilder()
-                .uri(new URI(Credentials.ROGUERA_URL + Credentials.USERS + Credentials.USER_NICKNAME + nickName))
+                .uri(new URI(Credentials.ROGUERA_URL + Credentials.USERS + Credentials.USER_NICKNAME + nickName + (!tokenID.equals("") ? "&tokenID="+tokenID : "")))
                 .POST(HttpRequest.BodyPublishers.ofString(nickName))
                 .build();
 
@@ -62,7 +64,7 @@ public class RogueraSpring {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(postRequest, HttpResponse.BodyHandlers.ofString());
-        //Debug.toLog("[HTTP_POST][GAME_SESSION]Create Result: "+response.body());
+        Debug.toLog("[HTTP_POST][GAME_SESSION]Create Result: "+response.body());
 
         return Integer.parseInt(response.body());
     }
@@ -134,11 +136,15 @@ public class RogueraSpring {
 
         String result = response.body();
         Debug.toLog("[HTTP_GET][CHECK_NICKNAME] Result for "+ nickName+" is "+result);
-        if(result.equals("false")){
-            return true;
-        } else {
-            return false;
-        }
+        return result.equals("false");
 
+    }
+
+    public static boolean getConnection() throws URISyntaxException, IOException, InterruptedException {
+        getRequest = HttpRequest.newBuilder().uri(new URI(Credentials.ROGUERA_URL)).GET().build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+        return response.statusCode() == 200;
     }
 }

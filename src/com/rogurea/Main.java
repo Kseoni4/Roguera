@@ -1,7 +1,10 @@
 package com.rogurea;
 
 import com.rogurea.base.Debug;
+import com.rogurea.cinematic.TutorialScene;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.gamemap.Room;
+import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.IViewBlock;
 import com.rogurea.view.TerminalView;
@@ -47,6 +50,7 @@ public class Main {
         TerminalView.setGameScreen();
 
         if (newGame) {
+            new TutorialScene(new Room(0, 60,60, RoomGenerate.RoomSize.BIG)).startSequence();
             Dungeon.generate();
         } else {
             Dungeon.reloadDungeonAfterLoad();

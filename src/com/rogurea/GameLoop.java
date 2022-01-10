@@ -4,7 +4,6 @@
 
 package com.rogurea;
 
-import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.ItemGenerator;
@@ -15,8 +14,6 @@ import com.rogurea.gamemap.Room;
 import com.rogurea.input.Input;
 import com.rogurea.items.Potion;
 import com.rogurea.net.RogueraSpring;
-import com.rogurea.player.KeyController;
-import com.rogurea.player.MoveController;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.Animation;
@@ -30,11 +27,10 @@ import net.arikia.dev.drpc.DiscordRPC;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static com.rogurea.Main.autoLogWorker;
@@ -77,15 +73,21 @@ public class GameLoop {
             logView.playerAction("entered the dungeon... Good luck!");
 
             try {
-               String map = RogueraSpring.createNewUser(getTrimString(Dungeon.player.getPlayerData().getPlayerName()));
+                if (Roguera.isOnline()) {
+                    String map = RogueraSpring.createNewUser(getTrimString(Dungeon.player.getPlayerData().getPlayerName()));
 
-               String[] s = map.split(",");
+                    String[] s = map.split(",");
 
-               Dungeon.player.getPlayerData().setPlayerID(Integer.parseInt(s[0]));
+                    Dungeon.player.getPlayerData().setPlayerID(Integer.parseInt(s[0]));
 
-               Dungeon.player.getPlayerData().setToken(s[1]);
+                    Dungeon.player.getPlayerData().setToken(s[1]);
+                } else {
+                    Dungeon.player.getPlayerData().setPlayerID(Math.abs(Dungeon.player.getPlayerData().getPlayerName().hashCode()));
 
-               //Debug.toLog("[HTTP_POST][GAME_LOOP] User created and got token = "+s[1]);
+                    Dungeon.player.getPlayerData().setToken(Dungeon.player.getPlayerData().getPlayerID() + "_offlinetoken");
+                }
+
+                Debug.toLog("[HTTP_POST][GAME_LOOP] User created and got token = "+Dungeon.player.getPlayerData().getToken());
             } catch (URISyntaxException | IOException e) {
                 e.printStackTrace();
             }
@@ -97,7 +99,11 @@ public class GameLoop {
             //Events.putTestItemIntoPos.action(new Position(3,3));
         }
 
-        gameSessionId = RogueraSpring.createGameSession();
+        if(Roguera.isOnline()) {
+            gameSessionId = RogueraSpring.createGameSession();
+        } else {
+            gameSessionId = Dungeon.player.getPlayerData().getToken().hashCode() + ThreadLocalRandom.current().nextInt(100000, 999999);
+        }
 
         Debug.toLog("[GAME_LOOP] Created game session with id: "+gameSessionId);
 
@@ -105,13 +111,15 @@ public class GameLoop {
 
         autoLogWorker.shutdown();
 
-        updWrk.execute(new UpdaterWorker());
+        if(Roguera.isOnline()) {
+            updWrk.execute(new UpdaterWorker());
 
-        updWrk.shutdown();
+            updWrk.shutdown();
+        }
 
         Draw.call(ViewObjects.mapView);
 
-        Draw.call(ViewObjects.infoGrid.getFirstBlock());
+        Draw.call(ViewObjects.infoGrid);
 
         Debug.toLog("[GAME_LOOP] Starting gameloop on "+startPlayTime);
 
@@ -152,11 +160,24 @@ public class GameLoop {
 
         calculatePlayTime();
 
-        RogueraSpring.updateGameSession();
+        if(Roguera.isOnline() || Roguera.tryToConnect()) {
+            if(!Roguera.isOnline()) {
+                Debug.toLog("[NETWORK][GAME_SESSION] Try to create new user and GS");
+
+                String data = RogueraSpring.createNewUser(getTrimString(Dungeon.player.getPlayerData().getPlayerName()));
+
+                Debug.toLog("[NETWORK][USER]TokenID: "+data);
+
+                Dungeon.player.getPlayerData().setPlayerID(Integer.parseInt(data.split(",")[0]));
+
+                RogueraSpring.createGameSession();
+            }
+            RogueraSpring.updateGameSession();
+
+            RogueraSpring.finalizeGameSession();
+        }
 
         Debug.toLog(Colors.VIOLET+"[SYSTEM]End of the game session");
-
-        RogueraSpring.finalizeGameSession();
 
         endGameSequence();
     }

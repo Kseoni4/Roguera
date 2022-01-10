@@ -5,6 +5,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
+import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.input.CursorUI;
@@ -80,15 +81,20 @@ public class InventoryWindow extends Window {
                         Optional<KeyStroke> key = Input.waitForInput();
                         if(key.isPresent()){
                             if (key.get().getKeyType() == KeyType.Character){
-                                int num = Integer.parseInt(String.valueOf(key.get().getCharacter()));
-                                if(Dungeon.player.quickEquipment.size() >= num){
-                                    if(Dungeon.player.tryToPutIntoInventory(Dungeon.player.quickEquipment.get(num-1))) {
-                                        Dungeon.player.quickEquipment.remove(num - 1);
-                                        fillElements();
-                                        Draw.reset(infoGrid.getThirdBlock());
-                                        Draw.call(infoGrid.getThirdBlock());
-                                        Draw.call(this);
+                                try {
+                                    int num = Integer.parseInt(String.valueOf(key.get().getCharacter()));
+                                    if (Dungeon.player.quickEquipment.size() >= num) {
+                                        if (Dungeon.player.tryToPutIntoInventory(Dungeon.player.quickEquipment.get(num - 1))) {
+                                            Dungeon.player.quickEquipment.remove(num - 1);
+                                            fillElements();
+                                            Draw.reset(infoGrid.getThirdBlock());
+                                            Draw.call(infoGrid.getThirdBlock());
+                                            Draw.call(this);
+                                            cursorUI = new CursorUI(menuElements);
+                                        }
                                     }
+                                } catch (NumberFormatException e){
+                                    Debug.toLog("[ERROR][INVENTORY] wrong character!");
                                 }
                             }
                         }
@@ -102,7 +108,7 @@ public class InventoryWindow extends Window {
         for (Element element : menuElements) {
             putElementIntoWindow(element);
         }
-        putStringIntoWindow("Items "+menuElements.size()+"/10",new Position(5,-1));
+        putStringIntoWindow("Items "+playerInventory.size()+"/10",new Position(5,-1));
         if (!menuElements.isEmpty())
             try {
                 setPointerToElement(menuElements.get(cursorUI.indexOfElement), cursorUI.cursorPointer);
@@ -160,20 +166,19 @@ public class InventoryWindow extends Window {
         private final Runnable equip = ()-> {
             int index = cursorUI.indexOfElement;
             Item item = Dungeon.player.Inventory.get(index);
-
-            if(Dungeon.player.equipItemIntoFirstSlot((Equipment) item)) {
-                Dungeon.player.Inventory.remove(item);
-                menuElements.remove(index);
+            Dungeon.player.Inventory.remove(item);
+            if(item instanceof Equipment){
+                Dungeon.player.equipItemIntoFirstSlot((Equipment) item);
             } else if(item instanceof Usable) {
                 ((Usable) item).use();
-                Dungeon.player.Inventory.remove(item);
-                menuElements.remove(index);
             }
+            menuElements.remove(index);
 
-            Draw.reset(InventoryWindow.this);
             InventoryWindow.this.fillElements();
-            Draw.call(InventoryWindow.this);
             Draw.call(infoGrid.getThirdBlock());
+            Draw.call(InventoryWindow.this);
+            Draw.call(this);
+
         };
 
         private final Runnable drop = () -> {

@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Chest extends Entity {
     private final ArrayList<Item> loot = new ArrayList<>();
-    private static final Model chest = new Model("chest", Colors.GOLDEN, Colors.B_GREYSCALE_237, '≡');
+    public static final Model chest = new Model("chest", Colors.GOLDEN, Colors.B_GREYSCALE_237, '≡');
 
     public Chest() {
         super(chest);

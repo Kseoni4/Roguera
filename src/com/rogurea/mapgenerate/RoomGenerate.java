@@ -113,7 +113,7 @@ public class RoomGenerate implements Serializable {
 
             byte Widght = roomSizes[RandomRoomSize].GetWidghtX()[random.nextInt(3)];
 
-            if((floorNumber+1) % 10 == 0 && (i + 1) == 10){
+            if((i + 1) == 10){
                 Height = roomSizes[2].GetHeightY()[2];
 
                 Widght = roomSizes[2].GetWidghtX()[2];
@@ -210,7 +210,7 @@ public class RoomGenerate implements Serializable {
 }
 
     private static void placeMobs(Room room){
-        if(!(Dungeon.getCurrentFloor().get().getFloorNumber() % 10 == 0 && Dungeon.getCurrentRoom().isEndRoom)) {
+        if(!(Dungeon.getCurrentRoom().isEndRoom)) {
             int randomMobCount = Math.min(ThreadLocalRandom.current().nextInt(0, Dungeon.getCurrentFloor().get().getFloorNumber()+1),5);
 
             for (int i = 0; i < randomMobCount; i++) {

@@ -27,10 +27,16 @@ public class Boss extends Mob {
 
         this.baseDEF = RogueraGameSystem.getMobBaseDEF();
 
-        this.HP = 100 + (int) RogueraGameSystem.getBaseFloorProgression()*3;
+        this.HP = 100 + (int) RogueraGameSystem.getBaseFloorProgression()*2;
+
+        calculateXP();
 
         creatureInventory.add(ItemGenerator.getSpecialBossWeapon());
 
         creatureInventory.add(ItemGenerator.getSpecialBossArmor());
+    }
+
+    private void calculateXP(){
+        experiencePoints = (int) Math.round(Dungeon.getCurrentFloor().get().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.4d));
     }
 }

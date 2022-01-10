@@ -17,7 +17,7 @@ public class RogueraGameSystem {
      * @return значение прогрессии на текущем уровне игрока
      */
     public static double getBaseLevelProgression(){
-        return Math.pow(Dungeon.player.getPlayerData().getLevel(),GameVariables.Psmall) * GameVariables.PROGRESSION_COEFFICIENT;
+        return Math.pow(Dungeon.player.getPlayerData().getLevel(),GameVariables.Psmall) * GameVariables.LEVEL_PROGRESSION_COEFFICIENT;
     }
 
     public static double getBaseFloorProgression(){
@@ -33,11 +33,11 @@ public class RogueraGameSystem {
      * @return количество требуемого опыта округлённоё до целого.
      */
     public static int getRequirementEXP(){
-        return (int) Math.round(getBaseLevelProgression() * Math.pow(10,2));
+        return (int) Math.round(getBaseLevelProgression() * Math.pow(5,2));
     }
 
     public static int getNextHP(){
-        return Dungeon.player.getHP() + 10;
+        return Dungeon.player.getPlayerData().getMaxHP() + 10;
     }
 
     public static int getPlayerBaseATK(){

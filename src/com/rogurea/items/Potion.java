@@ -67,7 +67,7 @@ public class Potion extends Equipment implements Usable {
         this.tag += ".potion."+this.potionType.name().toLowerCase();
         this.setSellPrice(
                 (int) (RogueraGameSystem.getPBonus()*Math.pow(Dungeon.getCurrentFloor().get().getFloorNumber(),Math.E)
-                                        + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 150 : ThreadLocalRandom.current().nextInt(2,4)
+                                        + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 150 : ThreadLocalRandom.current().nextInt(2,5)
                         ))));
         this.rename(getName() + " " +this.potionType.name().substring(0,3));
     }

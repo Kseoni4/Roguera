@@ -16,6 +16,7 @@ import com.rogurea.resources.Model;
 import com.rogurea.gamemap.Position;
 import com.rogurea.view.Draw;
 import com.rogurea.view.ViewObjects;
+import com.sun.jdi.Bootstrap;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
@@ -127,7 +128,7 @@ public class Player extends Creature {
     }
 
     public boolean putIntoQuickMenu(Item item, int index){
-        if(index < 6){
+        if(index <= 5){
             //Debug.toLog("[PLAYER_INVENTORY] Put item "+item+ " into quick menu on index "+ index);
             try {
                 if(quickEquipment.toArray().length < 5) {
