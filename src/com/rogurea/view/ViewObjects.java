@@ -38,7 +38,7 @@ public class ViewObjects {
         String trimmedMessage = message.trim();
         int len = trimmedMessage.split(" ").length;
         for(int i = 0; i <= len; i++) {
-            trimmedMessage = trimmedMessage.replaceFirst("\\[\\d{2};\\d{1};((\\d{3}m)|(\\d{2}m)|(\\d{1}m))", "");
+            trimmedMessage = trimmedMessage.replaceFirst("\\[\\d{2};\\d;((\\d{3}m)|(\\d{2}m)|(\\d{1}m))", "");
             trimmedMessage = trimmedMessage.replaceFirst("(\\u001b|\\u001b[ESC]\\[(\\d{1}m))", "");
             trimmedMessage = trimmedMessage.replaceFirst("(\\[(\\d{1}m))", "");
             trimmedMessage = trimmedMessage.replaceFirst("\\[\\u001b|\\u001b[ESC]", "");

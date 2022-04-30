@@ -24,10 +24,35 @@ public class RogueraSpring {
     static HttpRequest postRequest;
     static HttpRequest putRequest;
 
+    private static String ROGUERA_URL;
+    private static String USERS;
+    private static String GAME_SESSIONS;
+    private static String GAME_SESSIONS_ID;
+    private static String USER_ID;
+    private static String USER_TOKEN;
+    private static String USER_NICKNAME;
+
+    static {
+        Properties databaseProps = new Properties();
+        try {
+            databaseProps.load(RogueraSpring.class.getResource("/database.properties").openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ROGUERA_URL= databaseProps.getProperty("ROGUERA_URL");
+        USERS = databaseProps.getProperty("USERS");
+        GAME_SESSIONS = databaseProps.getProperty("GAME_SESSIONS");
+        GAME_SESSIONS_ID = databaseProps.getProperty("GAME_SESSIONS_ID");
+        USER_ID = databaseProps.getProperty("USER_ID");
+        USER_TOKEN = databaseProps.getProperty("USER_TOKEN");
+        USER_NICKNAME = databaseProps.getProperty("USER_NICKNAME");
+    }
+
     public static void getUser(int playerID) throws URISyntaxException, IOException, InterruptedException {
 
         getRequest = HttpRequest.newBuilder()
-                .uri(new URI(Credentials.ROGUERA_URL+Credentials.USERS+"?id="+playerID))
+                .uri(new URI(ROGUERA_URL+USERS+"?id="+playerID))
                 .GET()
                 .build();
 
@@ -41,7 +66,7 @@ public class RogueraSpring {
         String tokenID = Dungeon.player.getPlayerData().getToken();
 
         postRequest = HttpRequest.newBuilder()
-                .uri(new URI(Credentials.ROGUERA_URL + Credentials.USERS + Credentials.USER_NICKNAME + nickName + (!tokenID.equals("") ? "&tokenID="+tokenID : "")))
+                .uri(new URI(ROGUERA_URL + USERS + USER_NICKNAME + nickName + (!tokenID.equals("") ? "&tokenID="+tokenID : "")))
                 .POST(HttpRequest.BodyPublishers.ofString(nickName))
                 .build();
 
@@ -54,12 +79,12 @@ public class RogueraSpring {
     public static int createGameSession() throws URISyntaxException, IOException, InterruptedException{
 
         postRequest = HttpRequest.newBuilder()
-                .uri(new URI(Credentials.ROGUERA_URL
-                        + Credentials.GAME_SESSIONS
-                        + Credentials.USER_ID
+                .uri(new URI(ROGUERA_URL
+                        + GAME_SESSIONS
+                        + USER_ID
                         + Dungeon.player.getPlayerData().getPlayerID()
                         +"&"
-                        +Credentials.USER_TOKEN+Dungeon.player.getPlayerData().getToken()))
+                        +USER_TOKEN+Dungeon.player.getPlayerData().getToken()))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient()
@@ -88,12 +113,12 @@ public class RogueraSpring {
         }};
 
         putRequest = HttpRequest.newBuilder().uri(
-                new URI(Credentials.ROGUERA_URL
-                        + Credentials.GAME_SESSIONS+"/update"
-                        + Credentials.USER_ID
+                new URI(ROGUERA_URL
+                        + GAME_SESSIONS+"/update"
+                        + USER_ID
                         + Dungeon.player.getPlayerData().getPlayerID()
                         + "&"
-                        + Credentials.USER_TOKEN
+                        + USER_TOKEN
                         + Dungeon.player.getPlayerData().getToken()))
                 .headers("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(values.toString().replace("=",":")))
@@ -109,9 +134,9 @@ public class RogueraSpring {
 
     public static void finalizeGameSession() throws URISyntaxException, IOException, InterruptedException {
         putRequest = HttpRequest.newBuilder().uri(
-                        new URI(Credentials.ROGUERA_URL
-                                + Credentials.GAME_SESSIONS+"/finalize"
-                                + Credentials.GAME_SESSIONS_ID
+                        new URI(ROGUERA_URL
+                                + GAME_SESSIONS+"/finalize"
+                                + GAME_SESSIONS_ID
                                 + GameLoop.gameSessionId))
                 .PUT(HttpRequest.BodyPublishers.noBody())
                 .build();
@@ -124,10 +149,10 @@ public class RogueraSpring {
 
     public static boolean checkNickName(String nickName) throws URISyntaxException, IOException, InterruptedException {
         getRequest = HttpRequest.newBuilder().uri(
-                new URI(Credentials.ROGUERA_URL
-                        +Credentials.USERS
+                new URI(ROGUERA_URL
+                        +USERS
                         +"/checkNameForValid"
-                        +Credentials.USER_NICKNAME
+                        +USER_NICKNAME
                         +nickName))
                 .GET()
                 .build();
@@ -141,7 +166,7 @@ public class RogueraSpring {
     }
 
     public static boolean getConnection() throws URISyntaxException, IOException, InterruptedException {
-        getRequest = HttpRequest.newBuilder().uri(new URI(Credentials.ROGUERA_URL)).GET().build();
+        getRequest = HttpRequest.newBuilder().uri(new URI(ROGUERA_URL)).GET().build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(getRequest, HttpResponse.BodyHandlers.ofString());
 
