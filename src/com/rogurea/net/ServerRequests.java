@@ -40,17 +40,6 @@ public class ServerRequests {
     public static byte[] getSecretKey(){
         return secretKey;
     }
-    public static void getUser(int playerID) throws URISyntaxException, IOException, InterruptedException {
-
-        getRequest = HttpRequest.newBuilder()
-                .uri(new URI(ROGUERA_URL+USERS+"?id="+playerID))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(getRequest, HttpResponse.BodyHandlers.ofString());
-        HttpHeaders responseHeaders = response.headers();
-    }
 
     public static String createNewUser(String nickName) throws URISyntaxException, IOException, InterruptedException {
 
@@ -73,8 +62,6 @@ public class ServerRequests {
 
     public static byte[] createGameSession(SessionData sessionData) throws URISyntaxException, IOException, InterruptedException{
 
-        Debug.toLog("Send session data = "+sessionData.toString());
-
         postRequest = HttpRequest.newBuilder()
                 .uri(new URI(ROGUERA_URL+"/new"))
                 .headers("Content-Type", "application/json")
@@ -82,8 +69,6 @@ public class ServerRequests {
                 .build();
         HttpResponse<byte[]> response = HttpClient.newHttpClient()
                 .send(postRequest, HttpResponse.BodyHandlers.ofByteArray());
-        Debug.toLog("[HTTP_POST][GAME_SESSION]Create Result: "+ Arrays.toString(response.body()));
-
         return response.body();
     }
 
@@ -100,8 +85,6 @@ public class ServerRequests {
 
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(putRequest, HttpResponse.BodyHandlers.ofString());
-
-       Debug.toLog("[HTTP_PUT][GAME_SESSION] Update Result: "+response.body());
 
        sm.release();
     }

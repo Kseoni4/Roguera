@@ -11,6 +11,5 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="lanterna-3.2.0-alpha1-javadoc" level="project" />
     <orderEntry type="library" name="discord-rpc" level="project" />
-    <orderEntry type="library" name="lanterna-3.2.0-alpha1" level="project" />
   </component>
 </module>

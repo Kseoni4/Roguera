@@ -212,8 +212,6 @@ public class GameLoop {
 
                 String data = ServerRequests.createNewUser(getTrimString(Dungeon.player.getPlayerData().getPlayerName()));
 
-                Debug.toLog("[NETWORK][USER]TokenID: "+data);
-
                 Dungeon.player.getPlayerData().setPlayerID(Integer.parseInt(data.split(",")[0]));
 
                 //ServerRequests.createGameSession();
