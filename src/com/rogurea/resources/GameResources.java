@@ -12,15 +12,18 @@ import com.rogurea.view.PlayerInfoWindow;
 import com.rogurea.view.ViewObjects;
 
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.2.9:0501:1353-RC8";
+    public static final String VERSION = "v0.3.0:0205:1537";
 
     public static final char EMPTY_CELL = ' ';
 

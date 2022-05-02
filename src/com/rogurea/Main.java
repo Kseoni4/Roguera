@@ -9,6 +9,7 @@ import com.rogurea.resources.GameResources;
 import com.rogurea.view.IViewBlock;
 import com.rogurea.view.TerminalView;
 import com.rogurea.view.ViewObjects;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     private static boolean newGame = true;
+
+    private static boolean newGameWithExistCharacter = false;
 
     public static ExecutorService autoLogWorker;
 
@@ -28,6 +31,18 @@ public class Main {
 
     public static boolean isNewGame() {
         return newGame;
+    }
+
+    public static void enableNewGameWithExistCharacter(){
+        newGameWithExistCharacter = true;
+    }
+
+    public static void disableNewGameWithExistCharacter(){
+        newGameWithExistCharacter = false;
+    }
+
+    public static boolean isNewGameWithExistCharacter(){
+        return newGameWithExistCharacter;
     }
 
     public static void enableNewGame() {
@@ -49,10 +64,15 @@ public class Main {
 
         TerminalView.setGameScreen();
 
-        if (newGame) {
+        if (isNewGame()) {
+            Debug.toLog("[MAIN] New game");
             new TutorialScene(new Room(0, 60,60, RoomGenerate.RoomSize.BIG)).startSequence();
             Dungeon.generate();
+        } else if(isNewGameWithExistCharacter()) {
+            Debug.toLog("[MAIN] New game with exist character");
+            Dungeon.generate();
         } else {
+            Debug.toLog("[MAIN] Load game from save file");
             Dungeon.reloadDungeonAfterLoad();
         }
 

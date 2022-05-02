@@ -27,7 +27,6 @@ import java.util.HashMap;
 
 public class PlayerData implements Serializable {
     private String playerName;
-    private String token = "";
     private int playerID = 1;
     private int HP;
     private int maxHP = 100;
@@ -164,6 +163,10 @@ public class PlayerData implements Serializable {
             updateHash();
         }
         Draw.call(ViewObjects.infoGrid.getFirstBlock());
+    }
+
+    public void resetScore(){
+        this.score = 0;
     }
 
     public void addScoreMultiplier(int amount){
@@ -334,14 +337,6 @@ public class PlayerData implements Serializable {
     }
     public void updBaseDEF(){
         this._baseDef = RogueraGameSystem.getPlayerBaseDEF();
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public void updRequiredEXP(){

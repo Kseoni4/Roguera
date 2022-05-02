@@ -1,14 +1,15 @@
 package com.rogurea;
 
 import com.rogurea.base.Debug;
-import com.rogurea.net.RogueraSpring;
+import com.rogurea.net.ServerRequests;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.Draw;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,7 +107,7 @@ public class Roguera {
 
     private static boolean checkConnection(){
         try {
-           return RogueraSpring.getConnection();
+           return ServerRequests.getConnection();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             Debug.toLog("[NETWORK][CONNECTION STATUS] no connection");
             return false;

@@ -10,9 +10,10 @@ import com.rogurea.resources.GameResources;
 import com.rogurea.view.ViewObjects;
 
 import java.io.*;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 public class SaveLoadSystem {
 
@@ -121,6 +122,7 @@ public class SaveLoadSystem {
         playerDataFile.setCurrentRoom(Dungeon.getCurrentRoom());
         playerDataFile.set_atkPotionBonus(0);
         playerDataFile.set_defPotionBonus(0);
+        playerDataFile.resetScore();
     }
 
     private static void getDataFromSavedFile(PlayerData savedFile) throws IndexOutOfBoundsException {
@@ -186,6 +188,7 @@ public class SaveLoadSystem {
     }
 
     public static boolean deleteSaveFile(){
+        currentSaveFile = new File(ViewObjects.getTrimString(Dungeon.player.getName())+".sav");
         return currentSaveFile.delete();
     }
 }
