@@ -23,7 +23,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.0:0205:1645";
+    public static final String VERSION = "v0.3.0:0305:0135";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -89,7 +89,7 @@ public class GameResources {
             try {
                 String[] map = loadAssets(file);
 
-                Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
+                //Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
 
                 putStringsIntoMap(map);
             } catch (IOException e) {
@@ -182,7 +182,7 @@ public class GameResources {
         //_keymap.put('r', Dungeon::regenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         _keymap.put('i', () -> new InventoryWindow().show());
-        _keymap.put('g', () -> new PGPv2().generateRoomStructure());
+        /*_keymap.put('g', () -> new PGPv2().generateRoomStructure());*/
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));
         _keymap.put('2', () -> ViewObjects.inventoryView.useItem(1));
         _keymap.put('3', () -> ViewObjects.inventoryView.useItem(2));

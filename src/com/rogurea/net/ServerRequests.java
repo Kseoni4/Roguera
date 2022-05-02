@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -19,8 +17,8 @@ public class ServerRequests {
     static HttpRequest postRequest;
     static HttpRequest putRequest;
 
-    private static String ROGUERA_URL;
-    private static String USERS;
+    private static final String ROGUERA_URL;
+    private static final String USERS;
 
     private static byte[] secretKey;
 
@@ -39,17 +37,6 @@ public class ServerRequests {
 
     public static byte[] getSecretKey(){
         return secretKey;
-    }
-    public static void getUser(int playerID) throws URISyntaxException, IOException, InterruptedException {
-
-        getRequest = HttpRequest.newBuilder()
-                .uri(new URI(ROGUERA_URL+USERS+"?id="+playerID))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(getRequest, HttpResponse.BodyHandlers.ofString());
-        HttpHeaders responseHeaders = response.headers();
     }
 
     public static String createNewUser(String nickName) throws URISyntaxException, IOException, InterruptedException {
@@ -73,8 +60,6 @@ public class ServerRequests {
 
     public static byte[] createGameSession(SessionData sessionData) throws URISyntaxException, IOException, InterruptedException{
 
-        Debug.toLog("Send session data = "+sessionData.toString());
-
         postRequest = HttpRequest.newBuilder()
                 .uri(new URI(ROGUERA_URL+"/new"))
                 .headers("Content-Type", "application/json")
@@ -82,8 +67,6 @@ public class ServerRequests {
                 .build();
         HttpResponse<byte[]> response = HttpClient.newHttpClient()
                 .send(postRequest, HttpResponse.BodyHandlers.ofByteArray());
-        Debug.toLog("[HTTP_POST][GAME_SESSION]Create Result: "+ Arrays.toString(response.body()));
-
         return response.body();
     }
 
@@ -100,8 +83,6 @@ public class ServerRequests {
 
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(putRequest, HttpResponse.BodyHandlers.ofString());
-
-       Debug.toLog("[HTTP_PUT][GAME_SESSION] Update Result: "+response.body());
 
        sm.release();
     }

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
-import static com.rogurea.view.ViewObjects.inventoryView;
 
 public class LogView implements IViewBlock {
 
@@ -32,7 +31,7 @@ public class LogView implements IViewBlock {
 
     private ArrayList<String> logHistory;
 
-    private ArrayList<String> assembleStrings = new ArrayList<>();
+    private final ArrayList<String> assembleStrings = new ArrayList<>();
 
     private StringBuilder logMessage;
 

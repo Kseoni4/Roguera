@@ -14,9 +14,9 @@ import static com.rogurea.Roguera.isDebug;
 
 public class Debug {
 
-    private static ArrayList<String> debugLog = new ArrayList<>();
+    private static final ArrayList<String> debugLog = new ArrayList<>();
 
-    private static ArrayList<String> debugEventLog = new ArrayList<>();
+    private static final ArrayList<String> debugEventLog = new ArrayList<>();
 
     public static void toLog(String message){
         if(isDebug){

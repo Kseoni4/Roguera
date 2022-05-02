@@ -6,36 +6,26 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.base.Debug;
 import com.rogurea.base.Entity;
-import com.rogurea.base.GameObject;
-import com.rogurea.creatures.Mob;
 import com.rogurea.exceptions.InterruptedSequence;
-import com.rogurea.gamelogic.ItemGenerator;
-import com.rogurea.gamelogic.MobFactory;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.gamemap.Room;
 import com.rogurea.input.Input;
 import com.rogurea.items.Chest;
-import com.rogurea.items.Gold;
-import com.rogurea.player.Player;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
 import com.rogurea.view.Draw;
-import com.rogurea.view.InventoryWindow;
 import com.rogurea.view.TerminalView;
 import com.rogurea.view.ViewObjects;
 
-import java.io.*;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class TutorialScene {
 
@@ -43,11 +33,11 @@ public class TutorialScene {
 
     private Actor player;
 
-    private Room sceneField;
+    private final Room sceneField;
 
     private TextGraphics tutorialGraphics;
 
-    private Position actorTextPosition = new Position(10, 8);
+    private final Position actorTextPosition = new Position(10, 8);
 
     private ArrayList<String> teacherLines = new ArrayList<>();
 

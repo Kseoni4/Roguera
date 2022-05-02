@@ -4,7 +4,6 @@
 
 package com.rogurea.gamelogic;
 
-import com.rogurea.Roguera;
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Position;
@@ -69,7 +68,7 @@ public class PathFinder {
 
         //Debug.toLog("[A*]ALGORITHM IS ENDED");
         return finalPath;
-    };
+    }
 
     private void findNodeSequence(Position target, Node start){
 

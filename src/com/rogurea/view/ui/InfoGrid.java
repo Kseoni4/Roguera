@@ -8,12 +8,9 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import com.rogurea.base.Debug;
-import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.items.Potion;
 import com.rogurea.resources.Colors;
-import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
 import com.rogurea.view.*;
 
@@ -25,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class InfoGrid implements IViewBlock {
 
-    private ArrayList<IViewBlock> _viewBlocks;
+    private final ArrayList<IViewBlock> _viewBlocks;
 
     private Position _startPointXY;
 
@@ -57,9 +54,9 @@ public class InfoGrid implements IViewBlock {
 
     private TextGraphics _infoGridGraphics;
 
-    private HashMap<String, Integer> bonusTimerMap = new HashMap<>();
+    private final HashMap<String, Integer> bonusTimerMap = new HashMap<>();
 
-    private int bonusTimer = 0;
+    private final int bonusTimer = 0;
 
     public InfoGrid() {
         _viewBlocks = new ArrayList<>();

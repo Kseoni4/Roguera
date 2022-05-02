@@ -9,9 +9,9 @@ public class Floor implements Serializable {
 
     private static int floorNumberCounter = 0;
 
-    private int floorNumber;
+    private final int floorNumber;
 
-    private ArrayList<Room> roomsOnFloor;
+    private final ArrayList<Room> roomsOnFloor;
 
     public ArrayList<Room> getRooms(){
         return this.roomsOnFloor;

@@ -193,8 +193,8 @@ public class PGP {
         else if(x1 > y1){
             yShift = y0 - y1;
             xShift = x1 - x0;
-            yCP = y1 + yShift;
             xCP = x0 + xShift;
+            yCP = y1 + yShift;
         }
         else{
             yShift = y1 - y0;

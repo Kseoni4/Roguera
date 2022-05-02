@@ -4,25 +4,27 @@
 
 package com.rogurea.player;
 
-import com.rogurea.creatures.Creature;
 import com.rogurea.base.Debug;
+import com.rogurea.creatures.Creature;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
+import com.rogurea.gamemap.Position;
 import com.rogurea.items.*;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
-import com.rogurea.gamemap.Position;
 import com.rogurea.view.Draw;
 import com.rogurea.view.ViewObjects;
-import com.sun.jdi.Bootstrap;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.rogurea.view.ViewObjects.infoGrid;
@@ -30,7 +32,7 @@ import static com.rogurea.view.ViewObjects.logView;
 
 public class Player extends Creature {
 
-    transient private DiscordRichPresence playerRichPresence;
+    final transient private DiscordRichPresence playerRichPresence;
 
     private final String defaultName = "Player" + ThreadLocalRandom.current().nextInt(1,10000);
 

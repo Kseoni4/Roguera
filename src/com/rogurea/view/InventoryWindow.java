@@ -2,7 +2,6 @@ package com.rogurea.view;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.rogurea.base.Debug;
@@ -13,11 +12,7 @@ import com.rogurea.input.Input;
 import com.rogurea.items.Equipment;
 import com.rogurea.items.Item;
 import com.rogurea.items.Usable;
-import com.rogurea.player.Player;
-import com.rogurea.resources.Colors;
-import com.rogurea.view.ui.InfoGrid;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -30,11 +25,11 @@ public class InventoryWindow extends Window {
     private final int _width = 25;
     private final int _height = 5;
 
-    private TerminalPosition _inventoryWindowPosition = new TerminalPosition(20,5);
+    private final TerminalPosition _inventoryWindowPosition = new TerminalPosition(20,5);
 
     private TerminalSize _inventoryWindowSize = new TerminalSize(_width, _height);
 
-    private ArrayList<Item> playerInventory;
+    private final ArrayList<Item> playerInventory;
 
     private ArrayList<Element> menuElements;
 
@@ -155,11 +150,11 @@ public class InventoryWindow extends Window {
     }
     private class ContextMenuWindow extends Window{
 
-        private Item selectedItem;
+        private final Item selectedItem;
 
         private ArrayList<Element> contextMenuElements = new ArrayList<>();
 
-        private CursorUI contextMenuCursor;
+        private final CursorUI contextMenuCursor;
 
         private boolean contextMenuIsOpen;
 

@@ -7,14 +7,12 @@ package com.rogurea.view;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyStroke;
-import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.input.CursorUI;
 import com.rogurea.input.Input;
 import com.rogurea.items.Equipment;
 import com.rogurea.items.Item;
-import com.rogurea.items.Potion;
 import com.rogurea.resources.Colors;
 
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ public class TraderWindow extends Window {
 
     private CursorUI itemCursorUI;
 
-    private CursorUI menuCursorUI;
+    private final CursorUI menuCursorUI;
 
     private final String PRESS_ENTER_TO_SELL_ITEM = "PRESS ENTER TO SELL ITEM";
 

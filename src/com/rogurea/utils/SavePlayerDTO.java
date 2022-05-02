@@ -12,8 +12,7 @@ public class SavePlayerDTO {
 
     public static void save(PlayerDTO playerDTO){
         try {
-            Debug.toLog("Saving player dto = "+playerDTO.toString());
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(new File(playerDTO.getNickName()+".auth")));
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(playerDTO.getNickName()+".auth"));
             outputStream.writeObject(playerDTO);
         } catch (IOException e) {
             e.printStackTrace();

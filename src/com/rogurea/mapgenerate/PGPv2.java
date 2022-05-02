@@ -2,7 +2,10 @@ package com.rogurea.mapgenerate;
 
 import com.rogurea.base.Debug;
 import com.rogurea.base.GameObject;
-import com.rogurea.gamemap.*;
+import com.rogurea.gamemap.Cell;
+import com.rogurea.gamemap.EditorEntity;
+import com.rogurea.gamemap.Position;
+import com.rogurea.gamemap.Room;
 import com.rogurea.input.Input;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.Model;
@@ -10,9 +13,6 @@ import com.rogurea.view.Draw;
 import com.rogurea.view.ViewObjects;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.rogurea.mapgenerate.MapEditor.*;
@@ -30,7 +30,7 @@ public class PGPv2 {
 
     private final EditorEntity Dot = new EditorEntity(new Model("dot", Colors.ORANGE, '.'));
 
-    private ArrayList<Point> linkedPoints = new ArrayList<>();
+    private final ArrayList<Point> linkedPoints = new ArrayList<>();
 
     ArrayList<Cell> roomCells = new ArrayList<>();
 
