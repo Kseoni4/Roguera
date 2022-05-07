@@ -5,14 +5,16 @@
 package com.rogurea.gamemap;
 
 import com.rogurea.Roguera;
-import com.rogurea.base.*;
+import com.rogurea.base.AIController;
+import com.rogurea.base.Debug;
+import com.rogurea.base.Entity;
+import com.rogurea.base.GameObject;
 import com.rogurea.creatures.Creature;
 import com.rogurea.mapgenerate.RoomGenerate;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
 import com.rogurea.workers.DrawLootWorker;
-import com.rogurea.workers.MapCleanWorker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -185,6 +187,10 @@ public class Room implements Serializable {
         return gameObjects.stream().filter(gameObject -> gameObject.id == id).findAny().orElse(null);
     }
 
+    public GameObject getObjectByTag(String tag){
+        return gameObjects.stream().filter(gameObject -> gameObject.tag.startsWith(tag)).findFirst().get();
+    }
+
     public Room(int roomNumber, int width, int height, RoomGenerate.RoomSize roomSize) {
         this.roomNumber = roomNumber;
         this.width = width;
@@ -192,7 +198,6 @@ public class Room implements Serializable {
         this.roomSize = roomSize;
         makeCells();
         this.gameObjects = new ArrayList<>();
-        /*makeCells_test();*/
     }
 
     public Room(int roomNumber, int width, int height, RoomGenerate.RoomSize roomSize, boolean isEndRoom){
@@ -236,20 +241,25 @@ public class Room implements Serializable {
     }
 
     public void startMobAIThreads(){
-        mobThreads = Executors.newCachedThreadPool();
-        for(GameObject gO : getObjectsByTag("creature.mob")){
-            Creature creature = (Creature) gO;
-            if(creature.getHP() > 0) {
-                Debug.toLog("[Room " + roomNumber + "]" + creature.getName() + " to thread");
-                mobThreads.execute(new AIController(creature));
+        try {
+            mobThreads = Executors.newCachedThreadPool();
+            for (GameObject gO : getObjectsByTag("creature.mob")) {
+                Creature creature = (Creature) gO;
+                if (creature.getHP() > 0) {
+                    Debug.toLog("[Room " + roomNumber + "]" + creature.getName() + " to thread");
+                    mobThreads.execute(new AIController(creature));
+                }
             }
+            if (getObjectsByTag("creature.mob").length > 0) {
+                mobThreads.execute(new DrawLootWorker());
+                //mobThreads.execute(new MapCleanWorker());
+                Debug.toLog("[Room " + roomNumber + "] mob threads has started");
+            }
+        } catch (NullPointerException e){
+            Debug.toLog("[ERROR][MOB]"+e.getMessage());
+        } finally {
+            mobThreads.shutdown();
         }
-        if (getObjectsByTag("creature.mob").length > 0) {
-            mobThreads.execute(new DrawLootWorker());
-            //mobThreads.execute(new MapCleanWorker());
-            Debug.toLog("[Room "+ roomNumber +"] mob threads has started");
-        }
-        mobThreads.shutdown();
     }
 
     public void endMobAIThreads() {

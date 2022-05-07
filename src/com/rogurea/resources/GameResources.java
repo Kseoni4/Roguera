@@ -6,7 +6,6 @@ package com.rogurea.resources;
 
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.mapgenerate.PGPv2;
 import com.rogurea.view.InventoryWindow;
 import com.rogurea.view.PlayerInfoWindow;
 import com.rogurea.view.ViewObjects;
@@ -23,7 +22,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.0:0305:0135";
+    public static final String VERSION = "v0.3.0:0705:2100";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -32,6 +31,11 @@ public class GameResources {
     private static final HashMap<String, Model> MODEL_HASH_MAP = new HashMap<>();
 
     private static final ArrayList<String> WHOOPS_TEXT = new ArrayList<>();
+
+    private static final ArrayList<String> TRADER_MEET = new ArrayList<>();
+    private static final ArrayList<String> TRADER_AFTERBUY = new ArrayList<>();
+    private static final ArrayList<String> TRADER_AFTERSELL = new ArrayList<>();
+    private static final ArrayList<String> TRADER_NOMONEY = new ArrayList<>();
 
     private static final ArrayList<String> MOB_NAMES = new ArrayList<>();
 
@@ -51,7 +55,11 @@ public class GameResources {
             "whoops",
             "mobnames",
             "weaponnames",
-            "armornames"
+            "armornames",
+            "trader_meet",
+            "trader_nomoney",
+            "trader_aftersell",
+            "trader_afterbuy"
     };
 
     public static void loadFont(){
@@ -80,6 +88,11 @@ public class GameResources {
         WHOOPS_TEXT.clear();
         WEAPON_NAMES.clear();
         ARMOR_NAMES.clear();
+        TRADER_MEET.clear();
+        TRADER_NOMONEY.clear();
+        TRADER_AFTERBUY.clear();
+        TRADER_AFTERSELL.clear();
+
     }
 
     public static void loadResources() {
@@ -120,8 +133,6 @@ public class GameResources {
             try {
                 String[] map = loadAssets(file);
 
-                Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
-
                 switch (file){
                     case "whoops":
                         WHOOPS_TEXT.addAll(Arrays.asList(map));
@@ -136,6 +147,18 @@ public class GameResources {
                     case "armornames":
                         ARMOR_NAMES.addAll(Arrays.asList(map));
                         ARMOR_NAMES.removeIf(s -> s.length() >= 24);
+                        break;
+                    case "trader_meet":
+                        TRADER_MEET.addAll(Arrays.asList(map));
+                        break;
+                    case "trader_afterbuy":
+                        TRADER_AFTERBUY.addAll(Arrays.asList(map));
+                        break;
+                    case "trader_aftersell":
+                        TRADER_AFTERSELL.addAll(Arrays.asList(map));
+                        break;
+                    case "trader_nomoney":
+                        TRADER_NOMONEY.addAll(Arrays.asList(map));
                         break;
                 }
             }catch (IOException e){
@@ -177,12 +200,24 @@ public class GameResources {
 
     public static ArrayList<String> getArmorNames() { return ARMOR_NAMES;}
 
+    public static ArrayList<String> getTraderMeet() {return TRADER_MEET;}
+
+    public static ArrayList<String> getTraderAfterbuy() {
+        return TRADER_AFTERBUY;
+    }
+
+    public static ArrayList<String> getTraderAftersell() {
+        return TRADER_AFTERSELL;
+    }
+
+    public static ArrayList<String> getTraderNomoney() {
+        return TRADER_NOMONEY;
+    }
+
     public static HashMap<Character, Runnable> getKeyMap(){
         HashMap<Character, Runnable> _keymap = new HashMap<>();
-        //_keymap.put('r', Dungeon::regenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         _keymap.put('i', () -> new InventoryWindow().show());
-        /*_keymap.put('g', () -> new PGPv2().generateRoomStructure());*/
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));
         _keymap.put('2', () -> ViewObjects.inventoryView.useItem(1));
         _keymap.put('3', () -> ViewObjects.inventoryView.useItem(2));

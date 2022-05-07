@@ -1,5 +1,6 @@
 Ouch!
 Oops!
 Tough!
-Ah!
+Ahh!
 Bruh!
+Thud!

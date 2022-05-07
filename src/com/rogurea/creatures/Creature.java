@@ -16,6 +16,9 @@ import com.rogurea.view.ViewObjects;
 
 import java.util.ArrayList;
 
+/**
+ * Базовый класс игрового существа. Наследуется от {@link GameObject} и реализовывает {@link Movable}
+ */
 public class Creature extends GameObject implements Movable {
     protected int HP;
 

@@ -24,6 +24,11 @@ public class Message extends Window {
         this._message = color + _message;
     }
 
+    public Message(String message, Position position){
+        super(new TerminalPosition(position.x, position.y), new TerminalSize(message.length()+4, 3));
+        this._message = message;
+    }
+
     @Override
     protected void content() {
         putStringIntoWindow(_message, new Position(1,0));

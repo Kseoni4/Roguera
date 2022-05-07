@@ -52,7 +52,7 @@ public class Main {
     public static void startSequence() throws IOException {
         autoLogWorker = Executors.newSingleThreadExecutor();
 
-        Debug.toLog("[GAME]Start sequence");
+        Debug.toLog("[GAME] =================================== START SEQUENCE ===================================");
 
         GameResources.loadFont();
 
@@ -63,6 +63,8 @@ public class Main {
         ViewObjects.LoadViewObjects();
 
         TerminalView.setGameScreen();
+
+        Debug.toLog("[GAME] =================================== RESOURCES LOADED ===================================");
 
         if (isNewGame()) {
             Debug.toLog("[MAIN] New game");
@@ -97,6 +99,7 @@ public class Main {
             }
         }
 
+        Debug.toLog("=================================== END OF GAME ===================================");
         Debug.toLog("\u001b[38;5;200m[SYSTEM] End of main sequence");
     }
 }

@@ -162,10 +162,12 @@ public class InventoryWindow extends Window {
             int index = cursorUI.indexOfElement;
             Item item = Dungeon.player.Inventory.get(index);
             Dungeon.player.Inventory.remove(item);
-            if(item instanceof Equipment){
-                Dungeon.player.equipItemIntoFirstSlot((Equipment) item);
-            } else if(item instanceof Usable) {
-                ((Usable) item).use();
+            if(item instanceof Equipment) {
+                if (item instanceof Usable) {
+                    ((Usable) item).use();
+                } else {
+                    Dungeon.player.equipItemIntoFirstSlot((Equipment) item);
+                }
             }
             menuElements.remove(index);
 

@@ -20,11 +20,9 @@ import com.rogurea.resources.GameResources;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 public class MainMenu {
 
@@ -35,6 +33,8 @@ public class MainMenu {
     private static Panel newGamePanel;
 
     private static Panel choosePanel;
+
+    private static Panel thanksPanel;
 
     private static Screen GUIWindow;
 
@@ -47,6 +47,8 @@ public class MainMenu {
     private static final BasicWindow NEW_GAME_WINDOW = new BasicWindow();
 
     private static final BasicWindow STATUS_WINDOW = new BasicWindow();
+
+    private static final BasicWindow GRATITUDE_WINDOW = new BasicWindow();
 
     private static TerminalPosition centerOfScreen;
 
@@ -265,20 +267,6 @@ public class MainMenu {
         if (basePanel == null)
             ConstructMenuPanel();
 
-        Panel loadingPanel = new Panel();
-
-        BasicWindow loadingWindow = new BasicWindow();
-
-        loadingPanel.addComponent(new Label("Connecting to db..."));
-
-        loadingWindow.setComponent(loadingPanel.withBorder(Borders.doubleLine()));
-
-        windowsGUI.addWindow(loadingWindow);
-
-        loadingWindow.setPosition(centerOfScreen);
-
-        windowsGUI.removeWindow(loadingWindow);
-
         MENU_WINDOWS.setComponent(basePanel.withBorder(Borders.singleLine("Main menu")));
 
         windowsGUI.addWindow(MENU_WINDOWS);
@@ -292,6 +280,43 @@ public class MainMenu {
         if(Roguera.codeOfMenu == 0){
             System.exit(0);
         }
+    }
+
+    private static void openGratitudeWindow(){
+        try {
+            String[] names = loadNames();
+
+            thanksPanel = new Panel();
+
+            constructGratitudeWindowPanel(names);
+
+            windowsGUI.addWindow(GRATITUDE_WINDOW);
+
+            GRATITUDE_WINDOW.setPosition(centerOfScreen.withRelative(-10,-5));
+
+            windowsGUI.setActiveWindow(GRATITUDE_WINDOW).waitForWindowToClose(GRATITUDE_WINDOW);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private static void constructGratitudeWindowPanel(String[] names){
+        thanksPanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+
+        thanksPanel.addComponent(new Label("Спасибо всем, кто помогал идеями и тестированием:"));
+        for(String name : names){
+            thanksPanel.addComponent(new Label(name));
+        }
+
+        thanksPanel.addComponent(new Button("Back", ()->{
+            windowsGUI.getActiveWindow().close();
+            OpenMenuWindow();
+        }));
+
+        GRATITUDE_WINDOW.setComponent(thanksPanel);
     }
 
     private static void ConstructMenuPanel(){
@@ -343,6 +368,11 @@ public class MainMenu {
             OpenNewGameWindow();
         }));
 
+        basePanel.addComponent(new Button("Gratitude's", ()->{
+            windowsGUI.getActiveWindow().close();
+            openGratitudeWindow();
+        }));
+
         basePanel.addComponent(new Button("Quit", () -> {
 
             DiscordRPC.discordShutdown();
@@ -365,6 +395,7 @@ public class MainMenu {
             return false;
         }
     }
+
     private static File[] getAuthFiles(){
        return new File("./").listFiles(((dir, name) -> name.endsWith(".auth")));
     }
@@ -372,5 +403,17 @@ public class MainMenu {
     private static PlayerDTO loadPlayerData(File file) throws IOException, ClassNotFoundException {
         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
         return (PlayerDTO) inputStream.readObject();
+    }
+
+    private static String[] loadNames() throws IOException {
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(MainMenu.class.getResource("/thank_names.csv").openStream());
+        String[] lines = new String(bufferedInputStream.readAllBytes(), Charset.forName("UTF-8")).split("\n");
+        String names = "";
+        for (String line : lines){
+            Debug.toLog(line);
+            names = names.concat(line).concat(",");
+        }
+        Debug.toLog(names);
+        return names.split(",");
     }
 }

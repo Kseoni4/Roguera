@@ -49,7 +49,7 @@ public class RogueraGameSystem {
     }
 
     public static int getMobBaseATK(){
-        return (int) Math.round(getBaseFloorProgression()*1.5);
+        return (int) Math.round(getBaseFloorProgression()*1.2);
     }
 
     public static int getMobBaseDEF(){

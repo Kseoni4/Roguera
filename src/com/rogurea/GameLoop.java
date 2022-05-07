@@ -131,8 +131,6 @@ public class GameLoop {
 
             byte[] sessionKey = ServerRequests.createGameSession(sessionData);
 
-            Debug.toLog("SK = "+new String(sessionKey));
-
             String sessionToken = HashToString.convert(sessionKey);
 
             sessionData.setSessionKey(sessionKey);
