@@ -7,6 +7,7 @@ package com.rogurea.view;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyStroke;
+import com.rogurea.creatures.Boss;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.gamemap.Position;
 import com.rogurea.input.CursorUI;
@@ -34,6 +35,10 @@ public class TraderWindow extends Window {
     private final CursorUI menuCursorUI;
 
     private final String PRESS_ENTER_TO_SELL_ITEM = "PRESS ENTER TO SELL ITEM";
+
+    private final String PRESS_ENTER_TO_CHOOSE_ITEM = "PRESS ENTER TO CHOOSE ITEM";
+
+    private final String PRESS_ESC_TO_BACK = "PRESS ESC TO BACK";
 
     private final TerminalPosition _traderWindowPosition = new TerminalPosition(20,5);
 
@@ -157,7 +162,10 @@ public class TraderWindow extends Window {
             //Debug.toLog("[TRADER]Put in menu potion: " +item.toString());
             itemElements.add(new Element(
                     item.getName(),
-                    item.model.toString() + " " + item.getName() + " [+" + item.model.getModelColor()+stats +Colors.R+"] " + Colors.GOLDEN+"$"+item.getSellPrice()+Colors.R,
+                    item.model.toString() + " "
+                            + item.getName()
+                            + " [+" + item.model.getModelColor() + stats + Colors.R+"] "
+                            + Colors.GOLDEN+"$"+item.getSellPrice() + Colors.R,
                     new Position(1, this.itemCollection.indexOf(item) + 2),
                     action
             ));
@@ -171,7 +179,7 @@ public class TraderWindow extends Window {
             putElementIntoWindow(element);
         }
 
-        putStringIntoWindow(PRESS_ENTER_TO_SELL_ITEM, new Position(0,1));
+        putStringIntoWindow(PRESS_ENTER_TO_CHOOSE_ITEM, new Position(0,1));
 
         for (Element element : itemElements){
             putElementIntoWindow(element);
@@ -200,10 +208,20 @@ public class TraderWindow extends Window {
 
     @Override
     protected void input() {
+        if(Dungeon.getCurrentRoom().roomNumber == 10 &&  isBossAlive()){
+            new Message("You must kill the boss first", new Position(10,5)).show();
+            return;
+        }
         while(!Input.keyIsEscape((keyMenu = Input.waitForInput()).get())) {
             menuOptions();
         }
     }
+
+    private boolean isBossAlive(){
+        Boss boss = (Boss) Dungeon.getCurrentRoom().getObjectByTag("creature.mob.boss");
+        return !boss.isDead();
+    }
+
 
     private void menuOptions() {
         menuCursorUI.setFirstElementCursorPosition();

@@ -22,7 +22,7 @@ public class UpdaterWorker implements Runnable{
         Debug.toLog("[UPDATER_WORKER]Update game session worker has started");
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(3);
 
                 updateSessionData();
 

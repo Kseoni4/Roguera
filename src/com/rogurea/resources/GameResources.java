@@ -6,7 +6,6 @@ package com.rogurea.resources;
 
 import com.rogurea.base.Debug;
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.mapgenerate.PGPv2;
 import com.rogurea.view.InventoryWindow;
 import com.rogurea.view.PlayerInfoWindow;
 import com.rogurea.view.ViewObjects;
@@ -23,7 +22,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.0:0305:0135";
+    public static final String VERSION = "v0.3.0:0705:2100";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -120,8 +119,6 @@ public class GameResources {
             try {
                 String[] map = loadAssets(file);
 
-                Debug.toLog("[RESOURCES] Getting string: \n\t" + Arrays.toString(map));
-
                 switch (file){
                     case "whoops":
                         WHOOPS_TEXT.addAll(Arrays.asList(map));
@@ -179,10 +176,8 @@ public class GameResources {
 
     public static HashMap<Character, Runnable> getKeyMap(){
         HashMap<Character, Runnable> _keymap = new HashMap<>();
-        //_keymap.put('r', Dungeon::regenRoom);
         _keymap.put('j', () -> new PlayerInfoWindow(Dungeon.player).show());
         _keymap.put('i', () -> new InventoryWindow().show());
-        /*_keymap.put('g', () -> new PGPv2().generateRoomStructure());*/
         _keymap.put('1', () -> ViewObjects.inventoryView.useItem(0));
         _keymap.put('2', () -> ViewObjects.inventoryView.useItem(1));
         _keymap.put('3', () -> ViewObjects.inventoryView.useItem(2));

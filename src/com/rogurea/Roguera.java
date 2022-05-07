@@ -32,6 +32,8 @@ public class Roguera {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
+        Debug.toLog("=================================== ROGUERA GAME START ===================================");
+
         checkCLI(args);
 
         if(checkConnection()){
@@ -51,6 +53,7 @@ public class Roguera {
                 + "Java VM Version: " + System.getProperties().getProperty("java.vm.version") + "\n\t"
                 + "Java Compiler Version: " + System.getProperties().getProperty("java.compiler") + "\n\t"
                 + "Java Сlass version: " + System.getProperties().getProperty("java.class.version")
+
         );
 
         Debug.toLog("[VERSION]" + GameResources.VERSION);

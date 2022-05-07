@@ -94,7 +94,7 @@ public class MoveController {
         GameObject object = nextCell.getFromCell();
 
         if (object instanceof FogPart) {
-            Dungeon.getCurrentRoom().getFogController().removeFogParts(player.lookAround(), 2);
+            Dungeon.getCurrentRoom().getFogController().removeFogParts(player.lookAround(), 3);
         }
 
         if(Scan.checkWall(nextCell)){

@@ -4,22 +4,22 @@
 
 package com.rogurea.creatures;
 
-import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.ItemGenerator;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Cell;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.items.Item;
 import com.rogurea.resources.Colors;
-import com.rogurea.view.Draw;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.rogurea.view.ViewObjects.ViewBlocks;
-import static com.rogurea.view.ViewObjects.mapView;
-
-
+/**
+ * <p>
+ *     Класс противника в игре.
+ *     Наследуется от {@link Creature}
+ * </p>
+ */
 public class Mob extends Creature{
 
     private boolean dead = false;
@@ -66,7 +66,9 @@ public class Mob extends Creature{
     }
 
     private void calculateEXP() {
-        experiencePoints = (int) Math.round(Dungeon.getCurrentFloor().get().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.2d));
+        experiencePoints = (int) Math.round(
+                Dungeon.getCurrentFloor().get().getFloorNumber() * Dungeon.getCurrentRoom().roomNumber + Math.pow(10,1.2d)
+        );
     }
 
     public int getExperiencePoints(){
@@ -90,10 +92,8 @@ public class Mob extends Creature{
             int randomCellIndex = ThreadLocalRandom.current().nextInt(8);
             if(!cells[randomCellIndex].isWall())
                 cells[randomCellIndex].putIntoCell(item);
-            //mapView.drawAround(cells[randomCellIndex].position);
         }
         dead();
-        //mapView.drawAround(this.cellPosition);
     }
 
     @Override

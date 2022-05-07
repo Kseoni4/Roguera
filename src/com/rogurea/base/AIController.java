@@ -12,6 +12,7 @@ import com.rogurea.gamemap.*;
 import com.rogurea.player.Player;
 import com.rogurea.resources.Colors;
 import com.rogurea.view.Animation;
+import com.rogurea.view.Window;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class AIController implements Runnable {
     private void behaviorLoop(){
         while (!isDead() && !Thread.currentThread().isInterrupted()){
             try{
-                if(fogUncover()) {
+                if(fogUncover() && !Window.isOpen()) {
                     if (checkPlayer()) {
                         moveToTarget();
                         if (isTargetDead()) {
@@ -117,7 +118,7 @@ public class AIController implements Runnable {
         ArrayList<Position> pathToTarget = updatePath();
 
         int steps = 0;
-        while(!isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()){
+        while(!Window.isOpen() && !isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()) {
             try {
                 Position nextPosition = pathToTarget.get(steps);
 

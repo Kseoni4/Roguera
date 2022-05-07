@@ -175,10 +175,12 @@ public class InfoGrid implements IViewBlock {
         String WASD = Colors.WHITE_BRIGHT+"WASD/↑↓←→";
         String I = Colors.WHITE_BRIGHT+"i";
         String quickMenu = Colors.WHITE_BRIGHT+"1,2,3,4,5";
+        String ESC = Colors.WHITE_BRIGHT+"ESC";
         String info = Colors.B_BLUE_BRIGHT+
                 WASD+Colors.GREY+" - walk"+Colors.WHITE_BRIGHT+"|"
                 +I+Colors.GREY+" - inventory"+Colors.WHITE_BRIGHT+"|"
-                +quickMenu+Colors.GREY+" - quick equip/use"+Colors.WHITE_BRIGHT+"|";
+                +quickMenu+Colors.GREY+" - quick equip/use"+Colors.WHITE_BRIGHT+"|"
+                +ESC+Colors.GREY+" - save and exit"+Colors.WHITE_BRIGHT;
 
         _infoGridGraphics.fillRectangle(new TerminalPosition(0,_leastBottomY-1), new TerminalSize(_leastRightX,1),new TextCharacter(' ').withBackgroundColor(Colors.GetTextColor(Colors.B_BLUE_BRIGHT)));
         TerminalView.drawBlockInTerminal(_infoGridGraphics, info, new Position(0, _leastBottomY-1));

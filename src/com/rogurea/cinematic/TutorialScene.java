@@ -192,11 +192,6 @@ public class TutorialScene {
 
         String file = new String(bis.readAllBytes(), StandardCharsets.UTF_8);
 
-        Debug.toLog(file);
-
         teacherLines = new ArrayList<>(List.of(file.split("\n")));
-
-        Debug.toLog(teacherLines.toString());
-
     }
 }
