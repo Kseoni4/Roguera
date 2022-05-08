@@ -11,8 +11,10 @@ import com.rogurea.view.PlayerInfoWindow;
 import com.rogurea.view.ViewObjects;
 
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.0:0705:2100";
+    public static final String VERSION = "v0.3.0:0805:1300";
 
     public static final char EMPTY_CELL = ' ';
 
@@ -131,7 +133,8 @@ public class GameResources {
     private static void loadTextResources() {
         for(String file : textResources){
             try {
-                String[] map = loadAssets(file);
+                Debug.toLog("[RESOURCES] Loading from "+file);
+                String[] map = loadTextAssets(file);
 
                 switch (file){
                     case "whoops":
@@ -165,6 +168,14 @@ public class GameResources {
                 Debug.toLog(e.getMessage());
             }
         }
+    }
+
+    private static String[] loadTextAssets(String file) throws IOException {
+        InputStream assetStream = GameResources.class.getResource(FILE_PATH +file+ FILE_EXTENSION).openStream();
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(assetStream);
+        String[] lines = new String(bufferedInputStream.readAllBytes(), Charset.forName("UTF-8")).split("\r\n|\n");
+        Debug.toLog(Arrays.toString(lines));
+        return lines;
     }
 
     public static Model getModel(String modelname){

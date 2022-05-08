@@ -4,7 +4,6 @@
 
 package com.rogurea.resources;
 
-import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Position;
 
@@ -38,7 +37,7 @@ public class GetRandom {
     }
 
     public static int getRandomMobHP(){
-        int leftBound = (int) RogueraGameSystem.getBaseFloorProgression();
+        int leftBound = (int) RogueraGameSystem.getBaseFloorProgression()+5;
         int rightBound = (int) (RogueraGameSystem.getBaseFloorProgression() * 3);
         return ThreadLocalRandom.current().nextInt(leftBound,rightBound);
     }

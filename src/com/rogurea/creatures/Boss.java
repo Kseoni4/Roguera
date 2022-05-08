@@ -3,10 +3,8 @@ package com.rogurea.creatures;
 import com.rogurea.gamelogic.ItemGenerator;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
-import com.rogurea.items.Weapon;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
-import com.rogurea.resources.GetRandom;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -27,7 +25,7 @@ public class Boss extends Mob {
 
         this.baseDEF = RogueraGameSystem.getMobBaseDEF();
 
-        this.HP = 100 + (int) RogueraGameSystem.getBaseFloorProgression()*2;
+        this.HP = 50 + (int) RogueraGameSystem.getBaseFloorProgression()*2;
 
         calculateXP();
 

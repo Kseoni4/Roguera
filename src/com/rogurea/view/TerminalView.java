@@ -11,17 +11,16 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
-import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import com.rogurea.base.Debug;
+import com.rogurea.cinematic.TutorialScene;
+import com.rogurea.gamemap.Position;
 import com.rogurea.mapgenerate.MapEditor;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.view.ui.InventoryView;
 import com.rogurea.view.ui.LogView;
 import com.rogurea.view.ui.PlayerInfoView;
-import com.rogurea.gamemap.Position;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -73,6 +72,9 @@ public class TerminalView {
         inventoryView.Init();
 
         terminal.addResizeListener((terminal, terminalSize) -> {
+            if(TutorialScene.isAction()){
+                return;
+            }
             try {
                 terminal.clearScreen();
                 updateWindowSize(terminalSize);
@@ -107,7 +109,7 @@ public class TerminalView {
         try {
             defaultTerminalFactory.setTerminalEmulatorTitle("Roguera " + GameResources.VERSION);
 
-            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(90,25));
+            defaultTerminalFactory.setInitialTerminalSize(new TerminalSize(100,25));
 
             if(GameResources.TerminalFont != null){
                 defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(

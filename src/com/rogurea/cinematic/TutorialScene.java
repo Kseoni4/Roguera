@@ -41,6 +41,8 @@ public class TutorialScene {
 
     private ArrayList<String> teacherLines = new ArrayList<>();
 
+    private static boolean isAction = false;
+
     public TutorialScene(Room sceneField){
         this.sceneField = sceneField;
         prepareAssets();
@@ -79,6 +81,7 @@ public class TutorialScene {
 
     public void startSequence(){
         try {
+            isAction = true;
             teacher.doSequence(0);
             TimeUnit.MILLISECONDS.sleep(150);
 
@@ -136,6 +139,7 @@ public class TutorialScene {
             Debug.toLog("[TUTORIAL][STATUS]Tutorial skipped");
             Draw.clear();
         }
+        isAction = false;
     }
 
     private void printTextAndWait(String text, Position position) throws InterruptedSequence{
@@ -146,9 +150,9 @@ public class TutorialScene {
                 KeyType key = Input.waitForInput().get().getKeyType();
 
                 if (key.equals(KeyType.Escape)) {
+                    isAction = false;
                     throw new InterruptedSequence("");
                 }
-
 
                 if (key.equals(KeyType.Enter)) {
                     break;
@@ -193,5 +197,9 @@ public class TutorialScene {
         String file = new String(bis.readAllBytes(), StandardCharsets.UTF_8);
 
         teacherLines = new ArrayList<>(List.of(file.split("\n")));
+    }
+
+    public static boolean isAction(){
+        return isAction;
     }
 }

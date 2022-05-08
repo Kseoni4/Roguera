@@ -1,19 +1,15 @@
 package com.rogurea.items;
 
-import com.rogurea.base.Debug;
 import com.rogurea.gamelogic.RogueraGameSystem;
 import com.rogurea.gamemap.Dungeon;
 import com.rogurea.resources.Colors;
 import com.rogurea.resources.GetRandom;
 import com.rogurea.resources.Model;
-import com.rogurea.view.Draw;
 import com.rogurea.workers.PotionEffectWorker;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static com.rogurea.view.ViewObjects.infoGrid;
 
 public class Potion extends Equipment implements Usable {
 
@@ -67,7 +63,7 @@ public class Potion extends Equipment implements Usable {
         this.tag += ".potion."+this.potionType.name().toLowerCase();
         this.setSellPrice(
                 (int) (RogueraGameSystem.getPBonus()*Math.pow(Dungeon.getCurrentFloor().get().getFloorNumber(),Math.E)
-                                        + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 150 : ThreadLocalRandom.current().nextInt(2,5)
+                                        + (this.amount * (this.potionType.name().equals("SCORE_BUF") ? 150 : ThreadLocalRandom.current().nextInt(2,4)
                         ))));
         this.rename(getName() + " " +this.potionType.name().substring(0,3));
     }

@@ -18,7 +18,7 @@ public class Equipment extends Item implements Wearable<Integer> {
         super(name, new Model(model), itemMaterial);
         tag = tag.concat(".equipment");
         this.equipmentStat = stat;
-        int sellPrice = ThreadLocalRandom.current().nextInt(1, 50) * itemMaterial.costEmpower;
+        int sellPrice = ThreadLocalRandom.current().nextInt(1, 25) * itemMaterial.costEmpower;
         this.setSellPrice(sellPrice);
     }
 

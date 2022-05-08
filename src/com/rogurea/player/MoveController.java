@@ -54,15 +54,19 @@ public class MoveController {
     private static void moveByWASD(char key){
         switch (key) {
             case 'w':
+            case 'ц':
                 move(new Position(player.playerPosition.x, player.playerPosition.y - 1));
                 break;
             case 'a':
+            case 'ф':
                 move(new Position(player.playerPosition.x - 1, player.playerPosition.y));
                 break;
             case 's':
+            case 'ы':
                 move(new Position(player.playerPosition.x, player.playerPosition.y + 1));
                 break;
             case 'd':
+            case 'в':
                 move(new Position(player.playerPosition.x + 1, player.playerPosition.y));
                 break;
         }
