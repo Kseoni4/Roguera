@@ -1,6 +1,8 @@
 # Roguera
 Old-school ASCII roguelike game, that I made for learning Java.
 
+Trello проекта: https://trello.com/b/h8rOxNHN/roguera
+
 ### Привет, друг!
 Меня зовут Николай и я разработчик небольшого рогалика с псевдографикой на Java.
 ##
