@@ -1,4 +1,6 @@
 # Roguera
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/kseoni4/roguera)
+
 Old-school ASCII roguelike game, that I made for learning Java.
 
 Trello проекта: https://trello.com/b/h8rOxNHN/roguera
