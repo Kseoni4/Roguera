@@ -108,7 +108,7 @@ public class ServerRequests {
                 .GET()
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(getRequest, HttpResponse.BodyHandlers.ofString());
+                .send(getRequest, HttpResponse.BodyHandlers.ofString());    
 
         String result = response.body();
         Debug.toLog("[HTTP_GET][CHECK_NICKNAME] Result for "+ nickName+" is "+result);
@@ -121,7 +121,11 @@ public class ServerRequests {
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(getRequest, HttpResponse.BodyHandlers.ofString());
 
-        secretKey = Base64.getDecoder().decode(response.body());
+        try {
+            secretKey = Base64.getDecoder().decode(response.body());
+        } catch (IllegalArgumentException e){
+            return false;
+        }
 
         return response.statusCode() == 200;
     }

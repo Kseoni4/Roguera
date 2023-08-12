@@ -18,10 +18,12 @@ import com.rogurea.workers.DrawLootWorker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Room implements Serializable {
 
@@ -39,7 +41,7 @@ public class Room implements Serializable {
 
     private FogController fogController;
 
-    ArrayList<Cell> cells;
+    HashMap<Position,Cell> cells;
 
     public ArrayList<Position> positionsInsidePerimeter;
 
@@ -54,7 +56,7 @@ public class Room implements Serializable {
     transient ExecutorService mobThreads = Executors.newCachedThreadPool();
 
     public Cell getCell(int x, int y){
-        return cells.stream().filter(cell -> cell.position.equals(new Position(x,y))).findFirst().orElse(null);
+        return cells.get(new Position(x,y));
     }
 
     public Cell getCell(Position position){
@@ -62,17 +64,18 @@ public class Room implements Serializable {
     }
 
     public ArrayList<Cell> getCells(){
-        return cells;
+        return (ArrayList<Cell>) cells.values().stream().collect(Collectors.toList());
     }
 
     private void makeCells(){
-        cells = new ArrayList<>();
+        cells = new HashMap<>();
 
         perimeter = new ArrayList<>();
 
         for(int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                cells.add(new Cell(new Position(x, y),this));
+                Position position = new Position(x, y);
+                cells.put(position, new Cell(position,this));
             }
         }
     }
@@ -82,7 +85,7 @@ public class Room implements Serializable {
     }
 
     private void makeCells_test(){
-        int i = 0;
+        /*int i = 0;
 
         cells = new ArrayList<>();
 
@@ -92,27 +95,20 @@ public class Room implements Serializable {
                 cells.get(i).putIntoCell(new Border(new Model("wall", Colors.WHITE_BRIGHT, '*')));
                 i++;
             }
-        }
+        }*/
     }
 
     public Position getBottomCenterCellPosition(){
-        return cells.stream()
-                .filter(
-                        cell -> cell.position.y == this.height
-                                & cell.position.x == this.width /2
-                ).findFirst().get().position;
+        return cells.get(new Position(this.width/2,this.height)).position;
     }
 
     public Position getTopCenterCellPosition(){
-        return cells.stream()
-                .filter(
-                        cell -> cell.position.y == 0
-                                & cell.position.x == this.width /2
-                ).findFirst().get().position;
+        return cells.get(new Position(this.width/2, 0)).position;
+
     }
 
     public void makePerimeter(){
-        cells.forEach(cell -> {
+        cells.values().forEach(cell -> {
             if(cell.isWall)
                 perimeter.add(cell);
         });
@@ -121,7 +117,7 @@ public class Room implements Serializable {
     public void setPositionsInsidePerimeter(){
         positionsInsidePerimeter = new ArrayList<>();
 
-        cells.forEach(cell -> {
+        cells.values().forEach(cell -> {
             if(!perimeter.contains(cell) && isIntersectionsOdd(cell)) {
                 //cell.putIntoCell(new Entity(new Model("dot", '.')));
                 positionsInsidePerimeter.add(cell.position);
@@ -163,12 +159,14 @@ public class Room implements Serializable {
     }
 
     public void setCells(ArrayList<Cell> cells){
-        this.cells = cells;
+        this.cells.clear();
+        for(Cell cell : cells) {
+            this.cells.put(cell.position, cell);
+        }
     }
 
     public void replaceCell(Cell cell, Position position){
-        this.cells.removeIf(cell1 -> cell1.position.equals(position));
-        this.cells.add(cell);
+        this.cells.replace(position,cell);
     }
 
     public ArrayList<GameObject> getObjectsSet(){
@@ -233,7 +231,7 @@ public class Room implements Serializable {
 
     public void initFogController(){
         if(!Roguera.isClearMap)
-            fogController = new FogController(cells);
+            fogController = new FogController(this.getCells());
     }
 
     public FogController getFogController(){

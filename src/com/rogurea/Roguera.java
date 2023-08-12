@@ -16,9 +16,9 @@ import java.util.Arrays;
 
 public class Roguera {
 
-    public static boolean isDebug = true;
+    public static boolean isDebug = false;
 
-    public static boolean isSaveToLogFile = true;
+    public static boolean isSaveToLogFile = false;
 
     public static boolean isClearMap = false;
 
@@ -88,6 +88,8 @@ public class Roguera {
                     DiscordRPC.discordShutdown();
                     System.exit(0);
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + codeOfMenu);
             }
             Debug.toLog("[SYSTEM] Back to the main menu");
 

@@ -135,13 +135,18 @@ public class Position implements Serializable {
      * @param p вторая координата
      * @return true, если координаты равны
      */
-    public boolean equals(Position p) {
-        return y == p.y && x == p.x;
+    @Override
+    public boolean equals(Object p) {
+        if(p != null) {
+            Position pos = (Position) p;
+            return y == pos.y && x == pos.x;
+        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(y, x);
+        return Objects.hash(x, y);
     }
 
     @Override
