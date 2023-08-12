@@ -30,6 +30,8 @@ public class Roguera {
 
     public static int codeOfMenu = RESET_CODE;
 
+    public static boolean isSoundOn = false;
+
     public static void main(String[] args) throws IOException, InterruptedException {
 
         Debug.toLog("=================================== ROGUERA GAME START ===================================");
@@ -104,6 +106,9 @@ public class Roguera {
             }
             if(argument.equals("--clearmap")){
                 isClearMap = true;
+            }
+            if(argument.equals("--papich")){
+                isSoundOn = true;
             }
         }
     }

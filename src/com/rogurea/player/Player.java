@@ -15,6 +15,7 @@ import com.rogurea.resources.Colors;
 import com.rogurea.resources.GameResources;
 import com.rogurea.resources.Model;
 import com.rogurea.view.Draw;
+import com.rogurea.view.GameSound;
 import com.rogurea.view.ViewObjects;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
@@ -56,6 +57,9 @@ public class Player extends Creature {
     public ArrayList<Equipment> quickEquipment = new ArrayList<>(5);
 
     public boolean putUpItem(Item item) {
+
+        new GameSound("papich_etomne.wav").play();
+
         //Debug.toLog("[PLAYER]Picked up item: "+item.toString());
         if (item instanceof Equipment) {
             return autoEquip((Equipment) item);
@@ -64,6 +68,7 @@ public class Player extends Creature {
         } else {
             //Debug.toLog("\ninto inventory");
             if (putIntoInventory(item)) {
+
 
                 logView.playerActionPickUp(item.getName());
 

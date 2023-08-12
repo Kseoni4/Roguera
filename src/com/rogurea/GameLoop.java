@@ -180,6 +180,8 @@ public class GameLoop {
 
             if (Dungeon.player.getPlayerData().getHP() <= 0) {
 
+                new GameSound("papich_scream.wav").play(0);
+
                 new Animation().deadAnimation(Dungeon.player);
 
                 logView.playerAction(Colors.RED_BRIGHT + "are dead. Game over!");

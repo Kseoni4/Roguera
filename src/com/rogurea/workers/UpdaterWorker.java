@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
-public class UpdaterWorker implements Runnable{
+public class UpdaterWorker implements Runnable {
 
     SessionData sessionData;
 

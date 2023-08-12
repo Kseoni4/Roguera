@@ -4,6 +4,7 @@
 
 package com.rogurea.base;
 
+import com.rogurea.creatures.Boss;
 import com.rogurea.creatures.Creature;
 import com.rogurea.creatures.Mob;
 import com.rogurea.gamelogic.Events;
@@ -12,8 +13,11 @@ import com.rogurea.gamemap.*;
 import com.rogurea.player.Player;
 import com.rogurea.resources.Colors;
 import com.rogurea.view.Animation;
+import com.rogurea.view.GameSound;
 import com.rogurea.view.Window;
+import org.openjdk.jmh.annotations.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,6 +25,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.rogurea.view.ViewObjects.logView;
 
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@State(Scope.Benchmark)
+@Fork(value = 2, jvmArgs = {"-Xms2G", "-Xmx2G"})
 public class AIController implements Runnable {
 
     private final Creature creature;
@@ -49,6 +57,10 @@ public class AIController implements Runnable {
     }
 
     private void behaviorLoop(){
+        if(creature instanceof Boss){
+            new GameSound("papich_laught.wav").play(2);
+        }
+
         while (!isDead() && !Thread.currentThread().isInterrupted()){
             try{
                 if(fogUncover() && !Window.isOpen()) {
@@ -70,7 +82,7 @@ public class AIController implements Runnable {
         }
     }
 
-    private void mobDead(){
+    private void mobDead() {
         logView.playerAction("kill a "+this.creature.model.getModelColorName()+"!");
 
         int scoreForMob = ThreadLocalRandom.current().nextInt(3, 10) * this.creature.getDamageByEquipment();
@@ -82,6 +94,8 @@ public class AIController implements Runnable {
         Dungeon.player.getPlayerData().setExp(((Mob) this.creature).getExperiencePoints());
 
         Debug.toLog(Colors.VIOLET+"[SCORE] Score for mob: "+scoreForMob + " (equipment dmg "+this.creature.getDamageByEquipment()+")");
+
+        new GameSound("papich_sosat.wav").play();
 
         new Animation().deadAnimation(this.creature);
 
@@ -115,7 +129,14 @@ public class AIController implements Runnable {
     }
 
     private void moveToTarget() throws InterruptedException {
+        long startSearchPath = Instant.now().getNano();
         ArrayList<Position> pathToTarget = updatePath();
+        long endSearchPath = Instant.now().getNano();
+
+        System.out.println("Start time ns: "+startSearchPath);
+        System.out.println("End time ns: "+endSearchPath);
+        System.out.println("Delta time ns: "+(endSearchPath - startSearchPath));
+
 
         int steps = 0;
         while(!Window.isOpen() && !isTargetNear() && !isDead() && !Thread.currentThread().isInterrupted()) {
@@ -147,7 +168,8 @@ public class AIController implements Runnable {
         }
     }
 
-    private ArrayList<Position> updatePath(){
+    @Benchmark
+    public ArrayList<Position> updatePath(){
         return pathFinder.getPathToTarget(currentRoom, targetPosition, creature.cellPosition);
     }
 
@@ -170,6 +192,6 @@ public class AIController implements Runnable {
 
     private void idle() throws InterruptedException {
         //Debug.toLog("[AI][Mob] "+creature.getName() + " waiting...");
-        TimeUnit.MILLISECONDS.sleep(400);
+        TimeUnit.MILLISECONDS.sleep(150);
     }
 }

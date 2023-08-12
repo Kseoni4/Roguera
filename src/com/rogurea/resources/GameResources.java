@@ -24,11 +24,13 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.1:1208:1428";
+    public static final String VERSION = "v0.3.1:1208:1515";
 
     public static final char EMPTY_CELL = ' ';
 
     public static final char PLAYER_MODEL = '@';
+
+    public static final String SOUND_DIR = "assets/sounds/";
 
     private static final HashMap<String, Model> MODEL_HASH_MAP = new HashMap<>();
 
