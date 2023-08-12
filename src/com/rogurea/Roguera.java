@@ -69,8 +69,6 @@ public class Roguera {
 
         startDRP();
 
-        DiscordRPC.discordRunCallbacks();
-
         while (true) {
 
             MainMenu.start(0);
@@ -128,15 +126,21 @@ public class Roguera {
     }
 
     private static void startDRP(){
-        DiscordEventHandlers discordEventHandlers = new DiscordEventHandlers.Builder().setReadyEventHandler((user) -> {
-            Debug.toLog("[DISCORD_RP] Start RP for user "+ user.username + "#"+user.discriminator);
-            DiscordRichPresence.Builder welcomePresence = new DiscordRichPresence.Builder("hi");
-            welcomePresence.setDetails("world");
-            DiscordRPC.discordUpdatePresence(welcomePresence.build());
-        }).build();
+        try {
+            DiscordEventHandlers discordEventHandlers = new DiscordEventHandlers.Builder().setReadyEventHandler((user) -> {
+                Debug.toLog("[DISCORD_RP] Start RP for user " + user.username + "#" + user.discriminator);
+                DiscordRichPresence.Builder welcomePresence = new DiscordRichPresence.Builder("hi");
+                welcomePresence.setDetails("world");
+                DiscordRPC.discordUpdatePresence(welcomePresence.build());
+            }).build();
 
-        DiscordRPC.discordInitialize("904706382639562823", discordEventHandlers, true);
-        DiscordRPC.discordRegister("904706382639562823","");
+            DiscordRPC.discordInitialize("904706382639562823", discordEventHandlers, true);
+            DiscordRPC.discordRegister("904706382639562823", "");
+
+            DiscordRPC.discordRunCallbacks();
+        } catch (Exception e){
+            Debug.toLog("[DISCORD] Error exception: "+e.getMessage());
+        }
 
     }
 }

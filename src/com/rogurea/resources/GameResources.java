@@ -24,7 +24,7 @@ public class GameResources {
 
     public static Font TerminalFont = null;
 
-    public static final String VERSION = "v0.3.0:0805:1300";
+    public static final String VERSION = "v0.3.1:1208:1428";
 
     public static final char EMPTY_CELL = ' ';
 
