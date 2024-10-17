@@ -8,10 +8,6 @@ public enum TGLayer {
 
     private final int layer;
 
-    public int getLayer() {
-        return layer;
-    }
-
     TGLayer(int layer){
         this.layer = layer;
     }
