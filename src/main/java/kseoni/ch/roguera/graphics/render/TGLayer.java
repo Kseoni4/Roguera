@@ -1,4 +1,4 @@
-package kseoni.ch.roguera.rendering;
+package kseoni.ch.roguera.graphics.render;
 
 public enum TGLayer {
 
@@ -7,10 +7,6 @@ public enum TGLayer {
     UI(2);
 
     private final int layer;
-
-    public int getLayer() {
-        return layer;
-    }
 
     TGLayer(int layer){
         this.layer = layer;
