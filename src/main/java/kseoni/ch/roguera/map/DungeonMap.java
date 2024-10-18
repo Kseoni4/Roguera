@@ -4,20 +4,33 @@ import java.util.HashMap;
 
 public class DungeonMap {
 
-    private static HashMap<Integer, Room> rooms;
+    private static final int ROOM_COUNT_BASE = 1;
 
-    private static int roomIdPointer = 0;
+    private HashMap<Integer, Room> rooms;
 
-    static {
+    private int roomIdPointer = 0;
+
+    private static DungeonMap INSTANCE;
+
+    private DungeonMap(){
         rooms = new HashMap<>();
-        initDungeon(1);
+        initDungeon(ROOM_COUNT_BASE);
     }
 
-    private static void initDungeon(int roomCount){
-        rooms.put(0, new Room(0, 10, 15));
+    public static DungeonMap get(){
+        if (INSTANCE == null) {
+            INSTANCE = new DungeonMap();
+        }
+        return INSTANCE;
     }
 
-    public static Room currentRoom(){
+    private void initDungeon(int roomCount){
+        for(int i = 0; i < roomCount; i++) {
+            rooms.put(i, new Room(i, 20, 15));
+        }
+    }
+
+    public Room currentRoom(){
         return rooms.get(roomIdPointer);
     }
 }

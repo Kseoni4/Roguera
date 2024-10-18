@@ -5,6 +5,7 @@ import com.googlecode.lanterna.input.KeyType;
 import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.controller.PlayerController;
 import kseoni.ch.roguera.creature.Player;
+import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.map.Cell;
 import kseoni.ch.roguera.map.DungeonMap;
@@ -19,36 +20,41 @@ public class GameLoop {
 
     private final MapDrawer mapDrawer;
 
+    private final DungeonMap dungeonMap;
+
     public GameLoop(){
         mapDrawer = new MapDrawer();
         player = new Player("Player", new TextSprite('@', TextColor.ANSI.GREEN_BRIGHT, null));
         playerController = new PlayerController(player);
+        dungeonMap = DungeonMap.get();
     }
 
     public void init(){
-        player.setPosition(new Position(0,0));
-        DungeonMap.currentRoom()
-                .getCell(new Position(0,0))
+        player.setPosition(new Position(1,2));
+        dungeonMap.currentRoom()
+                .getCell(player.getPosition())
                 .placeObject(player);
 
-        for(Cell cell : DungeonMap.currentRoom().getCells().values()){
+        for(Cell cell : dungeonMap.currentRoom().getCells().values()){
             mapDrawer.draw(cell);
         }
         mapDrawer.refresh();
     }
 
 
-    public void start(){
+    public void start() {
 
-        while (true){
+        while (Window.get().isNotClosed()) {
             System.out.println("Await input");
             KeyType key = KeyInput.get().getKeyType();
             playerController.movePlayer(key);
-            for(Cell cell : DungeonMap.currentRoom().getCells().values()){
+
+            for (Cell cell : dungeonMap.currentRoom().getCells().values()) {
                 mapDrawer.draw(cell);
             }
             mapDrawer.refresh();
         }
 
+        Window.get().close();
     }
 }

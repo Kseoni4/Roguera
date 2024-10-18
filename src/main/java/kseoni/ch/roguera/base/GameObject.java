@@ -28,7 +28,7 @@ public abstract class GameObject implements Serializable {
     public GameObject(String name) {
         this.name = name;
         this.id = ++idCounter;
-        ObjectPool.putObjectIntoPool(this);
+        ObjectPool.get().putObjectIntoPool(this);
     }
 
     public GameObject() {
@@ -50,4 +50,17 @@ public abstract class GameObject implements Serializable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "[GameObject]"
+                .concat("[").concat(getClass().getName()).concat("]")
+                .concat(position.toString())
+                .concat("ID:")
+                .concat(String.valueOf(id))
+                .concat("-")
+                .concat("Name:")
+                .concat(name)
+                .concat("-")
+                .concat(String.valueOf(textSprite.getSpriteChar()));
+    }
 }

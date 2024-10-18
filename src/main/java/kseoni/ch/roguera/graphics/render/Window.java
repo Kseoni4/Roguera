@@ -6,11 +6,13 @@ import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
 import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -21,6 +23,8 @@ public class Window {
     private static Window INSTANCE;
 
     private final HashMap<TGLayer, RenderLayer> graphicsMap;
+
+    private SwingTerminalFrame swingTerminalFrame;
 
     @SneakyThrows
     private Window(int width, int height, String title) {
@@ -55,6 +59,8 @@ public class Window {
 
         this.terminal.setCursorPosition(null);
         this.terminal.startScreen();
+
+        this.swingTerminalFrame = (SwingTerminalFrame) terminal.getTerminal();
     }
 
     public static Window create(int width, int height, String title){
@@ -81,6 +87,11 @@ public class Window {
     @SneakyThrows
     public KeyStroke keyInput(){
         return terminal.readInput();
+    }
+
+    @SneakyThrows
+    public boolean isNotClosed(){
+        return swingTerminalFrame.isDisplayable();
     }
 
     @SneakyThrows

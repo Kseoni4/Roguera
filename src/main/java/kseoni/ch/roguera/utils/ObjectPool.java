@@ -10,31 +10,45 @@ import java.util.HashMap;
 
 public class ObjectPool {
 
-    private static HashMap<Integer, GameObject> pool;
+    private final HashMap<Integer, GameObject> pool;
 
-    static {
+    private static ObjectPool INSTANCE;
+
+    private ObjectPool(){
         pool = new HashMap<>();
     }
 
-    public static void putObjectIntoPool(GameObject object){
+    public static ObjectPool get(){
+        if(INSTANCE == null){
+            INSTANCE = new ObjectPool();
+        }
+        return INSTANCE;
+    }
+
+    public void removeObjectFromPool(GameObject object){
+        boolean flag = pool.remove(object.getId(), object);
+        System.out.println("removed "+object+" - "+flag);
+    }
+
+    public void putObjectIntoPool(GameObject object){
         pool.put(object.getId(), object);
     }
 
-    public static <T> T getObjectFromPoolById(int objectId){
+    public <T> T getObjectFromPoolById(int objectId){
         return (T) pool.get(objectId);
     }
 
-    public static void setPool(HashMap<Integer, GameObject> pool) {
+/*    public void setPool(HashMap<Integer, GameObject> pool) {
         ObjectPool.pool = pool;
-    }
+    }*/
 
     @SneakyThrows
-    public static void dumpPoolIntoFile(){
+    public void dumpPoolIntoFile(){
         BufferedWriter writer = new BufferedWriter(new FileWriter(LocalDate.now()+"_objects.txt"));
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("GameObject instance class --- ID --- Name --- Position \n");
+        builder.append("GameObject instance class --- ID --- Name --- Position --- Sprite \n");
 
         for(GameObject gameObject : pool.values()){
             builder.append("[")
@@ -46,6 +60,8 @@ public class ObjectPool {
                     .append(gameObject.getName())
                     .append(" - ")
                     .append(gameObject.getPosition())
+                    .append(" - ")
+                    .append(gameObject.getTextSprite().getSpriteChar())
                     .append("\n");
         }
         writer.write(builder.toString());

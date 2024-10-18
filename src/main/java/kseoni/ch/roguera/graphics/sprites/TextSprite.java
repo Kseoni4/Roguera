@@ -32,6 +32,10 @@ public class TextSprite {
         this.sprite = new TextCharacter('.');
     }
 
+    public TextSprite(char model){
+        this(new TextCharacter(model));
+    }
+
     public TextSprite(TextCharacter sprite){
         this.sprite = sprite;
     }

@@ -11,6 +11,8 @@ import java.util.Objects;
 @NoArgsConstructor
 public class Position {
 
+    public static final Position ZERO = new Position(0,0);
+
     private int x;
 
     private int y;

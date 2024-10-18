@@ -2,10 +2,12 @@ package kseoni.ch.roguera.map;
 
 import kseoni.ch.roguera.base.GameObject;
 import kseoni.ch.roguera.base.Position;
+import kseoni.ch.roguera.utils.ObjectPool;
 import lombok.Getter;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Objects;
 
 public class Cell {
 
@@ -39,6 +41,14 @@ public class Cell {
     public void placeObject(GameObject gameObject) {
         gameObject.setPosition(this.position);
         this.gameObjectStack.push(gameObject);
+    }
+
+    public void replaceObject(GameObject gameObject){
+        GameObject go = removeObject();
+        if(!(go == GameObject.getEmpty())){
+            ObjectPool.get().removeObjectFromPool(go);
+        }
+        placeObject(gameObject);
     }
 
     public void clearCell(){

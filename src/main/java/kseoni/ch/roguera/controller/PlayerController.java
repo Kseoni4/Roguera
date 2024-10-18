@@ -11,8 +11,11 @@ import kseoni.ch.roguera.map.DungeonMap;
 public class PlayerController {
     private final Player player;
 
+    private final DungeonMap dungeonMap;
+
     public PlayerController(Player player){
         this.player = player;
+        this.dungeonMap = DungeonMap.get();
     }
 
     public void movePlayer(KeyType key){
@@ -30,14 +33,14 @@ public class PlayerController {
         if(!checkCell(newPosition)){
             return;
         }
-        DungeonMap.currentRoom().getCells().get(oldPosition).removeObject();
-        DungeonMap.currentRoom().getCells().get(newPosition).placeObject(player);
+        dungeonMap.currentRoom().getCells().get(oldPosition).removeObject();
+        dungeonMap.currentRoom().getCells().get(newPosition).placeObject(player);
     }
 
     private boolean checkCell(Position newPosition){
-        Cell cell = DungeonMap.currentRoom().getCells().get(newPosition);
+        Cell cell = dungeonMap.currentRoom().getCells().get(newPosition);
 
-        if(newPosition.getX() >= DungeonMap.currentRoom().getWidth() || newPosition.getY() >= DungeonMap.currentRoom().getHeight()){
+        if(newPosition.getX() >= dungeonMap.currentRoom().getWidth() || newPosition.getY() >= dungeonMap.currentRoom().getHeight()){
             return false;
         }
 
