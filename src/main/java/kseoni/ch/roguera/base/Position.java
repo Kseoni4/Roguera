@@ -1,17 +1,80 @@
 package kseoni.ch.roguera.base;
 
+import kseoni.ch.roguera.graphics.render.Window;
 import lombok.*;
 
 import java.util.Objects;
+import java.util.Random;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Position {
+public class Position{
+
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position NORTH = new Position(0,-1);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position WEST = new Position(-1,0);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position EAST = new Position(1,0);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position SOUTH = new Position(0,1);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position NORTH_WEST = new Position(-1,-1);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position NORTH_EAST = new Position(1,-1);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position SOUTH_WEST = new Position(-1,1);
+    /**
+     * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
+     */
+    private static final Position SOUTH_EAST = new Position(1,1);
+
+    /**
+     * Статический массив точек вокруг данной.
+     */
+    public static final Position[] AroundPositions = {
+            NORTH,
+            WEST,
+            EAST,
+            SOUTH,
+            NORTH_WEST,
+            NORTH_EAST,
+            SOUTH_WEST,
+            SOUTH_EAST
+    };
+
+    public static final Position FRONT = new Position(0,1);
+    public static final Position BACK = new Position(0,-1);
+    public static final Position LEFT = new Position(-1,0);
+    public static final Position RIGHT = new Position(1,0);
 
     public static final Position ZERO = new Position(0,0);
+
+    public static Position getRandomPosition(){
+        return getRandomPosition(Window.get().getWight(), Window.get().getHeight());
+    }
+
+    public static Position getRandomPosition(int boundX, int boundY){
+        Random random = new Random();
+        return new Position(random.nextInt(0,boundX), random.nextInt(0,boundY));
+    }
 
     private int x;
 

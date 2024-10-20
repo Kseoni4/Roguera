@@ -1,21 +1,20 @@
 package kseoni.ch.roguera.controller;
 
-import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
-import kseoni.ch.roguera.base.GameObject;
 import kseoni.ch.roguera.base.Position;
-import kseoni.ch.roguera.creature.Player;
+import kseoni.ch.roguera.game.creature.Player;
 import kseoni.ch.roguera.map.Cell;
-import kseoni.ch.roguera.map.DungeonMap;
+import kseoni.ch.roguera.map.Dungeon;
+import kseoni.ch.roguera.map.Room;
 
 public class PlayerController {
     private final Player player;
 
-    private final DungeonMap dungeonMap;
+    private final Room room;
 
     public PlayerController(Player player){
         this.player = player;
-        this.dungeonMap = DungeonMap.get();
+        this.room = Dungeon.get().currentFloor().currentRoom();
     }
 
     public void movePlayer(KeyType key){
@@ -33,14 +32,14 @@ public class PlayerController {
         if(!checkCell(newPosition)){
             return;
         }
-        dungeonMap.currentRoom().getCells().get(oldPosition).removeObject();
-        dungeonMap.currentRoom().getCells().get(newPosition).placeObject(player);
+        room.getCells().get(oldPosition).removeObject();
+        room.getCells().get(newPosition).placeObject(player);
     }
 
     private boolean checkCell(Position newPosition){
-        Cell cell = dungeonMap.currentRoom().getCells().get(newPosition);
+        Cell cell = room.getCells().get(newPosition);
 
-        if(newPosition.getX() >= dungeonMap.currentRoom().getWidth() || newPosition.getY() >= dungeonMap.currentRoom().getHeight()){
+        if(newPosition.getX() >= room.getWidth() || newPosition.getY() >= room.getHeight()){
             return false;
         }
 

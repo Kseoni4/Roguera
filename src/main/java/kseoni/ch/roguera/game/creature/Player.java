@@ -1,4 +1,4 @@
-package kseoni.ch.roguera.creature;
+package kseoni.ch.roguera.game.creature;
 
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 

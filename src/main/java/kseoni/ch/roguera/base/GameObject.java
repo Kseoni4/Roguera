@@ -31,6 +31,13 @@ public abstract class GameObject implements Serializable {
         ObjectPool.get().putObjectIntoPool(this);
     }
 
+    public GameObject(String name, TextSprite sprite){
+        this.name = name;
+        this.id = ++idCounter;
+        this.textSprite = sprite;
+        ObjectPool.get().putObjectIntoPool(this);
+    }
+
     public GameObject() {
         this("Unnamed Object");
         this.name = this.name.concat("-").concat(String.valueOf(id));

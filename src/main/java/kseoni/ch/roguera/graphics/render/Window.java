@@ -1,5 +1,6 @@
 package kseoni.ch.roguera.graphics.render;
 
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.TerminalScreen;
@@ -24,7 +25,7 @@ public class Window {
 
     private final HashMap<TGLayer, RenderLayer> graphicsMap;
 
-    private SwingTerminalFrame swingTerminalFrame;
+    private final SwingTerminalFrame swingTerminalFrame;
 
     @SneakyThrows
     private Window(int width, int height, String title) {
@@ -53,7 +54,10 @@ public class Window {
         this.graphicsMap = new HashMap<>();
 
         this.terminal = factory.createScreen();
-        this.graphicsMap.put(TGLayer.BACKGROUND, new RenderLayer(this.terminal.newTextGraphics()));
+        this.graphicsMap.put(TGLayer.BACKGROUND, new RenderLayer(this.terminal
+                .newTextGraphics()
+                .newTextGraphics(new TerminalPosition(2,1),
+                        new TerminalSize(50, 20))));
         this.graphicsMap.put(TGLayer.FOREGROUND, new RenderLayer(this.terminal.newTextGraphics()));
         this.graphicsMap.put(TGLayer.UI, new RenderLayer(this.terminal.newTextGraphics()));
 
@@ -64,7 +68,7 @@ public class Window {
     }
 
     public static Window create(int width, int height, String title){
-        if(INSTANCE==null){
+        if(INSTANCE == null){
             INSTANCE = new Window(width, height, title);
         }
         return INSTANCE;
@@ -72,7 +76,7 @@ public class Window {
 
     public static Window get(){
         try{
-            if(INSTANCE==null){
+            if(INSTANCE == null){
                 throw new IllegalStateException("Window hasn't been initialized yet.");
             }
         } catch (IllegalStateException e){
@@ -105,5 +109,13 @@ public class Window {
     @SneakyThrows
     public void refresh(){
         terminal.refresh();
+    }
+
+    public int getWight(){
+        return terminal.getTerminalSize().getColumns();
+    }
+
+    public int getHeight(){
+        return terminal.getTerminalSize().getRows();
     }
 }

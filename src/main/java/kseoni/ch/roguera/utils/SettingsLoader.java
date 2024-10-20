@@ -33,4 +33,11 @@ public class SettingsLoader {
         }
         return settings;
     }
+
+    public static String getSettingValue(String settingName){
+        if(settings == null){
+            load(Settings.GAME_SETTINGS);
+        }
+        return settings.getProperty(settingName);
+    }
 }

@@ -1,7 +1,7 @@
 package kseoni.ch.roguera.base.builders;
 
 import kseoni.ch.roguera.base.Position;
-import kseoni.ch.roguera.items.Item;
+import kseoni.ch.roguera.game.items.Item;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 
 public class ItemBuilder {

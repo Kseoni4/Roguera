@@ -1,12 +1,9 @@
-package kseoni.ch.roguera.items;
+package kseoni.ch.roguera.game.items;
 
 import kseoni.ch.roguera.base.GameObject;
-import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.base.builders.ItemBuilder;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter

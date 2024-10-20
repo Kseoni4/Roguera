@@ -67,8 +67,18 @@ public class Cell {
         placeObject(object);
     }
 
+    public Cell[] getCellsAround(Room room){
+        Cell[] cells = new Cell[8];
+        int i = 0;
+        for(Position direction : Position.AroundPositions) {
+            cells[i] = room.getCell(position.getRelativePosition(direction));
+            i++;
+        }
+        return cells;
+    }
+
     @Override
     public String toString() {
-        return "Cell"+position.toString() + "\n";
+        return "Cell"+position.toString() + " - " + getObject() + "\n";
     }
 }
