@@ -1,5 +1,6 @@
 package kseoni.ch.roguera.graphics.ui;
 
+import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
@@ -13,8 +14,8 @@ public class MapDrawer implements Drawer<Cell>{
     }
 
     @Override
-    public void draw(Cell object) {
-        mapLayer.drawSpriteOn(object.getObject().getTextSprite(), object.getPosition());
+    public void draw(Cell object, Position globalRelative) {
+        mapLayer.drawSpriteOn(object.getObject().getTextSprite(), object.getPosition().getRelativePosition(globalRelative));
     }
 
     @Override

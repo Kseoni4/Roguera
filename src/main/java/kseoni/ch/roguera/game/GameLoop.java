@@ -41,15 +41,15 @@ public class GameLoop {
 
         CoordinateDrawer drawer = new CoordinateDrawer();
         for(int x = 0; x < 10; x++) {
-            drawer.draw(new Cell(new Position(x+2, 0), new Wall(new TextSprite(String.valueOf(x).charAt(0)))));
+            //drawer.draw(new Cell(new Position(x+2, 0), new Wall(new TextSprite(String.valueOf(x).charAt(0)))));
         }
         for(int y = 0; y < 10; y++) {
-            drawer.draw(new Cell(new Position(0, y+1), new Wall(new TextSprite(String.valueOf(y).charAt(0)))));
+            //drawer.draw(new Cell(new Position(0, y+1), new Wall(new TextSprite(String.valueOf(y).charAt(0)))));
         }
 
         for(Room room : floor.getRooms()){
             for(Cell cell : room.getCells().values()) {
-                mapDrawer.draw(cell);
+                mapDrawer.draw(cell, room.getRoomLeftTopPosition());
             }
         }
         mapDrawer.refresh();
@@ -63,7 +63,7 @@ public class GameLoop {
             playerController.movePlayer(key);
 
             for (Cell cell : room.getCells().values()) {
-                mapDrawer.draw(cell);
+                mapDrawer.draw(cell, room.getRoomLeftTopPosition());
          }
             mapDrawer.refresh();
         }

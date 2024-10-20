@@ -7,6 +7,8 @@ import kseoni.ch.roguera.map.Cell;
 import kseoni.ch.roguera.map.Dungeon;
 import kseoni.ch.roguera.map.Room;
 
+import java.util.Objects;
+
 public class PlayerController {
     private final Player player;
 
@@ -32,12 +34,16 @@ public class PlayerController {
         if(!checkCell(newPosition)){
             return;
         }
-        room.getCells().get(oldPosition).removeObject();
-        room.getCells().get(newPosition).placeObject(player);
+        room.getCell(oldPosition).removeObject();
+        room.getCell(newPosition).placeObject(player);
     }
 
     private boolean checkCell(Position newPosition){
-        Cell cell = room.getCells().get(newPosition);
+        Cell cell = room.getCell(newPosition);
+
+        if(Objects.isNull(cell)){
+            return false;
+        }
 
         if(newPosition.getX() >= room.getWidth() || newPosition.getY() >= room.getHeight()){
             return false;

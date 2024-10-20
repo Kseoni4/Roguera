@@ -113,8 +113,8 @@ public class Position{
 
     public Position getRelativePosition(Position position){
         return getRelativePosition(
-                this.x + position.x,
-                this.y + position.y
+                position.x,
+                position.y
         );
     }
 

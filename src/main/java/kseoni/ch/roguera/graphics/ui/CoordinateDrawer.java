@@ -1,6 +1,7 @@
 package kseoni.ch.roguera.graphics.ui;
 
 import com.googlecode.lanterna.TextCharacter;
+import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
@@ -16,7 +17,7 @@ public class CoordinateDrawer implements Drawer<Cell> {
     }
 
     @Override
-    public void draw(Cell object) {
+    public void draw(Cell object, Position globalRelative) {
         uiLayer.drawSpriteOn(object.getObject().getTextSprite(), object.getPosition());
     }
 

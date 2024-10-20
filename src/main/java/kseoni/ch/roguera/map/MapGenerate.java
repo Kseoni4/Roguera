@@ -2,14 +2,11 @@ package kseoni.ch.roguera.map;
 
 import kseoni.ch.roguera.base.GameObject;
 import kseoni.ch.roguera.base.Position;
-import kseoni.ch.roguera.game.items.Item;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.RectangleShape;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class MapGenerate {
     private final HashMap<Integer, Room> temporalRoomMap;
@@ -19,8 +16,10 @@ public class MapGenerate {
     }
 
     public HashMap<Integer, Room> initFloor(int roomCount){
-        placeRoom(0, Position.ZERO);
-        placeRoom(1, Position.getRandomPosition(12, 5));
+        for(int i = 0; i < roomCount; i++){
+            placeRoom(i, Position.getRandomPosition(10,10));
+        }
+        //placeRoom(1, Position.getRandomPosition(12, 5));
         for(int i = 0; i < temporalRoomMap.size()-1; i++){
             removeIntersects(temporalRoomMap.get(i), temporalRoomMap.get(i+1));
         }
@@ -40,16 +39,80 @@ public class MapGenerate {
         System.out.println("Room id: ".concat(String.valueOf(room.getRoomId())));
         System.out.println("Top left pos ".concat(room.getRoomLeftTopPosition().toString()));
 
-        for(int x = room.getRoomLeftTopPosition().getX(); x < room.getWidth()+room.getRoomLeftTopPosition().getX(); x++){
-            for(int y = room.getRoomLeftTopPosition().getY(); y < room.getHeight()+room.getRoomLeftTopPosition().getY(); y++){
-                Position pos = new Position(x,y);
+        for(int x = 0; x < room.getWidth(); x++){
+            for(int y = 0; y < room.getHeight(); y++){
+                Position pos = new Position(x,y).getRelativePosition(room.getRoomLeftTopPosition());
                 cells.put(pos, new Cell(pos));
             }
         }
-        createShape(cells, room);
-
         return cells;
     }
+
+    /*while (!currentPoint.getPosition().equals(room.getRoomLeftTopPosition())) {
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null &&
+            !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)).getPosition())
+            ) {
+               currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
+                    && !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)).getPosition())
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) == null
+                && cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) == null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) == null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.FRONT);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) == null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.LEFT);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) == null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.FRONT);
+            }
+
+            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) == null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
+            ) {
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
+            }
+
+        }*/
+
+    private Cell moveOn(
+                        Cell cursor,
+                        Map<Position, Cell> cells,
+                        Set<Position> perimeter,
+                        Position relativePosition){
+        while (cells.get(cursor.getPosition().getRelativePosition(relativePosition)) != null){
+            cursor = cells.get(cursor.getPosition().getRelativePosition(relativePosition));
+            System.out.println("Current point "+cursor.getPosition());
+            perimeter.add(cursor.getPosition());
+        }
+        return cursor;
+    }
+
 
     private void createShape(HashMap<Position, Cell> cells, Room room){
         AssetPool assetPool = AssetPool.get();

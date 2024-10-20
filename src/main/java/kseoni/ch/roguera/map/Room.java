@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Getter
 public class Room {
@@ -37,7 +38,7 @@ public class Room {
     }
 
     public Cell getCell(Position position){
-        return cells.get(position);
+        return cells.get(position.getRelativePosition(roomLeftTopPosition));
     }
 
 }
