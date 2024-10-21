@@ -32,12 +32,11 @@ public class MapGenerate {
         if (roomCount > 1) {
             intersectAndCombine(temporalRoomMap.get(0), temporalRoomMap.get(1));
         }
+
         for(Room room: temporalRoomMap.values()){
             LinkedHashSet<Position> corners = findCorners(room);
             createShape(room, corners);
         }
-
-
 
         return temporalRoomMap;
     }
@@ -51,9 +50,6 @@ public class MapGenerate {
 
     private HashMap<Position, Cell> prepareCells(Room room) {
         HashMap<Position, Cell> cells = new HashMap<>();
-
-        System.out.println("Room id: ".concat(String.valueOf(room.getRoomId())));
-        System.out.println("Top left pos ".concat(room.getRoomLeftTopPosition().toString()));
 
         for (int x = 0; x < room.getWidth(); x++) {
             for (int y = 0; y < room.getHeight(); y++) {
@@ -69,8 +65,6 @@ public class MapGenerate {
         Set<Position> secondRoomGlobalPositions = Convert.toGlobalPositions(second);
 
         firstRoomGlobalPositions.retainAll(secondRoomGlobalPositions);
-
-        System.out.println(firstRoomGlobalPositions);
 
         return !firstRoomGlobalPositions.isEmpty();
     }
@@ -140,9 +134,6 @@ public class MapGenerate {
                         .thenComparing(Position::getY)
                 )
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        System.out.println("Find corners = "+corners);
-
         return corners;
     }
     private void createShape(Room room, LinkedHashSet<Position> corners) {
@@ -165,9 +156,6 @@ public class MapGenerate {
         while (tempCorners.size() > 1){
             Position p2 = tempCorners.removeLast();
            for(Position corner : tempCorners){
-
-               System.out.println("Get corners "+ corner +" -> "+p2);
-
                if(corner.getX() == p2.getX() && corner.getY() < p2.getY()){
                    buildShape(room.getCells(), corner, p2, Position.FRONT, new Wall(roomShape.getVerticalSprite()));
                }
@@ -249,8 +237,6 @@ public class MapGenerate {
                             Position to,
                             Position direction,
                             Wall wallShape){
-        System.out.println("Get relative ="+direction);
-        System.out.println("Get from = "+from);
         Cell cell = cells.get(from.getRelativePosition(direction));
 
         if(Objects.nonNull(cells.get(cell.getPosition().getRelativePosition(Position.LEFT)))
@@ -264,55 +250,4 @@ public class MapGenerate {
             cell = cells.get(cell.getPosition().getRelativePosition(direction));
         }
     }
-
-/*private void createShape(HashMap<Position, Cell> cells, Room room){
-        AssetPool assetPool = AssetPool.get();
-
-        RectangleShape roomShape = RectangleShape.builder()
-                .bottomLeftCorner(new TextSprite(assetPool.getAsset("wall_corner_bottom_l")))
-                .bottomRightCorner(new TextSprite(assetPool.getAsset("wall_corner_bottom_r")))
-                .topLeftCorner(new TextSprite(assetPool.getAsset("wall_corner_top_l")))
-                .topRightCorner(new TextSprite(assetPool.getAsset("wall_corner_top_r")))
-                .horizontalSprite(new TextSprite(assetPool.getAsset("wall_h")))
-                .verticalSprite(new TextSprite(assetPool.getAsset("wall_v")))
-                .width(room.getWidth()-1)
-                .height(room.getHeight()-1)
-                .topLeftPosition(room.getRoomLeftTopPosition())
-                .build();
-
-        Position topLeft = roomShape.getTopLeftPosition();
-        Position topRight = room.getRoomLeftTopPosition().getRelativePosition(roomShape.getWidth(),0);
-        Position bottomLeft = room.getRoomLeftTopPosition().getRelativePosition(0,roomShape.getHeight());
-        Position bottomRight = room.getRoomLeftTopPosition().getRelativePosition(roomShape.getWidth(), roomShape.getHeight());
-
-        for(int x = topLeft.getX(); x < topRight.getX(); x++){
-            Cell cell = cells.get(new Position(x, topRight.getY()));
-            cell.placeObject(new Wall(roomShape.getHorizontalSprite()));
-            cell.setWall(true);
-        }
-
-        for(int x = bottomLeft.getX(); x < bottomRight.getX(); x++){
-            Cell cell = cells.get(new Position(x, bottomLeft.getY()));
-            cell.placeObject(new Wall(roomShape.getHorizontalSprite()));
-            cell.setWall(true);
-        }
-
-        for(int y = topLeft.getY(); y < bottomLeft.getY(); y++){
-            Cell cell = cells.get(new Position(topLeft.getX(), y));
-            cell.placeObject(new Wall(roomShape.getVerticalSprite()));
-            cell.setWall(true);
-        }
-
-        for(int y = topRight.getY(); y < bottomRight.getY(); y++){
-            Cell cell = cells.get(new Position(topRight.getX(), y));
-            cell.placeObject(new Wall(roomShape.getVerticalSprite()));
-            cell.setWall(true);
-        }
-
-        cells.get(topLeft).replaceObject(new Wall(roomShape.getTopLeftCorner()));
-        cells.get(topRight).replaceObject(new Wall(roomShape.getTopRightCorner()));
-        cells.get(bottomLeft).replaceObject(new Wall(roomShape.getBottomLeftCorner()));
-        cells.get(bottomRight).replaceObject(new Wall(roomShape.getBottomRightCorner()));
-    }
- */
 }

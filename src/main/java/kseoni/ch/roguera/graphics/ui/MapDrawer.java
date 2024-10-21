@@ -15,9 +15,6 @@ public class MapDrawer implements Drawer<Cell>{
 
     @Override
     public void draw(Cell object, Position relativePosition) {
-        if (object.getObject().getName().equals("Player"))
-            System.out.println("Draw object " + object);
-
         mapLayer.drawSpriteOn(object.getObject().getTextSprite(),
                 object.getPosition().getRelativePosition(relativePosition));
     }
