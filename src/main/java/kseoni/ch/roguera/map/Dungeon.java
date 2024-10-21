@@ -14,9 +14,9 @@ public class Dungeon {
     @Getter
     private final int worldYBound;
 
-    private static final int ROOM_COUNT_BASE = 2;
+    private static final int ROOM_COUNT_BASE = Integer.parseInt(SettingsLoader.getSettingValue("dungeon.world.rooms.count"));
 
-    private static int FLOOR_NUMBER_COUNTER = 0;
+    private static int floorNumberCounter = 0;
 
     private int currentFloorPointer = 1;
 
@@ -39,7 +39,7 @@ public class Dungeon {
     }
 
     private void initDungeon(){
-        int floorNumber = ++FLOOR_NUMBER_COUNTER;
+        int floorNumber = ++floorNumberCounter;
         floors.put(floorNumber, new Floor(ROOM_COUNT_BASE, floorNumber));
     }
 

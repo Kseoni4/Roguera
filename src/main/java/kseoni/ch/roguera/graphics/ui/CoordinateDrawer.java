@@ -17,12 +17,22 @@ public class CoordinateDrawer implements Drawer<Cell> {
     }
 
     @Override
-    public void draw(Cell object, Position globalRelative) {
+    public void draw(Cell object, Position relativePosition) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void draw(Cell object) {
         uiLayer.drawSpriteOn(object.getObject().getTextSprite(), object.getPosition());
     }
 
     @Override
     public void refresh() {
+
+    }
+
+    @Override
+    public void clear() {
 
     }
 }

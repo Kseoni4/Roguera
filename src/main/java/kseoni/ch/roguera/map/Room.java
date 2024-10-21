@@ -38,7 +38,13 @@ public class Room {
     }
 
     public Cell getCell(Position position){
-        return cells.get(position.getRelativePosition(roomLeftTopPosition));
+        return cells.get(position);
     }
 
+    @Override
+    public String toString() {
+        return "Room{" +
+                "roomId=" + roomId +
+                '}'+roomLeftTopPosition;
+    }
 }

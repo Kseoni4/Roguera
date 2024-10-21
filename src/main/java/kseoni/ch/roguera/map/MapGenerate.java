@@ -5,55 +5,136 @@ import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.RectangleShape;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
+import kseoni.ch.roguera.utils.Convert;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MapGenerate {
     private final HashMap<Integer, Room> temporalRoomMap;
 
-    public MapGenerate(){
+    public MapGenerate() {
         temporalRoomMap = new HashMap<>();
     }
 
-    public HashMap<Integer, Room> initFloor(int roomCount){
-        for(int i = 0; i < roomCount; i++){
-            placeRoom(i, Position.getRandomPosition(10,10));
+    public HashMap<Integer, Room> initFloor(int roomCount) {
+        //for(int i = 0; i < roomCount; i++){
+        //}
+        placeRoom(0, new Position(0, 0));
+        placeRoom(1, new Position(4, 3));
+        placeRoom(2, new Position(7, 3));
+        placeRoom(3, new Position(15, 1));
+
+        if (roomCount > 1) {
+            intersectAndCombine(temporalRoomMap.get(0), temporalRoomMap.get(1));
         }
-        //placeRoom(1, Position.getRandomPosition(12, 5));
-        for(int i = 0; i < temporalRoomMap.size()-1; i++){
-            removeIntersects(temporalRoomMap.get(i), temporalRoomMap.get(i+1));
-        }
+
+        //LinkedHashSet<Position> perimeter = findPerimeterPositions(temporalRoomMap.get(0));
+
+        /*for (Position pos : perimeter) {
+            temporalRoomMap.get(0).getCell(pos).placeObject(new Wall(new TextSprite('*')));
+        }*/
+
         return temporalRoomMap;
     }
 
-    private void placeRoom(int roomId, Position position){
+    private void placeRoom(int roomId, Position position) {
         Room newRoom = new Room(roomId, 10, 15, position);
         newRoom.setCells(prepareCells(newRoom));
 
         temporalRoomMap.put(roomId, newRoom);
     }
 
-    private HashMap<Position, Cell> prepareCells(Room room){
+    private HashMap<Position, Cell> prepareCells(Room room) {
         HashMap<Position, Cell> cells = new HashMap<>();
 
         System.out.println("Room id: ".concat(String.valueOf(room.getRoomId())));
         System.out.println("Top left pos ".concat(room.getRoomLeftTopPosition().toString()));
 
-        for(int x = 0; x < room.getWidth(); x++){
-            for(int y = 0; y < room.getHeight(); y++){
-                Position pos = new Position(x,y).getRelativePosition(room.getRoomLeftTopPosition());
+        for (int x = 0; x < room.getWidth(); x++) {
+            for (int y = 0; y < room.getHeight(); y++) {
+                Position pos = new Position(x, y);
                 cells.put(pos, new Cell(pos));
             }
         }
         return cells;
     }
 
-    /*while (!currentPoint.getPosition().equals(room.getRoomLeftTopPosition())) {
+    private boolean hasIntersects(Room first, Room second) {
+        Set<Position> firstRoomGlobalPositions = Convert.toGlobalPositions(first);
+        Set<Position> secondRoomGlobalPositions = Convert.toGlobalPositions(second);
+
+        firstRoomGlobalPositions.retainAll(secondRoomGlobalPositions);
+
+        System.out.println(firstRoomGlobalPositions);
+
+        return !firstRoomGlobalPositions.isEmpty();
+    }
+
+    private Room intersectAndCombine(Room first, Room second) {
+        if (Objects.isNull(second)) {
+            return first;
+        }
+        if (!hasIntersects(first, second)) {
+            return first;
+        }
+
+        Room combined = combine(first, second);
+        temporalRoomMap.remove(first.getRoomId());
+        second = temporalRoomMap.remove(second.getRoomId());
+        temporalRoomMap.put(combined.getRoomId(), combined);
+
+        return intersectAndCombine(combined, temporalRoomMap.get(second.getRoomId() + 1));
+    }
+
+    private Room combine(Room first, Room second) {
+
+        Position fLt = first.getRoomLeftTopPosition();
+        Position sLt = second.getRoomLeftTopPosition();
+
+        List<Cell> cells = second.getCells()
+                .values()
+                .stream()
+                .peek(
+                        cell -> {
+                            Position delta = new Position(
+                                    Math.abs(fLt.getX() - cell.getPosition().getRelativePosition(sLt).getX()),
+                                    Math.abs(fLt.getY() - cell.getPosition().getRelativePosition(sLt).getY()));
+                            cell.getPosition().set(delta);
+                        }).toList();
+        HashMap<Position, Cell> newCells = new HashMap<>(first.getCells());
+
+        for (Cell cell : cells) {
+            newCells.put(cell.getPosition(), cell);
+        }
+        Position leftTopPosition = new Position(
+                Math.min(first.getRoomLeftTopPosition().getX(), second.getRoomLeftTopPosition().getX()),
+                Math.min(first.getRoomLeftTopPosition().getY(), second.getRoomLeftTopPosition().getY()));
+
+        Room newRoom = new Room(
+                first.getRoomId(),
+                first.getWidth() + second.getWidth(),
+                first.getHeight() + second.getHeight(),
+                leftTopPosition);
+
+        newRoom.setCells(newCells);
+
+        return newRoom;
+    }
+
+    private LinkedHashSet<Position> findPerimeterPositions(Room room){
+        Cell currentPoint = room.getCell(new Position(1,0));
+
+        Map<Position, Cell> cells = room.getCells();
+
+        LinkedHashSet<Position> perimeter = new LinkedHashSet<>();
+
+        while (!currentPoint.getPosition().equals(room.getRoomLeftTopPosition())) {
 
             if (cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null &&
-            !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)).getPosition())
+                    !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)).getPosition())
             ) {
-               currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
+                currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
             }
 
             if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
@@ -63,7 +144,7 @@ public class MapGenerate {
             }
 
             if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) == null
-                && cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null
+                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null
             ) {
                 currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
             }
@@ -98,23 +179,24 @@ public class MapGenerate {
                 currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
             }
 
-        }*/
+        }
+        return perimeter;
+    }
 
     private Cell moveOn(
-                        Cell cursor,
-                        Map<Position, Cell> cells,
-                        Set<Position> perimeter,
-                        Position relativePosition){
-        while (cells.get(cursor.getPosition().getRelativePosition(relativePosition)) != null){
+            Cell cursor,
+            Map<Position, Cell> cells,
+            Set<Position> perimeter,
+            Position relativePosition) {
+        while (cells.get(cursor.getPosition().getRelativePosition(relativePosition)) != null) {
             cursor = cells.get(cursor.getPosition().getRelativePosition(relativePosition));
-            System.out.println("Current point "+cursor.getPosition());
+            System.out.println("Current point " + cursor.getPosition());
             perimeter.add(cursor.getPosition());
         }
         return cursor;
     }
 
-
-    private void createShape(HashMap<Position, Cell> cells, Room room){
+/*private void createShape(HashMap<Position, Cell> cells, Room room){
         AssetPool assetPool = AssetPool.get();
 
         RectangleShape roomShape = RectangleShape.builder()
@@ -163,45 +245,5 @@ public class MapGenerate {
         cells.get(bottomLeft).replaceObject(new Wall(roomShape.getBottomLeftCorner()));
         cells.get(bottomRight).replaceObject(new Wall(roomShape.getBottomRightCorner()));
     }
-
-    private void removeIntersects(Room roomOne, Room roomTwo){
-        Set<Position> positionsRoomOne = roomOne.getCells().keySet();
-        Set<Position> positionsRoomTwo = roomTwo.getCells().keySet();
-        Set<Position> intersects = new HashSet<>(positionsRoomOne);
-        intersects.retainAll(positionsRoomTwo);
-
-        if(intersects.isEmpty()){
-            return;
-        }
-
-        for(Position position : intersects){
-            findIntersect(roomOne, position);
-            findIntersect(roomTwo, position);
-        }
-
-        roomOne.getCells().putAll(roomTwo.getCells());
-
-        roomOne.setWidth(roomOne.getCells().values()
-                .stream()
-                .map(Cell::getPosition)
-                .map(Position::getX)
-                .max(Comparator.comparingInt(Integer::intValue))
-                .get());
-        roomOne.setHeight(roomOne.getCells().values()
-                .stream()
-                .map(Cell::getPosition)
-                .map(Position::getY)
-                .max(Comparator.comparingInt(Integer::intValue))
-                .get());
-        System.out.println("Intersects removed: "+intersects);
-    }
-
-    private void findIntersect(Room otherRoom, Position position) {
-        Cell cell = otherRoom.getCells().get(position);
-        if (cell.isWall()) {
-            System.out.println("Find intersect on position ".concat(cell.getPosition().toString()));
-            cell.replaceObject(GameObject.getEmpty());
-            cell.setWall(false);
-        }
-    }
+ */
 }

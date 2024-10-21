@@ -30,7 +30,7 @@ public class PlayerController {
     }
 
     private void move(Position oldPosition, Position newPosition) {
-        System.out.println("Move from "+oldPosition+" to "+newPosition);
+        System.out.println("Move from l"+oldPosition+"g"+oldPosition.getRelativePosition(room.getRoomLeftTopPosition())+" to l"+newPosition+"g"+newPosition.getRelativePosition(room.getRoomLeftTopPosition()));
         if(!checkCell(newPosition)){
             return;
         }
@@ -41,6 +41,8 @@ public class PlayerController {
     private boolean checkCell(Position newPosition){
         Cell cell = room.getCell(newPosition);
 
+        Position newPositionGlobal = newPosition.getRelativePosition(room.getRoomLeftTopPosition());
+
         if(Objects.isNull(cell)){
             return false;
         }
@@ -49,7 +51,11 @@ public class PlayerController {
             return false;
         }
 
-        if(newPosition.isNegative()){
+        if(newPositionGlobal.getX() < room.getRoomLeftTopPosition().getX() || newPositionGlobal.getY() < room.getRoomLeftTopPosition().getY()){
+            return false;
+        }
+
+        if(newPositionGlobal.isNegative()){
             return false;
         }
 
