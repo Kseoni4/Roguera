@@ -32,6 +32,7 @@ public class MapGenerate {
         if (roomCount > 1) {
             intersectAndCombine(temporalRoomMap.get(0), temporalRoomMap.get(1));
         }
+
         for(Room room: temporalRoomMap.values()){
             LinkedHashSet<Position> corners = findCorners(room);
             createShape(room, corners);
