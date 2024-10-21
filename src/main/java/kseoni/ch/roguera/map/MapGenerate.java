@@ -13,27 +13,31 @@ import java.util.stream.Collectors;
 public class MapGenerate {
     private final HashMap<Integer, Room> temporalRoomMap;
 
+    private Map<Position, Cell> roomCells;
+
+
     public MapGenerate() {
         temporalRoomMap = new HashMap<>();
     }
 
     public HashMap<Integer, Room> initFloor(int roomCount) {
-        //for(int i = 0; i < roomCount; i++){
-        //}
         placeRoom(0, new Position(0, 0));
         placeRoom(1, new Position(4, 3));
         placeRoom(2, new Position(7, 3));
         placeRoom(3, new Position(15, 1));
+        placeRoom(4, new Position(18, 2));
+        placeRoom(5, new Position(24, 5));
+        placeRoom(6, new Position(35, 5));
 
         if (roomCount > 1) {
             intersectAndCombine(temporalRoomMap.get(0), temporalRoomMap.get(1));
         }
+        for(Room room: temporalRoomMap.values()){
+            LinkedHashSet<Position> corners = findCorners(room);
+            createShape(room, corners);
+        }
 
-        //LinkedHashSet<Position> perimeter = findPerimeterPositions(temporalRoomMap.get(0));
 
-        /*for (Position pos : perimeter) {
-            temporalRoomMap.get(0).getCell(pos).placeObject(new Wall(new TextSprite('*')));
-        }*/
 
         return temporalRoomMap;
     }
@@ -122,78 +126,143 @@ public class MapGenerate {
         return newRoom;
     }
 
-    private LinkedHashSet<Position> findPerimeterPositions(Room room){
-        Cell currentPoint = room.getCell(new Position(1,0));
+    private LinkedHashSet<Position> findCorners(Room room){
+        roomCells = room.getCells();
 
-        Map<Position, Cell> cells = room.getCells();
+        LinkedHashSet<Position> corners = roomCells.values()
+                .stream()
+                    .filter(
+                        cell ->  Arrays.stream(cell.getCellsAround(room)).filter(Objects::isNull).count() >= 4
+                            || Arrays.stream(cell.getCellsAround(room)).filter(Objects::isNull).count() == 1
+        ).map(Cell::getPosition).sorted(
+                Comparator
+                        .comparing(Position::getX)
+                        .thenComparing(Position::getY)
+                )
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        LinkedHashSet<Position> perimeter = new LinkedHashSet<>();
+        System.out.println("Find corners = "+corners);
 
-        while (!currentPoint.getPosition().equals(room.getRoomLeftTopPosition())) {
+        return corners;
+    }
+    private void createShape(Room room, LinkedHashSet<Position> corners) {
+        AssetPool assetPool = AssetPool.get();
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null &&
-                    !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)).getPosition())
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
-            }
+        RectangleShape roomShape = RectangleShape.builder()
+                .bottomLeftCorner(new TextSprite(assetPool.getAsset("wall_corner_bottom_l")))
+                .bottomRightCorner(new TextSprite(assetPool.getAsset("wall_corner_bottom_r")))
+                .topLeftCorner(new TextSprite(assetPool.getAsset("wall_corner_top_l")))
+                .topRightCorner(new TextSprite(assetPool.getAsset("wall_corner_top_r")))
+                .horizontalSprite(new TextSprite(assetPool.getAsset("wall_h")))
+                .verticalSprite(new TextSprite(assetPool.getAsset("wall_v")))
+                .width(room.getWidth() - 1)
+                .height(room.getHeight() - 1)
+                .topLeftPosition(room.getRoomLeftTopPosition())
+                .build();
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
-                    && !perimeter.contains(cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)).getPosition())
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
-            }
+        LinkedHashSet<Position> tempCorners = new LinkedHashSet<>(corners);
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.RIGHT);
-            }
+        while (tempCorners.size() > 1){
+            Position p2 = tempCorners.removeLast();
+           for(Position corner : tempCorners){
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.RIGHT)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
-            }
+               System.out.println("Get corners "+ corner +" -> "+p2);
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.FRONT);
-            }
+               if(corner.getX() == p2.getX() && corner.getY() < p2.getY()){
+                   buildShape(room.getCells(), corner, p2, Position.FRONT, new Wall(roomShape.getVerticalSprite()));
+               }
 
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.LEFT);
-            }
-
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.FRONT)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.FRONT);
-            }
-
-            if (cells.get(currentPoint.getPosition().getRelativePosition(Position.LEFT)) == null
-                    && cells.get(currentPoint.getPosition().getRelativePosition(Position.BACK)) != null
-            ) {
-                currentPoint = moveOn(currentPoint, cells, perimeter, Position.BACK);
-            }
-
+               if(corner.getX() < p2.getX() && corner.getY() == p2.getY()){
+                   buildShape(room.getCells(), corner, p2, Position.RIGHT, new Wall(roomShape.getHorizontalSprite()));
+               }
+           }
         }
-        return perimeter;
+
+        for (Position corner : corners){
+            Cell cell = room.getCell(corner);
+            if(!cell.isWall()){
+                Cell nearCellFirst = room.getCell(corner.getRelativePosition(Position.RIGHT));
+                Cell nearCellSecond = room.getCell(corner.getRelativePosition(Position.FRONT));
+
+                if(Objects.nonNull(nearCellFirst) && Objects.nonNull(nearCellSecond) && nearCellFirst.getObject().getTextSprite().getSpriteChar()
+                        == AssetPool.get().getAsset("wall_h")
+                        && nearCellSecond.getObject().getTextSprite().getSpriteChar()
+                        == assetPool.getAsset("wall_v")){
+                    cell.replaceObject(new Wall(roomShape.getTopLeftCorner()));
+                    continue;
+                }
+
+                nearCellFirst = room.getCell(corner.getRelativePosition(Position.RIGHT));
+                nearCellSecond = room.getCell(corner.getRelativePosition(Position.BACK));
+
+                if(Objects.nonNull(nearCellFirst) && Objects.nonNull(nearCellSecond)
+                        && nearCellFirst.getObject().getTextSprite().getSpriteChar()
+                        == AssetPool.get().getAsset("wall_h")
+                        && nearCellSecond.getObject().getTextSprite().getSpriteChar()
+                        == assetPool.getAsset("wall_v")){
+                    cell.replaceObject(new Wall(roomShape.getBottomLeftCorner()));
+                    continue;
+                }
+
+                nearCellFirst = room.getCell(corner.getRelativePosition(Position.LEFT));
+                nearCellSecond = room.getCell(corner.getRelativePosition(Position.FRONT));
+
+                if(Objects.nonNull(nearCellFirst) && Objects.nonNull(nearCellSecond)
+                        && nearCellFirst.getObject().getTextSprite().getSpriteChar()
+                        == AssetPool.get().getAsset("wall_h")
+                        && nearCellSecond.getObject().getTextSprite().getSpriteChar()
+                        == assetPool.getAsset("wall_v")){
+                    cell.replaceObject(new Wall(roomShape.getTopRightCorner()));
+                    continue;
+                }
+
+                nearCellFirst = room.getCell(corner.getRelativePosition(Position.LEFT));
+                nearCellSecond = room.getCell(corner.getRelativePosition(Position.BACK));
+
+                if(Objects.nonNull(nearCellFirst) && Objects.nonNull(nearCellSecond)
+                        && nearCellFirst.getObject().getTextSprite().getSpriteChar()
+                        == AssetPool.get().getAsset("wall_h")
+                        && nearCellSecond.getObject().getTextSprite().getSpriteChar()
+                        == assetPool.getAsset("wall_v")){
+                    cell.replaceObject(new Wall(roomShape.getBottomRightCorner()));
+                    continue;
+                }
+
+                nearCellFirst = room.getCell(corner.getRelativePosition(Position.LEFT));
+                nearCellSecond = room.getCell(corner.getRelativePosition(Position.FRONT));
+
+                if(Objects.nonNull(nearCellFirst) && Objects.nonNull(nearCellSecond)
+                    && nearCellFirst.getObject().getTextSprite().getSpriteChar()
+                        == AssetPool.get().getAsset("wall_h")
+                        && nearCellSecond.isEmpty()){
+                    cell.replaceObject(new Wall(roomShape.getTopRightCorner()));
+                    nearCellSecond.replaceObject(new Wall(roomShape.getBottomLeftCorner()));
+                }
+
+            }
+        }
+
     }
 
-    private Cell moveOn(
-            Cell cursor,
-            Map<Position, Cell> cells,
-            Set<Position> perimeter,
-            Position relativePosition) {
-        while (cells.get(cursor.getPosition().getRelativePosition(relativePosition)) != null) {
-            cursor = cells.get(cursor.getPosition().getRelativePosition(relativePosition));
-            System.out.println("Current point " + cursor.getPosition());
-            perimeter.add(cursor.getPosition());
+    private void buildShape(HashMap<Position, Cell> cells,
+                            Position from,
+                            Position to,
+                            Position direction,
+                            Wall wallShape){
+        System.out.println("Get relative ="+direction);
+        System.out.println("Get from = "+from);
+        Cell cell = cells.get(from.getRelativePosition(direction));
+
+        if(Objects.nonNull(cells.get(cell.getPosition().getRelativePosition(Position.LEFT)))
+           && Objects.nonNull(cells.get(cell.getPosition().getRelativePosition(Position.RIGHT)))
+            && direction.equals(Position.FRONT)) {
+            return;
         }
-        return cursor;
+
+        while (!cell.getPosition().equals(to)){
+            cell.replaceObject(wallShape);
+            cell = cells.get(cell.getPosition().getRelativePosition(direction));
+        }
     }
 
 /*private void createShape(HashMap<Position, Cell> cells, Room room){
