@@ -1,6 +1,6 @@
 package kseoni.ch.roguera.map;
 
-import kseoni.ch.roguera.base.GameObject;
+import com.googlecode.lanterna.TextColor;
 import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.RectangleShape;
@@ -10,27 +10,52 @@ import kseoni.ch.roguera.utils.Convert;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MapGenerate {
+public class MapGenerate_ {
     private final HashMap<Integer, Room> temporalRoomMap;
 
     private Map<Position, Cell> roomCells;
 
 
-    public MapGenerate() {
+    public MapGenerate_() {
         temporalRoomMap = new HashMap<>();
     }
 
     public HashMap<Integer, Room> initFloor(int roomCount) {
-        placeRoom(0, new Position(0, 0));
-        placeRoom(1, new Position(4, 3));
-        placeRoom(2, new Position(7, 3));
-        placeRoom(3, new Position(15, 1));
-        placeRoom(4, new Position(18, 2));
-        placeRoom(5, new Position(24, 5));
-        placeRoom(6, new Position(35, 5));
+        placeRoom(0, new Position(18, 2));
+        placeRoom(1, new Position(15, 1));
+        placeRoom(2, new Position(5, 3));
+        placeRoom(3, new Position(19, 1));
+        placeRoom(4, new Position(6, 3));
+        placeRoom(5, new Position(32, 2));
+        placeRoom(6, new Position(27, 2));
+/*        for (int i = 0; i < roomCount; i++) {
+            placeRoom(i, Position.getRandomPosition(30, 10));
+        }*/
+
+        Set<Room> rooms;
 
         if (roomCount > 1) {
-            intersectAndCombine(temporalRoomMap.get(0), temporalRoomMap.get(1));
+            rooms = overlappingRooms();
+            System.out.println(rooms);
+            List<Set<Room>> clusters = clusterizingRooms(rooms);
+            System.out.println("Clusters count: "+clusters.size());
+            System.out.println("Clusters:");
+            int i = 0;
+            for (Set<Room> cluster : clusters) {
+                System.out.print("\tCluster ["+i+"]: ");
+                System.out.println(cluster);
+                i++;
+            }
+            for (Set<Room> cluster : clusters) {
+                if(cluster.size() < 2){
+                    continue;
+                }
+                Iterator<Room> roomIterator = cluster.iterator();
+                Room firstRoom = roomIterator.next();
+                Room secondRoom = roomIterator.next();
+                Room combined = intersectAndCombine(roomIterator, firstRoom, secondRoom);
+                temporalRoomMap.put(combined.getRoomId(), combined);
+            }
         }
 
         for(Room room: temporalRoomMap.values()){
@@ -42,10 +67,85 @@ public class MapGenerate {
     }
 
     private void placeRoom(int roomId, Position position) {
-        Room newRoom = new Room(roomId, 10, 15, position);
+        Random rnd = new Random();
+
+        Room newRoom = new Room(roomId, rnd.nextInt(5,  15),
+                rnd.nextInt(5, 15), position);
         newRoom.setCells(prepareCells(newRoom));
 
+        newRoom.getCell(new Position(1,1)).placeObject(new Wall(new TextSprite(Character.forDigit(newRoom.getRoomId(), Character.MAX_RADIX))));
+
         temporalRoomMap.put(roomId, newRoom);
+    }
+
+    private Set<Room> overlappingRooms(){
+        Set<Room> rooms = new LinkedHashSet<>();
+        for(Room first : temporalRoomMap.values()) {
+            for (int i = 0; i < temporalRoomMap.values().size(); i++) {
+                Room second = temporalRoomMap.get(i);
+                if (hasIntersects(first, second)) {
+                    rooms.add(second);
+                    rooms.add(first);
+                }
+            }
+        }
+        return rooms;
+    }
+
+    private List<Set<Room>> clusterizingRooms(Set<Room> overlappingRooms){
+        List<Set<Room>> clusters = new ArrayList<>();
+        Set<Room> visited = new HashSet<>();
+
+        Set<Room> rooms = overlappingRooms;
+
+        for (Room room : rooms) {
+            if (!visited.contains(room)) {
+                Set<Room> cluster = new HashSet<>();
+                Queue<Room> toVisit = new LinkedList<>();
+                toVisit.add(room);
+
+                while (!toVisit.isEmpty()) {
+                    Room current = toVisit.poll();
+                    if (visited.add(current)) {
+                        current.getCell(Position.FRONT.getRelativePosition(3,0)).placeObject(new Wall(new TextSprite(Character.forDigit(clusters.size(), Character.MAX_RADIX),null, TextColor.ANSI.CYAN)));
+                        cluster.add(current);
+                        double threshold = calculateDynamicThreshold(current, rooms);
+                        rooms.stream()
+                                .filter(r -> !visited.contains(r) && distance(current, r) <= 5)
+                                .forEach(toVisit::add);
+                    }
+                }
+                clusters.add(cluster);
+            }
+        }
+        return clusters;
+    }
+
+    private double distance(Room a, Room b) {
+        Position coordsA = a.getRoomLeftTopPosition();
+        Position coordsB = b.getRoomLeftTopPosition();
+        return Math.sqrt(Math.pow(coordsA.getX() - coordsB.getX(), 2) + Math.pow(coordsA.getY() - coordsB.getY(), 2));
+    }
+
+    private double calculateDynamicThreshold(Room room, Set<Room> rooms) {
+        // Пример динамического порога, учитывающего размеры комнаты
+        int width = room.getWidth();
+        int height = room.getHeight();
+
+        double areaFactor = Math.sqrt(width * height);
+
+        double averageDistance = rooms.stream()
+                .filter(r -> r != room)
+                .mapToDouble(r -> distance(room, r))
+                .average()
+                .orElse(Double.MAX_VALUE);
+
+        long neighborCount = rooms.stream()
+                .filter(r -> r != room && distance(room, r) <= 10) // Example fixed radius for density calculation
+                .count();
+        double densityFactor = (double) 1 / (1 + neighborCount);
+
+        return areaFactor * 1.5 + averageDistance * 0.5 + densityFactor * 100;
     }
 
     private HashMap<Position, Cell> prepareCells(Room room) {
@@ -61,6 +161,11 @@ public class MapGenerate {
     }
 
     private boolean hasIntersects(Room first, Room second) {
+
+        if(Objects.isNull(first) || Objects.isNull(second)){
+            return false;
+        }
+
         Set<Position> firstRoomGlobalPositions = Convert.toGlobalPositions(first);
         Set<Position> secondRoomGlobalPositions = Convert.toGlobalPositions(second);
 
@@ -69,20 +174,43 @@ public class MapGenerate {
         return !firstRoomGlobalPositions.isEmpty();
     }
 
-    private Room intersectAndCombine(Room first, Room second) {
+    private Room intersectAndCombine(Iterator<Room> rooms, Room first, Room second) {
+        if(!rooms.hasNext()){
+            return combine(first, second);
+        }
+
         if (Objects.isNull(second)) {
             return first;
         }
-        if (!hasIntersects(first, second)) {
-            return first;
+
+        if(!hasIntersects(first, second)){
+            return intersectAndCombine(rooms, first, rooms.next());
         }
 
-        Room combined = combine(first, second);
+/*      while (!hasIntersects(first, second)) {
+            if(rooms.iterator().hasNext()) {
+                Room room = rooms.iterator().next();
+                rooms.remove(room);
+                second = intersectAndCombine(rooms, first, room);
+            } else {
+                break;
+            }
+        }
+        */
+        //rooms.remove();
+        //rooms.remove();
         temporalRoomMap.remove(first.getRoomId());
-        second = temporalRoomMap.remove(second.getRoomId());
-        temporalRoomMap.put(combined.getRoomId(), combined);
+        temporalRoomMap.remove(second.getRoomId());
 
-        return intersectAndCombine(combined, temporalRoomMap.get(second.getRoomId() + 1));
+        if(!rooms.hasNext()){
+            return combine(first, second);
+        }
+
+        //Room combined = combine(first, second)
+
+        return intersectAndCombine(rooms, second, rooms.next());
+
+        /*return intersectAndCombine(rooms, combined, rooms.iterator().next());*/
     }
 
     private Room combine(Room first, Room second) {
@@ -111,8 +239,8 @@ public class MapGenerate {
 
         Room newRoom = new Room(
                 first.getRoomId(),
-                first.getWidth() + second.getWidth(),
-                first.getHeight() + second.getHeight(),
+                newCells.keySet().stream().max(Comparator.comparing(Position::getX)).map(Position::getX).get(),
+                newCells.keySet().stream().max(Comparator.comparing(Position::getY)).map(Position::getY).get(),
                 leftTopPosition);
 
         newRoom.setCells(newCells);
@@ -168,6 +296,9 @@ public class MapGenerate {
 
         for (Position corner : corners){
             Cell cell = room.getCell(corner);
+            if(Objects.isNull(cell)){
+                continue;
+            }
             if(!cell.isWall()){
                 Cell nearCellFirst = room.getCell(corner.getRelativePosition(Position.RIGHT));
                 Cell nearCellSecond = room.getCell(corner.getRelativePosition(Position.FRONT));
@@ -239,6 +370,10 @@ public class MapGenerate {
                             Wall wallShape){
         Cell cell = cells.get(from.getRelativePosition(direction));
 
+        if(Objects.isNull(cell)){
+            return;
+        }
+
         if(Objects.nonNull(cells.get(cell.getPosition().getRelativePosition(Position.LEFT)))
            && Objects.nonNull(cells.get(cell.getPosition().getRelativePosition(Position.RIGHT)))
             && direction.equals(Position.FRONT)) {
@@ -248,6 +383,9 @@ public class MapGenerate {
         while (!cell.getPosition().equals(to)){
             cell.replaceObject(wallShape);
             cell = cells.get(cell.getPosition().getRelativePosition(direction));
+            if(Objects.isNull(cell)){
+                break;
+            }
         }
     }
 }

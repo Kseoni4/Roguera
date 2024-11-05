@@ -32,9 +32,10 @@ public class AssetPool {
 
         String assetLine;
 
+        System.out.println("===Assets===");
         while ((assetLine = bufferedReader.readLine()) != null){
             String[] asset = assetLine.split("-");
-            System.out.println("Load asset "+ Arrays.toString(asset));
+            System.out.println("Load asset ->"+ Arrays.toString(asset));
             assets.put(asset[0], asset[1].charAt(0));
         }
     }

@@ -56,8 +56,9 @@ public class Window {
         this.terminal = factory.createScreen();
         this.graphicsMap.put(TGLayer.BACKGROUND, new RenderLayer(this.terminal
                 .newTextGraphics()
-                .newTextGraphics(new TerminalPosition(0,0),
-                        new TerminalSize(50, 20))));
+                //.newTextGraphics(new TerminalPosition(0,0),
+                //        new TerminalSize(50, 30)))
+        ));
         this.graphicsMap.put(TGLayer.FOREGROUND, new RenderLayer(this.terminal.newTextGraphics()));
         this.graphicsMap.put(TGLayer.UI, new RenderLayer(this.terminal.newTextGraphics()));
 

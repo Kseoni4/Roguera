@@ -3,16 +3,28 @@ package kseoni.ch.roguera.controller;
 import com.googlecode.lanterna.input.KeyType;
 import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.game.creature.Player;
+import kseoni.ch.roguera.game.entity.Scriptable;
 import kseoni.ch.roguera.map.Cell;
 import kseoni.ch.roguera.map.Dungeon;
 import kseoni.ch.roguera.map.Room;
+import lombok.Setter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class PlayerController {
+
+    private final Map<KeyType, Position> directionMap = new LinkedHashMap<>(
+            Map.of(KeyType.ArrowUp, Position.BACK,
+                    KeyType.ArrowDown, Position.FRONT,
+                    KeyType.ArrowLeft, Position.LEFT,
+                    KeyType.ArrowRight, Position.RIGHT));
+
     private final Player player;
 
-    private final Room room;
+    @Setter
+    private Room room;
 
     public PlayerController(Player player){
         this.player = player;
@@ -20,20 +32,34 @@ public class PlayerController {
     }
 
     public void movePlayer(KeyType key){
+        if(!directionMap.containsKey(key)){
+            return;
+        }
         Position oldPosition = player.getPosition();
-        switch (key){
+        Position direction = directionMap.get(key);
+        move(oldPosition, player.getPosition().getRelativePosition(direction));
+/*        switch (key){
             case ArrowUp -> move(oldPosition, player.getPosition().getRelativePosition(0, -1));
             case ArrowDown -> move(oldPosition, player.getPosition().getRelativePosition(0, 1));
             case ArrowLeft -> move(oldPosition, player.getPosition().getRelativePosition(-1, 0));
             case ArrowRight -> move(oldPosition, player.getPosition().getRelativePosition(1, 0));
-        }
+        }*/
     }
 
     private void move(Position oldPosition, Position newPosition) {
-        System.out.println("Move from l"+oldPosition+"g"+oldPosition.getRelativePosition(room.getRoomLeftTopPosition())+" to l"+newPosition+"g"+newPosition.getRelativePosition(room.getRoomLeftTopPosition()));
+        String moveInfo = String.format("ROOM[%d] mv from l%s to l%s", room.getRoomId(), oldPosition, newPosition);
+        System.out.println(moveInfo);
+        //System.out.println("Move from l"+oldPosition+"g"+oldPosition.getRelativePosition(room.getRoomLeftTopPosition())+" to l"+newPosition+"g"+newPosition.getRelativePosition(room.getRoomLeftTopPosition()));
         if(!checkCell(newPosition)){
             return;
         }
+
+        if(room.getCell(newPosition).getObject() instanceof Scriptable){
+            Scriptable<Player> scriptable = room.getCell(newPosition).getObject();
+            scriptable.doAction(player);
+            return;
+        }
+
         room.getCell(oldPosition).removeObject();
         room.getCell(newPosition).placeObject(player);
     }
@@ -59,10 +85,14 @@ public class PlayerController {
             return false;
         }
 
-        if(!cell.isEmpty()){
+        if(cell.isWall()){
             return false;
         }
 
         return true;
+    }
+
+    public void reset(){
+        this.room = Dungeon.get().currentFloor().currentRoom();
     }
 }

@@ -11,7 +11,11 @@ import java.util.Random;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Position{
+public class Position {
+
+    private int x;
+
+    private int y;
 
     /**
      * Статическая константа, описывающая точку расположенную по "розе ветров" на одну относительно текущей.
@@ -76,29 +80,8 @@ public class Position{
         return new Position(random.nextInt(0,boundX), random.nextInt(0,boundY));
     }
 
-    private int x;
-
-    private int y;
-
     public boolean isNegative(){
         return x < 0 || y < 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof Position position)){
-            return false;
-        }
-        if(obj == this){
-            return true;
-        }
-
-        return this.x == position.x && this.y == position.y;
     }
 
     public Position set(Position position){
@@ -123,6 +106,57 @@ public class Position{
                 this.x + x,
                 this.y + y
         );
+    }
+
+    public boolean isInBetweenX(Position point1, Position  point2){
+        return isInBetweenX(point1.x, point2.x);
+    }
+
+    public boolean isInBetweenX(int x1, int x2){
+                    // x1 > x0 < x2
+        return (this.x > x1 && this.x < x2);
+    }
+
+    public boolean isInBetweenY(Position point1, Position  point2){
+        return isInBetweenY(point1.y, point2.y);
+    }
+
+    public boolean isInBetweenY(int y1, int y2){
+        // x1 > x0 < x2
+        return (this.y >= y1 && this.y <= y2);
+    }
+
+    public double getDistance(Position position){
+        return getDistance(position.x, position.y);
+    }
+
+    public double getDistance(int x, int y){
+        return Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
+    }
+
+    public boolean isOneXLineWith(Position nextPoint){
+        return this.x == nextPoint.x;
+    }
+
+    public boolean isOneYLineWith(Position nextPoint){
+        return this.y == nextPoint.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Position position)){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+
+        return this.x == position.x && this.y == position.y;
     }
 
     @Override

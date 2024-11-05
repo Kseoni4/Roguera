@@ -16,12 +16,18 @@ public class TextSprite {
         return sprite.getCharacter();
     }
 
-    public TextColor getSpriteColor(int colorLayer){
+    public TextColor getSpriteColor(ColorLayer colorLayer){
         return switch (colorLayer){
-            case 0 -> sprite.getBackgroundColor();
-            case 1 -> sprite.getForegroundColor();
-            default -> throw new IllegalStateException("Unexpected value: " + colorLayer);
+            case BACKGROUND -> sprite.getBackgroundColor();
+            case FOREGROUND -> sprite.getForegroundColor();
         };
+    }
+
+    public void setSpriteColor(ColorLayer layer, TextColor color){
+        switch (layer){
+            case FOREGROUND -> sprite = new TextCharacter(sprite.getCharacter(), color, null);
+            case BACKGROUND -> sprite = new TextCharacter(sprite.getCharacter(), null, color);
+        }
     }
 
     public void modifierSprite(SGR modifier){
@@ -29,18 +35,32 @@ public class TextSprite {
     }
 
     private TextSprite(){
-        this.sprite = new TextCharacter('.');
-    }
-
-    public TextSprite(char model){
-        this(new TextCharacter(model));
+        this.sprite = new TextCharacter(' ');
     }
 
     public TextSprite(TextCharacter sprite){
         this.sprite = sprite;
     }
 
+    public TextSprite(char model){
+        this(model, null, null);
+    }
+
+    public TextSprite(char spriteChar, TextColor foregroundColor){
+        this(spriteChar, foregroundColor, null);
+    }
+
     public TextSprite(char spriteChar, TextColor foregroundColor, TextColor backgroundColor){
         this.sprite = new TextCharacter(spriteChar, foregroundColor, backgroundColor);
+    }
+
+    public enum ColorLayer {
+        BACKGROUND(0),
+        FOREGROUND(1);
+
+        final int layer;
+        ColorLayer(int layer){
+            this.layer = layer;
+        }
     }
 }

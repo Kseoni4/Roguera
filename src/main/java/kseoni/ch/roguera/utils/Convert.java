@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 
 public class Convert {
 
+    public static Position toGlobalPosition(Position leftTop, Position position) {
+        return leftTop.getRelativePosition(position);
+    }
+
     public static Set<Position> toGlobalPositions(Room room){
         return room.getCells().keySet()
                 .stream()

@@ -44,12 +44,18 @@ public class Cell {
     public void placeObject(GameObject gameObject) {
         gameObject.setPosition(this.position);
         this.gameObjectStack.push(gameObject);
+        if(gameObject instanceof Wall){
+            isWall = true;
+        }
     }
 
     public void replaceObject(GameObject gameObject){
         GameObject go = removeObject();
         if(!(go == GameObject.getEmpty())){
             ObjectPool.get().removeObjectFromPool(go);
+        }
+        if(go instanceof Wall){
+            isWall = true;
         }
         placeObject(gameObject);
     }
