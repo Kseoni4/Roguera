@@ -1,6 +1,7 @@
 package kseoni.ch.roguera.map;
 
 import kseoni.ch.roguera.base.Position;
+import kseoni.ch.roguera.game.entity.Door;
 import kseoni.ch.roguera.graphics.render.Window;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,7 @@ public class Room {
     @Setter
     private HashMap<Position, Cell> cells;
 
+    private HashMap<Position, Door> doors;
 
     public Room(){
         roomLeftTopPosition = Position.ZERO;
@@ -46,8 +48,10 @@ public class Room {
         this.width = width;
         this.height = height;
         this.roomLeftTopPosition = position;
-        System.out.println("Create room [".concat(String.valueOf(width)).concat(";").concat(String.valueOf(height)).concat("]")
+        this.doors = new HashMap<>();
+        System.out.println("Create room "+roomId+" [".concat(String.valueOf(width)).concat(";").concat(String.valueOf(height)).concat("]")
                 .concat(" on position ").concat(position.toString()));
+        System.out.println("Doors "+doors);
     }
 
     public Cell getCell(Position position){
@@ -67,6 +71,13 @@ public class Room {
         while (cells.get(roomCenterPosition) == null){
             roomCenterPosition = roomCenterPosition.getRelativePosition(Position.AroundPositions[rnd.nextInt(0, Position.AroundPositions.length)]);
         }
+    }
+
+    public void addDoor(Door door){
+        if(this.doors == null){
+            this.doors = new HashMap<>();
+        }
+        doors.put(door.getPosition(), door);
     }
 
     @Override

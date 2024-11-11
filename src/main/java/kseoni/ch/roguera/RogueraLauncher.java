@@ -1,11 +1,14 @@
 package kseoni.ch.roguera;
 
+import kseoni.ch.roguera.game.EventLoop;
 import kseoni.ch.roguera.game.GameLoop;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.utils.ObjectPool;
+import kseoni.ch.roguera.utils.RandomUtils;
 import kseoni.ch.roguera.utils.SettingsLoader;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -23,6 +26,7 @@ public class RogueraLauncher {
         System.out.println(version);
 
         System.out.println("===Load settings===");
+
         for (Map.Entry entry : properties.entrySet()){
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
@@ -45,6 +49,8 @@ public class RogueraLauncher {
         window.refresh();
 
         ObjectPool.get().dumpPoolIntoFile();
+
+        EventLoop.get().dumpEventLog();
     }
 
     private static void showSystemData(){

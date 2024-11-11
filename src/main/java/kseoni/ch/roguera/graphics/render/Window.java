@@ -8,6 +8,8 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+import kseoni.ch.roguera.base.Event;
+import kseoni.ch.roguera.game.EventLoop;
 import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
@@ -71,6 +73,9 @@ public class Window {
     public static Window create(int width, int height, String title){
         if(INSTANCE == null){
             INSTANCE = new Window(width, height, title);
+            EventLoop.get().send(
+                    Event.raise(String.format("Window W: %d H: %d has been created", width, height))
+            );
         }
         return INSTANCE;
     }
@@ -91,7 +96,7 @@ public class Window {
     }
     @SneakyThrows
     public KeyStroke keyInput(){
-        return terminal.readInput();
+        return terminal.pollInput();
     }
 
     @SneakyThrows
@@ -102,6 +107,7 @@ public class Window {
     @SneakyThrows
     public void close(){
         terminal.close();
+        EventLoop.get().send(Event.raise("Window closed"));
     }
     @SneakyThrows
     public void clearScreen(){

@@ -47,6 +47,7 @@ class PhaseOneCreateRooms {
                 .width(width)
                 .height(height)
                 .roomLeftTopPosition(topLeftPosition)
+                .doors(new HashMap<>())
                 .build();
 
         room.setCells(createCellsForRoom(room));

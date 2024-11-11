@@ -3,6 +3,8 @@ package kseoni.ch.roguera.input;
 import com.googlecode.lanterna.input.KeyStroke;
 import kseoni.ch.roguera.graphics.render.Window;
 
+import java.util.Optional;
+
 public class KeyInput {
 
     private static Window window;
@@ -11,8 +13,8 @@ public class KeyInput {
         window = Window.get();
     }
 
-    public static KeyStroke get(){
-        return window.keyInput();
+    public static Optional<KeyStroke> get(){
+        return Optional.ofNullable(window.keyInput());
     }
 
 }

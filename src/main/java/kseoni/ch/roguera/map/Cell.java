@@ -28,8 +28,7 @@ public class Cell {
 
     public boolean isEmpty(){
         return Objects.nonNull(gameObjectStack.peek())
-                && gameObjectStack.peek()
-                        .equals(GameObject.getEmpty())
+                && gameObjectStack.peek().equals(GameObject.getEmpty())
                 && !isWall;
     }
 

@@ -71,15 +71,6 @@ public class Position {
 
     public static final Position ZERO = new Position(0,0);
 
-    public static Position getRandomPosition(){
-        return getRandomPosition(Window.get().getWight(), Window.get().getHeight());
-    }
-
-    public static Position getRandomPosition(int boundX, int boundY){
-        Random random = new Random();
-        return new Position(random.nextInt(0,boundX), random.nextInt(0,boundY));
-    }
-
     public boolean isNegative(){
         return x < 0 || y < 0;
     }
@@ -112,17 +103,15 @@ public class Position {
         return isInBetweenX(point1.x, point2.x);
     }
 
-    public boolean isInBetweenX(int x1, int x2){
-                    // x1 > x0 < x2
-        return (this.x > x1 && this.x < x2);
-    }
-
     public boolean isInBetweenY(Position point1, Position  point2){
         return isInBetweenY(point1.y, point2.y);
     }
 
+    public boolean isInBetweenX(int x1, int x2){
+        return (this.x > x1 && this.x < x2);
+    }
+
     public boolean isInBetweenY(int y1, int y2){
-        // x1 > x0 < x2
         return (this.y >= y1 && this.y <= y2);
     }
 
@@ -132,14 +121,6 @@ public class Position {
 
     public double getDistance(int x, int y){
         return Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
-    }
-
-    public boolean isOneXLineWith(Position nextPoint){
-        return this.x == nextPoint.x;
-    }
-
-    public boolean isOneYLineWith(Position nextPoint){
-        return this.y == nextPoint.y;
     }
 
     @Override

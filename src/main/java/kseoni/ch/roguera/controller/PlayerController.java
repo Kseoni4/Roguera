@@ -38,12 +38,6 @@ public class PlayerController {
         Position oldPosition = player.getPosition();
         Position direction = directionMap.get(key);
         move(oldPosition, player.getPosition().getRelativePosition(direction));
-/*        switch (key){
-            case ArrowUp -> move(oldPosition, player.getPosition().getRelativePosition(0, -1));
-            case ArrowDown -> move(oldPosition, player.getPosition().getRelativePosition(0, 1));
-            case ArrowLeft -> move(oldPosition, player.getPosition().getRelativePosition(-1, 0));
-            case ArrowRight -> move(oldPosition, player.getPosition().getRelativePosition(1, 0));
-        }*/
     }
 
     private void move(Position oldPosition, Position newPosition) {
@@ -73,7 +67,7 @@ public class PlayerController {
             return false;
         }
 
-        if(newPosition.getX() >= room.getWidth() || newPosition.getY() >= room.getHeight()){
+        if(newPosition.getX() > room.getWidth() || newPosition.getY() > room.getHeight()){
             return false;
         }
 
