@@ -54,20 +54,22 @@ public class UIFrame {
         layer.fill(region, ' ', borderFg, bg);
 
         // Горизонтальные линии
+        char hChar = style.horizontal();
+        char vChar = style.vertical();
         for (int col = left + 1; col < right; col++) {
-            layer.setChar(col, top, style.horizontal, borderFg, bg);
-            layer.setChar(col, bottom, style.horizontal, borderFg, bg);
+            layer.setChar(col, top, hChar, borderFg, bg);
+            layer.setChar(col, bottom, hChar, borderFg, bg);
         }
         // Вертикальные линии
         for (int row = top + 1; row < bottom; row++) {
-            layer.setChar(left, row, style.vertical, borderFg, bg);
-            layer.setChar(right, row, style.vertical, borderFg, bg);
+            layer.setChar(left, row, vChar, borderFg, bg);
+            layer.setChar(right, row, vChar, borderFg, bg);
         }
         // Углы
-        layer.setChar(left, top, style.topLeft, borderFg, bg);
-        layer.setChar(right, top, style.topRight, borderFg, bg);
-        layer.setChar(left, bottom, style.bottomLeft, borderFg, bg);
-        layer.setChar(right, bottom, style.bottomRight, borderFg, bg);
+        layer.setChar(left, top, style.topLeft(), borderFg, bg);
+        layer.setChar(right, top, style.topRight(), borderFg, bg);
+        layer.setChar(left, bottom, style.bottomLeft(), borderFg, bg);
+        layer.setChar(right, bottom, style.bottomRight(), borderFg, bg);
 
         // Встроенный заголовок: ─ Title ─...
         if (title != null && !title.isEmpty()) {
