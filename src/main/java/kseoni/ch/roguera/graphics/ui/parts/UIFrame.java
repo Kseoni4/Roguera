@@ -1,32 +1,83 @@
 package kseoni.ch.roguera.graphics.ui.parts;
 
-import kseoni.ch.roguera.base.Position;
-import lombok.*;
+import com.googlecode.lanterna.TextColor;
+import kseoni.ch.roguera.graphics.Palette;
+import kseoni.ch.roguera.graphics.render.RenderLayer;
+import kseoni.ch.roguera.graphics.ui.layout.BorderStyle;
+import kseoni.ch.roguera.graphics.ui.layout.Region;
+import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.List;
-
-@Setter
+/**
+ * Прямоугольная рамка с углами/линиями выбранного {@link BorderStyle} и опциональным
+ * встроенным в верхнюю кромку заголовком (`─ Title ──────`).
+ *
+ * Без знания о контенте — это чистая отрисовка обвязки. Контент рисует {@code Panel}
+ * поверх в content-области ({@link #region}.inset(1)).
+ */
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UIFrame {
 
-    private String name;
+    private final Region region;
+    private final BorderStyle style;
+    private final String title;
 
-    private int wight;
+    private final TextColor borderFg;
+    private final TextColor titleFg;
+    private final TextColor bg;
 
-    private int height;
+    public UIFrame(Region region, BorderStyle style, String title) {
+        this(region, style, title, Palette.OVERLAY, Palette.MAUVE, Palette.BASE);
+    }
 
-    private UIPart topLeftCorner;
-    private UIPart topRightCorner;
-    private UIPart bottomLeftCorner;
-    private UIPart bottomRightCorner;
+    public UIFrame(Region region, BorderStyle style, String title,
+                   TextColor borderFg, TextColor titleFg, TextColor bg) {
+        this.region = region;
+        this.style = style;
+        this.title = title;
+        this.borderFg = borderFg;
+        this.titleFg = titleFg;
+        this.bg = bg;
+    }
 
-    private Position topLeftFramePosition;
+    public void render(RenderLayer layer) {
+        if (region.width() < 2 || region.height() < 2) {
+            return;
+        }
 
-    private List<Position> localPositions;
+        int left = region.x();
+        int top = region.y();
+        int right = region.right() - 1;
+        int bottom = region.bottom() - 1;
 
-    private HashMap<String, UIElement> elements;
+        // Заливка фона внутреннего региона + кромок (чтобы сквозь рамку не светил
+        // backdrop, если у Panel.bg отличается от Palette.BASE).
+        layer.fill(region, ' ', borderFg, bg);
+
+        // Горизонтальные линии
+        for (int col = left + 1; col < right; col++) {
+            layer.setChar(col, top, style.horizontal, borderFg, bg);
+            layer.setChar(col, bottom, style.horizontal, borderFg, bg);
+        }
+        // Вертикальные линии
+        for (int row = top + 1; row < bottom; row++) {
+            layer.setChar(left, row, style.vertical, borderFg, bg);
+            layer.setChar(right, row, style.vertical, borderFg, bg);
+        }
+        // Углы
+        layer.setChar(left, top, style.topLeft, borderFg, bg);
+        layer.setChar(right, top, style.topRight, borderFg, bg);
+        layer.setChar(left, bottom, style.bottomLeft, borderFg, bg);
+        layer.setChar(right, bottom, style.bottomRight, borderFg, bg);
+
+        // Встроенный заголовок: ─ Title ─...
+        if (title != null && !title.isEmpty()) {
+            String label = " " + title + " ";
+            int titleX = left + 2;
+            int maxLen = Math.max(0, region.width() - 4);
+            if (label.length() > maxLen) {
+                label = label.substring(0, maxLen);
+            }
+            layer.putString(titleX, top, label, titleFg, bg);
+        }
+    }
 }
