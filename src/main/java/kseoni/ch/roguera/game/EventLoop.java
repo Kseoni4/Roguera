@@ -5,6 +5,7 @@ import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.utils.Clock;
+import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -33,10 +34,13 @@ public class EventLoop {
         return INSTANCE;
     }
 
+    private final boolean debugShowEvents;
+
     private EventLoop(){
         events = new ArrayDeque<>();
         executorService = Executors.newSingleThreadExecutor();
         eventLog = new ArrayList<>();
+        debugShowEvents = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.event-raise"));
     }
 
     public Queue<Event<?>> pollEvents(){
@@ -59,6 +63,10 @@ public class EventLoop {
     @NonNull
     public void send(Event<?> event){
         toLog(event);
+
+        if(debugShowEvents)
+            System.out.println("Get event "+event);
+
         events.add(event);
     }
 

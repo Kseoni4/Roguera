@@ -37,12 +37,7 @@ public class Door extends GameObject implements Scriptable<Player> {
     public Door(TextSprite doorSprite, int toRoom, Room curretRoom) {
         super("Door", doorSprite);
         this.toRoom = toRoom;
-        init(curretRoom);
-    }
-
-    private void init(Room curretRoom){
         this.curretRoom = curretRoom;
-        curretRoom.addDoor(this);
     }
 
     @Override

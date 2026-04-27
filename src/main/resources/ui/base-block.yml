@@ -1,0 +1,7 @@
+name: "block"
+wight: 10
+height: 15
+parts:
+  - uiPartType: H_LINE
+    partSprite:
+      -

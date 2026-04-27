@@ -15,8 +15,11 @@ class PhaseTwoMergeRooms {
 
     private Map<Integer, Room> tempRoomMap;
 
-    public PhaseTwoMergeRooms(Map<Integer, Room> tempRoomMap){
+    private final MapGenerate mapGen;
+
+    public PhaseTwoMergeRooms(MapGenerate mapGen,Map<Integer, Room> tempRoomMap){
         this.tempRoomMap = tempRoomMap;
+        this.mapGen = mapGen;
     }
 
     @SneakyThrows
@@ -24,18 +27,18 @@ class PhaseTwoMergeRooms {
         // Clusterization rooms
         List<Set<Room>> clusters = clusterizeRooms();
 
-        System.out.println("Clusters count: " + clusters.size());
-        System.out.println("Clusters:");
+        mapGen.generateDebugLog("Clusters count: " + clusters.size());
+        mapGen.generateDebugLog("Clusters:");
         int i = 0;
         for (Set<Room> cluster : clusters) {
-            System.out.print("\tCluster [" + i + "]: ");
-            System.out.println(cluster);
+            mapGen.generateDebugLog("\tCluster [" + i + "]: ");
+            mapGen.generateDebugLog(cluster.toString());
             i++;
         }
 
         i = 0;
         for (Set<Room> cluster : clusters) {
-            System.out.println("Merge rooms in cluster " + "[" + i + "]");
+            mapGen.generateDebugLog("Merge rooms in cluster " + "[" + i + "]");
             i++;
             if (cluster.size() < 2) {
                 continue;
@@ -84,7 +87,8 @@ class PhaseTwoMergeRooms {
                                             double betweenCentersDistance = currentRoomCenterGlobal.getDistance(otherRoomCenterGlobal);
                                             return !visited.contains(r)
                                                     && (betweenCentersDistance <= (double) r.getWidth()
-                                                    || betweenCentersDistance <= (double) r.getHeight());
+                                                    || betweenCentersDistance <= (double) r.getHeight())
+                                                    && hasIntersects(currentRoom, r);
                                         })
                                 .forEach(toVisit::add);
                     }
@@ -137,33 +141,12 @@ class PhaseTwoMergeRooms {
                 .stream()
                 .peek(
                         cell -> {
-                            String cellInfo = String.format("cell local pos %s", cell.getPosition());
-                            //System.out.println(cellInfo);
-
-                            cellInfo = String.format("cell global pos %s", cell.getPosition().getRelativePosition(sLt));
-
-                            //System.out.println(cellInfo);
-
                             Position delta = new Position(
                                     Math.abs(fLt.getX() - cell.getPosition().getRelativePosition(sLt).getX()),
                                     Math.abs(fLt.getY() - cell.getPosition().getRelativePosition(sLt).getY())
                             );
-
-                            String deltaInfo = String.format(
-                                    """
-                                            cellXY %s
-                                            delta:\s
-                                            x = |%d - (%d + %d)|
-                                            y = |%d - (%d + %d)""",
-                                    cell.getPosition(),
-                                    fLt.getX(), cell.getPosition().getX(), sLt.getX(),
-                                    fLt.getY(), cell.getPosition().getY(), sLt.getY()
-                            );
-                            //System.out.println(deltaInfo);
-                            //System.out.println("Delta position = "+delta);
                             cell.getPosition().set(delta);
                         }).toList();
-        //System.out.println("======================================");
         HashMap<Position, Cell> newCells = new HashMap<>(first.getCells());
 
         for (Cell cell : cells) {
@@ -182,9 +165,6 @@ class PhaseTwoMergeRooms {
                 .max(Comparator.comparingInt(Position::getY))
                 .map(Position::getY).get();
 
-        /*System.out.println("New left top position: "+leftTopPosition);
-        System.out.println("New size: " + newWidth + " " + newHeight);*/
-
         Room newRoom = new Room(
                 first.getRoomId(),
                 newWidth,
@@ -192,6 +172,14 @@ class PhaseTwoMergeRooms {
                 leftTopPosition);
 
         newRoom.setCells(newCells);
+
+
+        /*newRoom.getCells()
+                .values()
+                .forEach(cell -> cell.placeObject(
+                        new Wall(new TextSprite(Character.forDigit(newRoom.getRoomId(), Character.MAX_RADIX)
+                        ))
+                ));*/
 
         return newRoom;
     }

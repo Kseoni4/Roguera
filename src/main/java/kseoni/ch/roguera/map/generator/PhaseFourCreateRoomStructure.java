@@ -14,15 +14,21 @@ import java.util.stream.Collectors;
 
 public class PhaseFourCreateRoomStructure {
     private Map<Integer, Room> rooms;
+    
+    private final MapGenerate mapGen;
 
-    public PhaseFourCreateRoomStructure(Map<Integer, Room> rooms) {
+    public PhaseFourCreateRoomStructure(MapGenerate mapGen, Map<Integer, Room> rooms) {
         this.rooms = rooms;
+        this.mapGen = mapGen;
     }
 
     public void createRoomStructure() {
-        System.out.println("====Create Room Structure====");
+        mapGen.generateDebugLog("====Create Room Structure====");
         for (Room room : rooms.values()) {
             LinkedHashSet<Position> corners = findCorners(room);
+
+            //corners.forEach(position -> room.getCell(position).placeObject(new Wall(new TextSprite('+'))));
+
             createShape(room, corners);
         }
     }

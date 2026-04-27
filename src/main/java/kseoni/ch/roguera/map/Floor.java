@@ -22,7 +22,12 @@ public class Floor {
 
     public Floor(int roomCount, int floorNumber){
         this.floorNumber = floorNumber;
-        this.rooms = new MapGenerate().generateFloor(roomCount);
+        int failedGenerations = -1;
+        while (this.rooms == null) {
+            failedGenerations++;
+            this.rooms = new MapGenerate().generateFloor(roomCount);
+        }
+        System.out.println("Failed generations before successful map "+failedGenerations);
         this.roomCount = roomCount;
         this.roomIdPointer = rooms.values().iterator().next().getRoomId();
     }
@@ -33,7 +38,13 @@ public class Floor {
 
     public void regenerate(){
         System.out.println("Regerating floor " + floorNumber);
-        this.rooms = new MapGenerate().generateFloor(roomCount);
+        this.rooms = null;
+        int failedGenerations = -1;
+        while (this.rooms == null) {
+            failedGenerations++;
+            this.rooms = new MapGenerate().generateFloor(roomCount);
+        }
+        System.out.println("Failed generations before successful map "+failedGenerations);
         this.roomIdPointer = rooms.values().iterator().next().getRoomId();
         System.out.println("New room id:"+roomIdPointer);
     }

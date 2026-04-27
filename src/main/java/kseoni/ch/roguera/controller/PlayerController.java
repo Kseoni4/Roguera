@@ -7,6 +7,7 @@ import kseoni.ch.roguera.game.entity.Scriptable;
 import kseoni.ch.roguera.map.Cell;
 import kseoni.ch.roguera.map.Dungeon;
 import kseoni.ch.roguera.map.Room;
+import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.Setter;
 
 import java.util.LinkedHashMap;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PlayerController {
+
+    private final boolean debugShowPlayerMove;
 
     private final Map<KeyType, Position> directionMap = new LinkedHashMap<>(
             Map.of(KeyType.ArrowUp, Position.BACK,
@@ -29,6 +32,7 @@ public class PlayerController {
     public PlayerController(Player player){
         this.player = player;
         this.room = Dungeon.get().currentFloor().currentRoom();
+        this.debugShowPlayerMove = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.player-movement"));
     }
 
     public void movePlayer(KeyType key){
@@ -41,9 +45,13 @@ public class PlayerController {
     }
 
     private void move(Position oldPosition, Position newPosition) {
-        String moveInfo = String.format("ROOM[%d] mv from l%s to l%s", room.getRoomId(), oldPosition, newPosition);
-        System.out.println(moveInfo);
-        //System.out.println("Move from l"+oldPosition+"g"+oldPosition.getRelativePosition(room.getRoomLeftTopPosition())+" to l"+newPosition+"g"+newPosition.getRelativePosition(room.getRoomLeftTopPosition()));
+        if(debugShowPlayerMove) {
+            String moveInfo = String.format("ROOM[%d] mv from l%s to l%s",
+                    room.getRoomId(),
+                    oldPosition,
+                    newPosition);
+            System.out.println(moveInfo);
+        }
         if(!checkCell(newPosition)){
             return;
         }

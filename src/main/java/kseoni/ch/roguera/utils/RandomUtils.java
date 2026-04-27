@@ -7,31 +7,38 @@ import lombok.Getter;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 public class RandomUtils {
 
     @Getter
-    private static SecureRandom random;
+    private static Random random;
 
     @Getter
-    private static byte[] seed;
+    private static SecureRandom strongRandom;
+
+    @Getter
+    private static long seed;
 
     static {
         init();
     }
 
     private static void init(){
-        random = new SecureRandom();
-        seed = random.generateSeed(12);
+        strongRandom = new SecureRandom();
+        seed = strongRandom.nextLong();
+        random = new Random(seed);
     }
 
-    private static void init(byte[] seed){
+    private static void init(long seed){
         RandomUtils.seed = seed;
-        random = new SecureRandom(seed);
+        random.setSeed(seed);
     }
 
-    public static void setSeed(byte[] seed){
+    public static void setSeed(long seed){
         init(seed);
     }
 
@@ -42,6 +49,4 @@ public class RandomUtils {
     public static Position getRandomPosition(int boundX, int boundY){
         return new Position(random.nextInt(0,boundX), random.nextInt(0,boundY));
     }
-
-
 }

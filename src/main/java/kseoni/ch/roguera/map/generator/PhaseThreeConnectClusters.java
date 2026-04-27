@@ -18,8 +18,11 @@ class PhaseThreeConnectClusters {
 
     private Map<Double, Set<Room>> distancesRooms = new HashMap<>();
 
-    public PhaseThreeConnectClusters(Map<Integer, Room> rooms){
+    private final MapGenerate mapGen;
+
+    public PhaseThreeConnectClusters(MapGenerate mapGen, Map<Integer, Room> rooms){
         this.rooms = rooms;
+        this.mapGen = mapGen;
     }
 
     @SneakyThrows
@@ -27,9 +30,11 @@ class PhaseThreeConnectClusters {
         // Сначала считаем дистанции между комнатами
         calculateDistances();
 
-        for (Map.Entry entry : distancesRooms.entrySet()){
-            System.out.println("Rooms: "+entry.getValue());
-            System.out.println("Distance between: "+entry.getKey());
+        if(mapGen.isDebugShowDungeonGenerate()) {
+            for (Map.Entry entry : distancesRooms.entrySet()) {
+                mapGen.generateDebugLog("Rooms: " + entry.getValue());
+                mapGen.generateDebugLog("Distance between: " + entry.getKey());
+            }
         }
 
         char doorV = AssetPool.get().getAsset("door_v");
@@ -59,9 +64,6 @@ class PhaseThreeConnectClusters {
                 Door doorInFirstRoom = new Door(new TextSprite(doorH), second.getRoomId(), first);
                 Door doorInSecondRoom = new Door(new TextSprite(doorH), first.getRoomId(), second);
 
-                doorInFirstRoom.setNextDoor(doorInSecondRoom);
-                doorInSecondRoom.setNextDoor(doorInFirstRoom);
-
                 Position doorPlaceFirst;
                 Position doorPlaceSecond;
 
@@ -72,19 +74,21 @@ class PhaseThreeConnectClusters {
                     doorPlaceFirst = findToPlaceDoorY(first, Position.BACK);
                     doorPlaceSecond = findToPlaceDoorY(second, Position.FRONT);
                 }
-                System.out.println("Find door first room place "+doorPlaceFirst);
-                System.out.println("Find door second room place "+doorPlaceSecond);
+                mapGen.generateDebugLog("Find door first room place "+doorPlaceFirst);
+                mapGen.generateDebugLog("Find door second room place "+doorPlaceSecond);
+
 
                 if(first.getCell(doorPlaceFirst).isEmpty()) {
                     first.getCell(doorPlaceFirst).placeObject(doorInFirstRoom);
+                    doorInSecondRoom.setNextDoor(doorInFirstRoom);
                     first.addDoor(doorInFirstRoom);
                 }
 
                 if(second.getCell(doorPlaceSecond).isEmpty()) {
                     second.getCell(doorPlaceSecond).placeObject(doorInSecondRoom);
+                    doorInFirstRoom.setNextDoor(doorInSecondRoom);
                     second.addDoor(doorInSecondRoom);
                 }
-
                 continue;
             }
 
@@ -96,8 +100,7 @@ class PhaseThreeConnectClusters {
                 Door doorInFirstRoom = new Door(new TextSprite(doorV), second.getRoomId(), first);
                 Door doorInSecondRoom = new Door(new TextSprite(doorV), first.getRoomId(), second);
 
-                doorInFirstRoom.setNextDoor(doorInSecondRoom);
-                doorInSecondRoom.setNextDoor(doorInFirstRoom);
+
 
                 Position doorPlaceFirst;
                 Position doorPlaceSecond;
@@ -109,16 +112,18 @@ class PhaseThreeConnectClusters {
                     doorPlaceFirst = findToPlaceDoorX(first, Position.LEFT);
                     doorPlaceSecond = findToPlaceDoorX(second, Position.RIGHT);
                 }
-                System.out.println("Find door first room place "+doorPlaceFirst);
-                System.out.println("Find door second room place "+doorPlaceSecond);
+                mapGen.generateDebugLog("Find door first room place "+doorPlaceFirst);
+                mapGen.generateDebugLog("Find door second room place "+doorPlaceSecond);
 
                 if(first.getCell(doorPlaceFirst).isEmpty()) {
                     first.getCell(doorPlaceFirst).placeObject(doorInFirstRoom);
+                    doorInSecondRoom.setNextDoor(doorInFirstRoom);
                     first.addDoor(doorInFirstRoom);
                 }
 
                 if(second.getCell(doorPlaceSecond).isEmpty()) {
                     second.getCell(doorPlaceSecond).placeObject(doorInSecondRoom);
+                    doorInFirstRoom.setNextDoor(doorInSecondRoom);
                     second.addDoor(doorInSecondRoom);
                 }
             }

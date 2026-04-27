@@ -1,9 +1,12 @@
 package kseoni.ch.roguera.utils;
 
+import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.base.GameObject;
+import kseoni.ch.roguera.game.EventLoop;
 import lombok.SneakyThrows;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -27,7 +30,12 @@ public class ObjectPool {
 
     public void removeObjectFromPool(GameObject object){
         boolean flag = pool.remove(object.getId(), object);
-        System.out.println("removed "+object+" - "+flag);
+        EventLoop.get().send(Event.raise("removed " + object + " - " + flag));
+    }
+
+    public void clearPool(){
+        pool.clear();
+        EventLoop.get().send(Event.raise("Object pool is cleared"));
     }
 
     public void putObjectIntoPool(GameObject object){
@@ -38,13 +46,12 @@ public class ObjectPool {
         return (T) pool.get(objectId);
     }
 
-/*    public void setPool(HashMap<Integer, GameObject> pool) {
-        ObjectPool.pool = pool;
-    }*/
-
     @SneakyThrows
     public void dumpPoolIntoFile(){
-        BufferedWriter writer = new BufferedWriter(new FileWriter(LocalDate.now()+"_objects.txt"));
+
+        File file = new File("");
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath()+"/"+LocalDate.now()+"_objects.txt"));
 
         StringBuilder builder = new StringBuilder();
 

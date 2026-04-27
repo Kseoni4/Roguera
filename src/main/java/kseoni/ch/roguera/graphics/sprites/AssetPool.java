@@ -4,6 +4,9 @@ import lombok.SneakyThrows;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -26,7 +29,8 @@ public class AssetPool {
 
     @SneakyThrows
     public void loadAssets(String filename){
-        FileReader fileReader = new FileReader(filename);
+
+        Reader fileReader = new InputStreamReader(getClass().getResourceAsStream(filename));
 
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 

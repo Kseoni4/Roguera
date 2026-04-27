@@ -10,11 +10,14 @@ import kseoni.ch.roguera.controller.PlayerController;
 import kseoni.ch.roguera.game.creature.Player;
 import kseoni.ch.roguera.game.entity.Scriptable;
 import kseoni.ch.roguera.graphics.render.Window;
+import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
 import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.map.*;
 import kseoni.ch.roguera.graphics.ui.MapDrawer;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 import kseoni.ch.roguera.utils.Clock;
+import kseoni.ch.roguera.utils.ObjectPool;
+import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
@@ -36,10 +39,14 @@ public class GameLoop {
 
     private Room room;
 
-    private final Map<Character, Scriptable<?>> keyBindings = new HashMap<>(Map.of(
-            'g', (G) -> regenerateMap(),
-            'r', (G) -> redrawFloor(floor),
-            'q', (G) -> Window.get().close()
+    private final boolean debugShowKeyInput;
+
+    private final HeaderDrawer headerDrawer;
+
+    private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
+            'g', this::regenerateMap,
+            'r', () -> redrawFloor(floor),
+            'q', () -> Window.get().close()
     ));
 
     public GameLoop(){
@@ -50,6 +57,8 @@ public class GameLoop {
         dungeon = Dungeon.get();
         floor = dungeon.currentFloor();
         room = floor.currentRoom();
+        debugShowKeyInput = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.key-input"));
+        headerDrawer = new HeaderDrawer(player);
     }
 
     public void init(){
@@ -66,38 +75,61 @@ public class GameLoop {
 
         while (Window.get().isNotClosed()) {
 
-            for (Event<?> event : EventLoop.get().pollEvents()){
-                System.out.println("Get event "+event);
+            pollingEvents();
 
-                if(event.getValue() instanceof KeyStroke keyRaw){
-                    System.out.println("Get input "+keyRaw);
-                    KeyType key = keyRaw.getKeyType();
+            headerDrawer.draw();
+            Window.get().refresh();
 
-                    if(keyRaw.getKeyType().equals(KeyType.Character)) {
-                        if(keyBindings.containsKey(keyRaw.getCharacter()))
-                            keyBindings.get(keyRaw.getCharacter()).doAction(null);
-                    }
-
-                    if(keyRaw.getKeyType().toString().startsWith("Arrow"))
-                        playerController.movePlayer(key);
-
-                    if(Dungeon.get().currentFloor().currentRoom() != room){
-                        drawRoom(room);
-                        room = Dungeon.get().currentFloor().currentRoom();
-                    }
-                    drawRoom(room);
-                }
-                EventLoop.get().getEvents().remove(event);
-            }
             Clock.getInstance().tick(frameStart);
             frameStart = System.nanoTime();
 
         }
         Window.get().close();
 
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long usedMemory = totalMemory - freeMemory;
+
+        System.out.println("Used Memory: " + usedMemory / 1024 + " KB");
+        System.out.println("Free Memory: " + freeMemory / 1024 + " KB");
+        System.out.println("Total Memory: " + totalMemory / 1024 + " KB");
+
+    }
+
+    private void pollingEvents(){
+        for (Event<?> event : EventLoop.get().pollEvents()) {
+
+            if(event.getValue() instanceof KeyStroke keyRaw){
+                if(debugShowKeyInput)
+                    System.out.println("Get input "+keyRaw);
+
+                if(keyRaw.getKeyType().equals(KeyType.Character)) {
+                    char key = Character.toLowerCase(keyRaw.getCharacter());
+
+                    if(keyBindings.containsKey(key))
+                        keyBindings.get(key).run();
+                }
+
+                if(keyRaw.getKeyType().toString().startsWith("Arrow")) {
+                    KeyType keyType = keyRaw.getKeyType();
+                    playerController.movePlayer(keyType);
+                }
+
+                if(Dungeon.get().currentFloor().currentRoom() != room) {
+                    drawRoom(room);
+                    room = Dungeon.get().currentFloor().currentRoom();
+                }
+                drawRoom(room);
+            }
+            EventLoop.get().getEvents().remove(event);
+        }
     }
 
     private void drawRoom(Room room) {
+        if(Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.draw-room")))
+            System.out.println("Draw room "+room);
+
         for (Cell cell : room.getCells().values()) {
             mapDrawer.draw(cell, room.getRoomLeftTopPosition());
         }
@@ -107,7 +139,6 @@ public class GameLoop {
     public void redrawFloor(Floor floor) {
         mapDrawer.clear();
         for(Room room : floor.getRooms()){
-            System.out.println("Draw room "+room);
             drawRoom(room);
         }
         mapDrawer.refresh();

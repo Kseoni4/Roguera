@@ -5,9 +5,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
-import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
-import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+import com.googlecode.lanterna.terminal.swing.*;
 import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.game.EventLoop;
 import kseoni.ch.roguera.utils.SettingsLoader;
@@ -15,6 +13,7 @@ import lombok.SneakyThrows;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
@@ -27,7 +26,9 @@ public class Window {
 
     private final HashMap<TGLayer, RenderLayer> graphicsMap;
 
-    private final SwingTerminalFrame swingTerminalFrame;
+    private boolean isClosed;
+
+    //private final SwingTerminalFrame swingTerminalFrame;
 
     @SneakyThrows
     private Window(int width, int height, String title) {
@@ -38,7 +39,7 @@ public class Window {
         Properties properties = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
 
         Font gameFont = Font.createFont(
-                Font.TRUETYPE_FONT, new File(properties.getProperty("font.filepath"))
+                Font.TRUETYPE_FONT, getClass().getResourceAsStream(properties.getProperty("font.filepath"))
         ).deriveFont(
                 Float.parseFloat(properties.getProperty("font.size"))
         );
@@ -52,6 +53,11 @@ public class Window {
 
         factory.setTerminalEmulatorFontConfiguration(fontConfiguration);
 
+        factory.setPreferTerminalEmulator(true);
+
+        factory.setTerminalEmulatorFrameAutoCloseTrigger(
+                TerminalEmulatorAutoCloseTrigger.CloseOnExitPrivateMode
+        );
 
         this.graphicsMap = new HashMap<>();
 
@@ -67,7 +73,7 @@ public class Window {
         this.terminal.setCursorPosition(null);
         this.terminal.startScreen();
 
-        this.swingTerminalFrame = (SwingTerminalFrame) terminal.getTerminal();
+        //this.swingTerminalFrame = terminal.getTerminal();
     }
 
     public static Window create(int width, int height, String title){
@@ -101,12 +107,13 @@ public class Window {
 
     @SneakyThrows
     public boolean isNotClosed(){
-        return swingTerminalFrame.isDisplayable();
+        return !this.isClosed;
     }
 
     @SneakyThrows
     public void close(){
-        terminal.close();
+        terminal.stopScreen();
+        this.isClosed = true;
         EventLoop.get().send(Event.raise("Window closed"));
     }
     @SneakyThrows
@@ -125,4 +132,6 @@ public class Window {
     public int getHeight(){
         return terminal.getTerminalSize().getRows();
     }
+
+    public TerminalScreen getRawScreen() { return terminal; }
 }

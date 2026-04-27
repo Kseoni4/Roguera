@@ -8,49 +8,77 @@ import kseoni.ch.roguera.utils.ObjectPool;
 import kseoni.ch.roguera.utils.RandomUtils;
 import kseoni.ch.roguera.utils.SettingsLoader;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Properties;
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RogueraLauncher {
+
+    private static boolean debugShowSystemInfo;
 
     public static void main(String[] args) {
         System.out.println("========================ROGUERA===========================");
 
-        showSystemData();
+        Properties settings = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
+        String version = settings.getProperty("game.version");
 
-        Properties properties = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
-        String version = properties.getProperty("game.version");
+
+        if(Boolean.parseBoolean(settings.getProperty("debug.show.system-info")))
+            showSystemData();
 
         System.out.println("===Game Version===");
         System.out.println(version);
 
         System.out.println("===Load settings===");
 
-        for (Map.Entry entry : properties.entrySet()){
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
+        var props = new LinkedHashSet<>(settings.entrySet());
 
-        AssetPool.get().loadAssets("src/main/resources/char-assets.rca");
+        props.stream().sorted(Map.Entry.comparingByKey(Comparator.comparing(String::valueOf).reversed())).forEach(
+                entry ->  System.out.println(entry.getKey() + " : " + entry.getValue())
+        );
 
-        int width = Integer.parseInt(properties.getProperty("window.size.width"));
-        int height = Integer.parseInt(properties.getProperty("window.size.height"));
+        AssetPool.get().loadAssets("/char-assets.rca");
+
+        int width = Integer.parseInt(settings.getProperty("window.size.width"));
+        int height = Integer.parseInt(settings.getProperty("window.size.height"));
 
         Window window = Window.create(width, height, version);
 
-        System.out.println("===Initializing game loop===");
+        if(!settings.getProperty("game.random.seed").isEmpty()){
+            RandomUtils.setSeed(Long.parseLong(settings.getProperty("game.random.seed")));
+        }
+
+        long seed = RandomUtils.getSeed();
+
+        System.out.println("Seed = " + seed);
+
+        System.out.println("===Initializing Game Loop===");
 
         GameLoop gameLoop = new GameLoop();
 
         gameLoop.init();
 
+        System.out.println("===Start Game Loop===");
+
         gameLoop.start();
+
+        System.out.println("===Game Loop Ended===");
 
         window.refresh();
 
-        ObjectPool.get().dumpPoolIntoFile();
+        System.out.println("===Dump logs into file===");
 
-        EventLoop.get().dumpEventLog();
+        boolean debugDumpEvents = Boolean.parseBoolean(settings.getProperty("debug.dump.events"));
+
+        boolean debugDumpObjects = Boolean.parseBoolean(settings.getProperty("debug.dump.objects"));
+
+        if(debugDumpObjects)
+            ObjectPool.get().dumpPoolIntoFile();
+
+        if(debugDumpEvents)
+            EventLoop.get().dumpEventLog();
     }
 
     private static void showSystemData(){
@@ -66,6 +94,7 @@ public class RogueraLauncher {
         String userDir = System.getProperty("user.dir");
         String javaClassPath = System.getProperty("java.class.path");
         String userLanguage = System.getProperty("user.language");
+
 
         System.out.println("Operating System: " + w);
         System.out.println("OS Version: " + osVersion);

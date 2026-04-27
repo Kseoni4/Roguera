@@ -61,7 +61,7 @@ public abstract class GameObject implements Serializable {
     public String toString() {
         return "[GameObject]"
                 .concat("[").concat(getClass().getName()).concat("]")
-                .concat(position.toString())
+                .concat(String.valueOf(position))
                 .concat("ID:")
                 .concat(String.valueOf(id))
                 .concat("-")

@@ -1,6 +1,7 @@
 package kseoni.ch.roguera.map;
 
 import kseoni.ch.roguera.base.GameObject;
+import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 
 public class Wall extends GameObject {
@@ -12,6 +13,7 @@ public class Wall extends GameObject {
 
     public Wall(TextSprite sprite){
         super("Wall");
+        sprite.setSpriteColor(TextSprite.ColorLayer.BACKGROUND, Palette.SURFACE0);
         this.setTextSprite(sprite);
     }
 }

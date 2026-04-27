@@ -3,12 +3,14 @@ package kseoni.ch.roguera.graphics.sprites;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
+import kseoni.ch.roguera.graphics.Palette;
 import lombok.Getter;
 
 @Getter
 public class TextSprite {
 
-    public static final TextSprite DEFAULT_SPRITE = new TextSprite();
+    public static final TextSprite DEFAULT_SPRITE =
+            new TextSprite(' ', Palette.TEXT, Palette.BASE);
 
     private TextCharacter sprite;
 
