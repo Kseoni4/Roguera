@@ -15,9 +15,6 @@ import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -31,14 +28,8 @@ public class Window {
 
     private boolean isClosed;
 
-    //private final SwingTerminalFrame swingTerminalFrame;
-
     @SneakyThrows
-    private Window(int width, int height, String title) {
-        DefaultTerminalFactory factory = new DefaultTerminalFactory();
-        factory.setInitialTerminalSize(new TerminalSize(width, height));
-        factory.setTerminalEmulatorTitle(title);
-
+    private Window(String title) {
         Properties properties = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
 
         Font gameFont = Font.createFont(
@@ -47,29 +38,26 @@ public class Window {
                 Float.parseFloat(properties.getProperty("font.size"))
         );
 
-
         SwingTerminalFontConfiguration fontConfiguration = new SwingTerminalFontConfiguration(
                 false,
                 AWTTerminalFontConfiguration.BoldMode.NOTHING,
                 gameFont
         );
 
+        TerminalSize gridSize = resolveGridSize(properties, fontConfiguration);
+
+        DefaultTerminalFactory factory = new DefaultTerminalFactory();
+        factory.setInitialTerminalSize(gridSize);
+        factory.setTerminalEmulatorTitle(title);
         factory.setTerminalEmulatorFontConfiguration(fontConfiguration);
-
         factory.setPreferTerminalEmulator(true);
-
         factory.setTerminalEmulatorFrameAutoCloseTrigger(
                 TerminalEmulatorAutoCloseTrigger.CloseOnExitPrivateMode
         );
 
         this.graphicsMap = new HashMap<>();
-
         this.terminal = factory.createScreen();
-        this.graphicsMap.put(TGLayer.BACKGROUND, new RenderLayer(this.terminal
-                .newTextGraphics()
-                //.newTextGraphics(new TerminalPosition(0,0),
-                //        new TerminalSize(50, 30)))
-        ));
+        this.graphicsMap.put(TGLayer.BACKGROUND, new RenderLayer(this.terminal.newTextGraphics()));
         this.graphicsMap.put(TGLayer.FOREGROUND, new RenderLayer(this.terminal.newTextGraphics()));
         this.graphicsMap.put(TGLayer.UI, new RenderLayer(this.terminal.newTextGraphics()));
 
@@ -77,8 +65,39 @@ public class Window {
         this.terminal.startScreen();
 
         fillBackdrop();
+    }
 
-        //this.swingTerminalFrame = terminal.getTerminal();
+    /**
+     * Lanterna's TerminalSize is grid (cols × rows), not pixels. Этот метод позволяет
+     * указать размер окна одним из двух способов:
+     *
+     *  - window.pixel.width / window.pixel.height — физические пиксели; cols/rows
+     *    рассчитываются из метрик шрифта (cell = fontWidth × fontHeight).
+     *  - window.size.width / window.size.height — колонки/строки напрямую (fallback,
+     *    если pixel.* пустые).
+     */
+    private TerminalSize resolveGridSize(Properties props, SwingTerminalFontConfiguration font) {
+        int charW = font.getFontWidth();
+        int charH = font.getFontHeight();
+
+        String pixW = props.getProperty("window.pixel.width", "").trim();
+        String pixH = props.getProperty("window.pixel.height", "").trim();
+
+        int cols, rows;
+        if (!pixW.isEmpty() && !pixH.isEmpty()) {
+            cols = Math.max(1, Integer.parseInt(pixW) / charW);
+            rows = Math.max(1, Integer.parseInt(pixH) / charH);
+        } else {
+            cols = Integer.parseInt(props.getProperty("window.size.width"));
+            rows = Integer.parseInt(props.getProperty("window.size.height"));
+        }
+
+        System.out.printf(
+                "Window grid: %d×%d (cell %d×%dpx ≈ %d×%dpx)%n",
+                cols, rows, charW, charH, cols * charW, rows * charH
+        );
+
+        return new TerminalSize(cols, rows);
     }
 
     private void fillBackdrop() {
@@ -91,63 +110,72 @@ public class Window {
         );
     }
 
-    public static Window create(int width, int height, String title){
-        if(INSTANCE == null){
-            INSTANCE = new Window(width, height, title);
+    public static Window create(String title) {
+        if (INSTANCE == null) {
+            INSTANCE = new Window(title);
+            TerminalSize size = INSTANCE.terminal.getTerminalSize();
             EventLoop.get().send(
-                    Event.raise(String.format("Window W: %d H: %d has been created", width, height))
+                    Event.raise(String.format(
+                            "Window grid %d×%d created",
+                            size.getColumns(), size.getRows()
+                    ))
             );
         }
         return INSTANCE;
     }
 
-    public static Window get(){
-        try{
-            if(INSTANCE == null){
+    public static Window get() {
+        try {
+            if (INSTANCE == null) {
                 throw new IllegalStateException("Window hasn't been initialized yet.");
             }
-        } catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
         }
         return INSTANCE;
     }
 
-    public RenderLayer getRenderLayer(TGLayer layer){
+    public RenderLayer getRenderLayer(TGLayer layer) {
         return graphicsMap.get(layer);
     }
+
     @SneakyThrows
-    public KeyStroke keyInput(){
+    public KeyStroke keyInput() {
         return terminal.pollInput();
     }
 
     @SneakyThrows
-    public boolean isNotClosed(){
+    public boolean isNotClosed() {
         return !this.isClosed;
     }
 
     @SneakyThrows
-    public void close(){
+    public void close() {
         terminal.stopScreen();
         this.isClosed = true;
         EventLoop.get().send(Event.raise("Window closed"));
     }
+
     @SneakyThrows
-    public void clearScreen(){
+    public void clearScreen() {
         terminal.clear();
         fillBackdrop();
     }
+
     @SneakyThrows
-    public void refresh(){
+    public void refresh() {
         terminal.refresh();
     }
 
-    public int getWight(){
+    public int getWight() {
         return terminal.getTerminalSize().getColumns();
     }
 
-    public int getHeight(){
+    public int getHeight() {
         return terminal.getTerminalSize().getRows();
     }
 
-    public TerminalScreen getRawScreen() { return terminal; }
+    public TerminalScreen getRawScreen() {
+        return terminal;
+    }
 }

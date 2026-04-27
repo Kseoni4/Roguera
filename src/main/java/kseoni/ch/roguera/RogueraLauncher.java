@@ -41,10 +41,7 @@ public class RogueraLauncher {
 
         AssetPool.get().loadAssets("/char-assets.rca");
 
-        int width = Integer.parseInt(settings.getProperty("window.size.width"));
-        int height = Integer.parseInt(settings.getProperty("window.size.height"));
-
-        Window window = Window.create(width, height, version);
+        Window window = Window.create(version);
 
         if(!settings.getProperty("game.random.seed").isEmpty()){
             RandomUtils.setSeed(Long.parseLong(settings.getProperty("game.random.seed")));
