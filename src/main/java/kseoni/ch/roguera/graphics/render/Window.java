@@ -1,13 +1,16 @@
 package kseoni.ch.roguera.graphics.render;
 
+import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.*;
 import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.game.EventLoop;
+import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
@@ -73,7 +76,19 @@ public class Window {
         this.terminal.setCursorPosition(null);
         this.terminal.startScreen();
 
+        fillBackdrop();
+
         //this.swingTerminalFrame = terminal.getTerminal();
+    }
+
+    private void fillBackdrop() {
+        TextGraphics gfx = terminal.newTextGraphics();
+        gfx.setBackgroundColor(Palette.BASE);
+        gfx.fillRectangle(
+                TerminalPosition.TOP_LEFT_CORNER,
+                terminal.getTerminalSize(),
+                new TextCharacter(' ').withBackgroundColor(Palette.BASE)
+        );
     }
 
     public static Window create(int width, int height, String title){
@@ -119,6 +134,7 @@ public class Window {
     @SneakyThrows
     public void clearScreen(){
         terminal.clear();
+        fillBackdrop();
     }
     @SneakyThrows
     public void refresh(){
