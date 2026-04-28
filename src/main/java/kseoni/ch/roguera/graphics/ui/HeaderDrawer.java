@@ -1,38 +1,43 @@
 package kseoni.ch.roguera.graphics.ui;
 
 import com.googlecode.lanterna.SGR;
-import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.screen.TerminalScreen;
 import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.game.creature.Player;
+import kseoni.ch.roguera.graphics.Palette;
+import kseoni.ch.roguera.graphics.render.RenderLayer;
+import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
+import kseoni.ch.roguera.graphics.ui.layout.Region;
 import kseoni.ch.roguera.map.Dungeon;
 import kseoni.ch.roguera.utils.Clock;
-import kseoni.ch.roguera.utils.SettingsLoader;
 import kseoni.ch.roguera.utils.Convert;
+import kseoni.ch.roguera.utils.SettingsLoader;
 
+/**
+ * Однострочный статус-бар: слева — название и версия, справа — FPS и
+ * глобальные координаты игрока. Рисуется в {@link Region}, выданный
+ * {@link kseoni.ch.roguera.graphics.ui.layout.Layout}, на UI-слое.
+ */
 public class HeaderDrawer {
 
-    // Палитра в стиле Catppuccin Mocha — цельный subtle-look
-    private static final TextColor BG       = new TextColor.RGB(49, 50, 68);   // surface0
-    private static final TextColor FG       = new TextColor.RGB(205, 214, 244); // text
-    private static final TextColor MUTED    = new TextColor.RGB(127, 132, 156); // overlay1
-    private static final TextColor ACCENT   = new TextColor.RGB(203, 166, 247); // mauve
-    private static final TextColor OK       = new TextColor.RGB(166, 227, 161); // green
-    private static final TextColor WARN     = new TextColor.RGB(249, 226, 175); // yellow
-    private static final TextColor BAD      = new TextColor.RGB(243, 139, 168); // red
+    private static final TextColor BG     = Palette.SURFACE0;
+    private static final TextColor FG     = Palette.TEXT;
+    private static final TextColor MUTED  = Palette.OVERLAY;
+    private static final TextColor ACCENT = Palette.MAUVE;
+    private static final TextColor OK     = Palette.GREEN;
+    private static final TextColor WARN   = Palette.YELLOW;
+    private static final TextColor BAD    = Palette.RED;
 
-    private final TextGraphics gfx;
-    private final int width;
+    private final RenderLayer layer;
+    private final Region region;
+    private final Player player;
     private final String title;
     private final String version;
-    private final Player player;
 
-    public HeaderDrawer(Player player) {
-        this.gfx = Window.get().getRawScreen().newTextGraphics();
-        this.width = Window.get().getWight();
+    public HeaderDrawer(Player player, Region region) {
+        this.layer = Window.get().getRenderLayer(TGLayer.UI);
+        this.region = region;
         this.player = player;
 
         String full = SettingsLoader.getSettingValue("game.version");
@@ -47,45 +52,33 @@ public class HeaderDrawer {
     }
 
     public void draw() {
-        // 1. Заливка фона
-        gfx.setBackgroundColor(BG);
-        gfx.fillRectangle(
-                new com.googlecode.lanterna.TerminalPosition(0, 0),
-                new com.googlecode.lanterna.TerminalSize(width, 1),
-                new TextCharacter(' ').withBackgroundColor(BG)
-        );
+        int y = region.y();
 
-        // 2. Слева — название и версия
-        int x = 1;
-        x = put(" ", x, FG);
-        x = put(title, x, ACCENT, SGR.BOLD);
-        x = put("  ", x, FG);
-        x = put(version, x, MUTED);
+        // 1. Заливка фона строки.
+        layer.fill(region, ' ', FG, BG);
 
-        // 3. Справа — FPS и координаты
-        String fpsText = String.format("FPS %3.0f", Clock.getInstance().getCurrentFps());
-        Position playerPos = player.getPosition();
+        // 2. Слева: title + version.
+        int x = region.x() + 1;
+        layer.putString(x, y, title, ACCENT, BG, SGR.BOLD);
+        x += title.length();
+        x += 2; // разделитель
+        layer.putString(x, y, version, MUTED, BG);
+
+        // 3. Справа: FPS + глобальная позиция игрока.
+        double fps = Clock.getInstance().getCurrentFps();
+        String fpsText = String.format("FPS %3.0f", fps);
+
         Position globalPos = Convert.toGlobalPosition(
                 Dungeon.get().currentFloor().currentRoom().getRoomLeftTopPosition(),
-                playerPos
+                player.getPosition()
         );
         String posText = String.format("@ %d,%d", globalPos.getX(), globalPos.getY());
 
         String right = fpsText + "  " + posText + " ";
-        int rightX = width - right.length();
+        int rightX = region.right() - right.length();
 
-        put(fpsText, rightX, fpsColor(Clock.getInstance().getCurrentFps()));
-        put("  ", rightX + fpsText.length(), FG);
-        put(posText, rightX + fpsText.length() + 2, OK);
-    }
-
-    private int put(String text, int x, TextColor fg, SGR... modifiers) {
-        gfx.setForegroundColor(fg);
-        gfx.setBackgroundColor(BG);
-        for (SGR m : modifiers) gfx.enableModifiers(m);
-        gfx.putString(x, 0, text);
-        for (SGR m : modifiers) gfx.disableModifiers(m);
-        return x + text.length();
+        layer.putString(rightX, y, fpsText, fpsColor(fps), BG);
+        layer.putString(rightX + fpsText.length() + 2, y, posText, OK, BG);
     }
 
     private TextColor fpsColor(double fps) {

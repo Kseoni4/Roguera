@@ -9,8 +9,10 @@ import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.controller.PlayerController;
 import kseoni.ch.roguera.game.creature.Player;
 import kseoni.ch.roguera.game.entity.Scriptable;
+import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
+import kseoni.ch.roguera.graphics.ui.layout.Layout;
 import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.map.*;
 import kseoni.ch.roguera.graphics.ui.MapDrawer;
@@ -41,6 +43,8 @@ public class GameLoop {
 
     private final boolean debugShowKeyInput;
 
+    private final Layout layout;
+
     private final HeaderDrawer headerDrawer;
 
     private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
@@ -51,14 +55,15 @@ public class GameLoop {
 
     public GameLoop(){
         mapDrawer = new MapDrawer();
-        player = new Player("Player", new TextSprite('@', TextColor.ANSI.GREEN_BRIGHT, null));
+        player = new Player("Player", new TextSprite('@', TextColor.ANSI.GREEN_BRIGHT, Palette.BASE));
         playerController = new PlayerController(player);
         player.setPlayerController(playerController);
         dungeon = Dungeon.get();
         floor = dungeon.currentFloor();
         room = floor.currentRoom();
         debugShowKeyInput = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.key-input"));
-        headerDrawer = new HeaderDrawer(player);
+        layout = new Layout(Window.get().getWight(), Window.get().getHeight());
+        headerDrawer = new HeaderDrawer(player, layout.getHeader());
     }
 
     public void init(){
