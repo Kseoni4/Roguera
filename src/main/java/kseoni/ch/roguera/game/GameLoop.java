@@ -157,7 +157,6 @@ public class GameLoop {
         for (Cell cell : room.getCells().values()) {
             mapDrawer.draw(cell, room.getRoomLeftTopPosition());
         }
-        mapDrawer.refresh();
     }
 
     public void redrawFloor(Floor floor) {
