@@ -2,6 +2,7 @@ package kseoni.ch.roguera.map.generator;
 
 import kseoni.ch.roguera.base.Position;
 import kseoni.ch.roguera.game.entity.Door;
+import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 import kseoni.ch.roguera.map.Cell;
@@ -61,8 +62,8 @@ class PhaseThreeConnectClusters {
                     first.getRoomLeftTopPosition().getRelativePosition(first.getWidth(),0))
             ){
 
-                Door doorInFirstRoom = new Door(new TextSprite(doorH), second.getRoomId(), first);
-                Door doorInSecondRoom = new Door(new TextSprite(doorH), first.getRoomId(), second);
+                Door doorInFirstRoom = createDoor(doorH, second, first);
+                Door doorInSecondRoom = createDoor(doorH, first, second);
 
                 Position doorPlaceFirst;
                 Position doorPlaceSecond;
@@ -97,8 +98,8 @@ class PhaseThreeConnectClusters {
                     first.getRoomLeftTopPosition(),
                     first.getRoomLeftTopPosition().getRelativePosition(0,first.getHeight()))
             ){
-                Door doorInFirstRoom = new Door(new TextSprite(doorV), second.getRoomId(), first);
-                Door doorInSecondRoom = new Door(new TextSprite(doorV), first.getRoomId(), second);
+                Door doorInFirstRoom = createDoor(doorV, second, first);
+                Door doorInSecondRoom = createDoor(doorV, first, second);
 
 
 
@@ -128,6 +129,10 @@ class PhaseThreeConnectClusters {
                 }
             }
         }
+    }
+
+    private static Door createDoor(char doorSprite, Room secondRoom, Room firstRoom) {
+        return new Door(new TextSprite(doorSprite, null, Palette.BASE), secondRoom.getRoomId(), firstRoom);
     }
 
     private Position findToPlaceDoorX(Room room, Position direction){
