@@ -23,6 +23,7 @@ public class EventLoop {
 
     private final ExecutorService executorService;
 
+    @Getter
     private final List<String> eventLog;
 
     @Getter

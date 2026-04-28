@@ -13,7 +13,9 @@ import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
+import kseoni.ch.roguera.graphics.ui.EventsSidebar;
 import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
+import kseoni.ch.roguera.graphics.ui.PlayerSidebar;
 import kseoni.ch.roguera.graphics.ui.layout.BorderStyle;
 import kseoni.ch.roguera.graphics.ui.layout.Camera;
 import kseoni.ch.roguera.graphics.ui.layout.Layout;
@@ -57,6 +59,10 @@ public class GameLoop {
 
     private final HeaderDrawer headerDrawer;
 
+    private final PlayerSidebar playerSidebar;
+
+    private final EventsSidebar eventsSidebar;
+
     private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
             'g', this::regenerateMap,
             'r', () -> redrawFloor(floor),
@@ -76,6 +82,8 @@ public class GameLoop {
         room = floor.currentRoom();
         debugShowKeyInput = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.key-input"));
         headerDrawer = new HeaderDrawer(player, layout.getHeader());
+        playerSidebar = new PlayerSidebar(layout.getSidebarLeft(), player);
+        eventsSidebar = new EventsSidebar(layout.getSidebarRight());
     }
 
     public void init(){
@@ -101,6 +109,8 @@ public class GameLoop {
             pollingEvents();
 
             headerDrawer.draw();
+            playerSidebar.render();
+            eventsSidebar.render();
             Window.get().refresh();
 
             Clock.getInstance().tick(frameStart);
