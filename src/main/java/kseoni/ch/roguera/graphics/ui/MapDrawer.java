@@ -1,32 +1,38 @@
 package kseoni.ch.roguera.graphics.ui;
 
 import kseoni.ch.roguera.base.Position;
+import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
+import kseoni.ch.roguera.graphics.ui.layout.Region;
 import kseoni.ch.roguera.map.Cell;
 
-public class MapDrawer implements Drawer<Cell>{
-
-    private final static int HEADER_OFFSET_Y = 1;
+/**
+ * Рисует ячейки карты на BACKGROUND-слое внутри переданного {@link Region}.
+ * Координаты world → screen: (x * 2, y) + offset региона.
+ *
+ * {@link #clear()} заливает только map-регион, не затрагивая header / sidebar / footer.
+ */
+public class MapDrawer implements Drawer<Cell> {
 
     private final RenderLayer mapLayer;
+    private final Region region;
 
-    public MapDrawer(){
-        mapLayer = Window.get().getRenderLayer(TGLayer.BACKGROUND);
+    public MapDrawer(Region region) {
+        this.mapLayer = Window.get().getRenderLayer(TGLayer.BACKGROUND);
+        this.region = region;
     }
 
     private Position toScreen(Position world) {
-        return new Position(world.getX() * 2, world.getY());
+        return new Position(region.x() + world.getX() * 2, region.y() + world.getY());
     }
 
     @Override
     public void draw(Cell object, Position relativePosition) {
-
         Position screen = toScreen(object.getPosition().getRelativePosition(relativePosition));
-
         TextSprite sprite = object.getObject().getTextSprite();
 
         mapLayer.drawSpriteOn(sprite, screen);
@@ -40,16 +46,14 @@ public class MapDrawer implements Drawer<Cell>{
                         sprite.getSpriteColor(TextSprite.ColorLayer.BACKGROUND)),
                 new Position(screen.getX() + 1, screen.getY())
         );
-//        relativePosition = relativePosition.getRelativePosition(0, HEADER_OFFSET_Y);
-//        mapLayer.drawSpriteOn(object.getObject().getTextSprite(),
-//                object.getPosition().getRelativePosition(relativePosition));
     }
 
     @Override
     public void draw(Cell object) {
         mapLayer.drawSpriteOn(
                 object.getObject().getTextSprite(),
-                object.getPosition().getRelativePosition(0, HEADER_OFFSET_Y));
+                toScreen(object.getPosition())
+        );
     }
 
     @Override
@@ -57,8 +61,9 @@ public class MapDrawer implements Drawer<Cell>{
         Window.get().refresh();
     }
 
+    /** Заливает регион карты Palette.BASE на BACKGROUND-слое. UI-слой (рамка, header) не трогается. */
     @Override
     public void clear() {
-        Window.get().clearScreen();
+        mapLayer.fill(region, ' ', Palette.SUBTEXT, Palette.BASE);
     }
 }

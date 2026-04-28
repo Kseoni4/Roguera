@@ -10,9 +10,13 @@ import kseoni.ch.roguera.controller.PlayerController;
 import kseoni.ch.roguera.game.creature.Player;
 import kseoni.ch.roguera.game.entity.Scriptable;
 import kseoni.ch.roguera.graphics.Palette;
+import kseoni.ch.roguera.graphics.render.RenderLayer;
+import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
+import kseoni.ch.roguera.graphics.ui.layout.BorderStyle;
 import kseoni.ch.roguera.graphics.ui.layout.Layout;
+import kseoni.ch.roguera.graphics.ui.parts.UIFrame;
 import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.map.*;
 import kseoni.ch.roguera.graphics.ui.MapDrawer;
@@ -45,6 +49,8 @@ public class GameLoop {
 
     private final Layout layout;
 
+    private final UIFrame mapFrame;
+
     private final HeaderDrawer headerDrawer;
 
     private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
@@ -54,7 +60,9 @@ public class GameLoop {
     ));
 
     public GameLoop(){
-        mapDrawer = new MapDrawer();
+        layout = new Layout(Window.get().getWight(), Window.get().getHeight());
+        mapDrawer = new MapDrawer(layout.getMain().inset(1));
+        mapFrame = new UIFrame(layout.getMain(), BorderStyle.SHARP, "Map");
         player = new Player("Player", new TextSprite('@', TextColor.ANSI.GREEN_BRIGHT, Palette.BASE));
         playerController = new PlayerController(player);
         player.setPlayerController(playerController);
@@ -62,13 +70,13 @@ public class GameLoop {
         floor = dungeon.currentFloor();
         room = floor.currentRoom();
         debugShowKeyInput = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.key-input"));
-        layout = new Layout(Window.get().getWight(), Window.get().getHeight());
         headerDrawer = new HeaderDrawer(player, layout.getHeader());
     }
 
     public void init(){
         player.setPosition(new Position(1,2));
         room.getCell(player.getPosition()).placeObject(player);
+        mapFrame.render(Window.get().getRenderLayer(TGLayer.UI));
         redrawFloor(floor);
     }
 
