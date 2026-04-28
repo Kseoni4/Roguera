@@ -14,6 +14,7 @@ import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.ui.EventsSidebar;
+import kseoni.ch.roguera.graphics.ui.FooterDrawer;
 import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
 import kseoni.ch.roguera.graphics.ui.PlayerSidebar;
 import kseoni.ch.roguera.graphics.ui.layout.BorderStyle;
@@ -63,6 +64,8 @@ public class GameLoop {
 
     private final EventsSidebar eventsSidebar;
 
+    private final FooterDrawer footerDrawer;
+
     private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
             'g', this::regenerateMap,
             'r', () -> redrawFloor(floor),
@@ -84,6 +87,7 @@ public class GameLoop {
         headerDrawer = new HeaderDrawer(player, layout.getHeader());
         playerSidebar = new PlayerSidebar(layout.getSidebarLeft(), player);
         eventsSidebar = new EventsSidebar(layout.getSidebarRight());
+        footerDrawer = new FooterDrawer(layout.getFooter());
     }
 
     public void init(){
@@ -111,6 +115,7 @@ public class GameLoop {
             headerDrawer.draw();
             playerSidebar.render();
             eventsSidebar.render();
+            footerDrawer.draw();
             Window.get().refresh();
 
             Clock.getInstance().tick(frameStart);
