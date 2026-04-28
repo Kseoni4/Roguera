@@ -100,6 +100,11 @@ public class GameLoop {
         camera.centerOn(playerWorldPos());
         mapFrame.render(Window.get().getRenderLayer(TGLayer.UI));
         redrawFloor(floor);
+
+        // Статичная UI-обвязка рисуется один раз; перерисовка только при изменениях.
+        footerDrawer.draw();
+        playerSidebar.render();
+        eventsSidebar.render();
     }
 
     private Position playerWorldPos() {
@@ -118,9 +123,6 @@ public class GameLoop {
 
             animationDrawer.draw(System.currentTimeMillis(), floor, room);
             headerDrawer.draw();
-            playerSidebar.render();
-            eventsSidebar.render();
-            footerDrawer.draw();
             Window.get().refresh();
 
             Clock.getInstance().tick(frameStart);
@@ -165,6 +167,8 @@ public class GameLoop {
 
                 camera.follow(playerWorldPos());
                 redrawFloor(floor);
+                playerSidebar.render();
+                eventsSidebar.render();
             }
             EventLoop.get().getEvents().remove(event);
         }

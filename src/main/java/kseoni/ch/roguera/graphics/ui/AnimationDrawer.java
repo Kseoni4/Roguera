@@ -8,7 +8,6 @@ import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
-import kseoni.ch.roguera.graphics.sprites.TextSprite;
 import kseoni.ch.roguera.graphics.ui.layout.Camera;
 import kseoni.ch.roguera.map.Floor;
 import kseoni.ch.roguera.map.Room;
@@ -52,9 +51,9 @@ public class AnimationDrawer {
         if (!camera.isVisible(screen.getX(), screen.getY())) return;
 
         TextColor fg = pulse(PLAYER_C1, PLAYER_C2, now, PLAYER_PERIOD_MS);
-        layer.drawSpriteOn(new TextSprite('@', fg, Palette.BASE), screen);
+        layer.setChar(screen.getX(),     screen.getY(), '@', fg, Palette.BASE);
         // Вторая колонка под scaleX=2 — пустая, чтобы не оставался артефакт.
-        layer.drawSpriteOn(new TextSprite(' ', fg, Palette.BASE), new Position(screen.getX() + 1, screen.getY()));
+        layer.setChar(screen.getX() + 1, screen.getY(), ' ', fg, Palette.BASE);
     }
 
     private void drawDoors(long now, Floor floor) {
@@ -66,9 +65,8 @@ public class AnimationDrawer {
                 if (!camera.isVisible(screen.getX(), screen.getY())) continue;
 
                 char ch = door.getTextSprite().getSpriteChar();
-                layer.drawSpriteOn(new TextSprite(ch, fg, Palette.BASE), screen);
-                layer.drawSpriteOn(new TextSprite(' ', fg, Palette.BASE),
-                        new Position(screen.getX() + 1, screen.getY()));
+                layer.setChar(screen.getX(),     screen.getY(), ch,  fg, Palette.BASE);
+                layer.setChar(screen.getX() + 1, screen.getY(), ' ', fg, Palette.BASE);
             }
         }
     }
