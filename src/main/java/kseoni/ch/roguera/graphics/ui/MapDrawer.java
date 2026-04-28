@@ -7,34 +7,38 @@ import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
+import kseoni.ch.roguera.graphics.ui.layout.Camera;
 import kseoni.ch.roguera.graphics.ui.layout.Region;
 import kseoni.ch.roguera.map.Cell;
 
 /**
- * Рисует ячейки карты на BACKGROUND-слое внутри переданного {@link Region}.
- * Координаты world → screen: (x * 2, y) + offset региона.
- *
- * {@link #clear()} заливает только map-регион, не затрагивая header / sidebar / footer.
+ * Рисует ячейки карты на BACKGROUND-слое внутри viewport-региона через
+ * {@link Camera}. Ячейки за пределами viewport отбрасываются — карта
+ * скроллится при движении игрока (см. {@link Camera#follow(Position)}).
  */
 public class MapDrawer implements Drawer<Cell> {
 
     private final RenderLayer mapLayer;
     private final Region region;
+    private final Camera camera;
 
-    public MapDrawer(Region region) {
+    public MapDrawer(Region region, Camera camera) {
         this.mapLayer = Window.get().getRenderLayer(TGLayer.BACKGROUND);
         this.region = region;
-    }
-
-    private Position toScreen(Position world) {
-        return new Position(region.x() + world.getX() * 2, region.y() + world.getY());
+        this.camera = camera;
     }
 
     @Override
     public void draw(Cell object, Position relativePosition) {
-        Position screen = toScreen(object.getPosition().getRelativePosition(relativePosition));
-        TextSprite sprite = object.getObject().getTextSprite();
+        Position world = object.getPosition().getRelativePosition(relativePosition);
+        Position screen = camera.worldToScreen(world);
 
+        if (!camera.isVisible(screen.getX(), screen.getY())
+                || !camera.isVisible(screen.getX() + 1, screen.getY())) {
+            return;
+        }
+
+        TextSprite sprite = object.getObject().getTextSprite();
         mapLayer.drawSpriteOn(sprite, screen);
 
         boolean fillBoth = object.isWall()
@@ -50,10 +54,9 @@ public class MapDrawer implements Drawer<Cell> {
 
     @Override
     public void draw(Cell object) {
-        mapLayer.drawSpriteOn(
-                object.getObject().getTextSprite(),
-                toScreen(object.getPosition())
-        );
+        Position screen = camera.worldToScreen(object.getPosition());
+        if (!camera.isVisible(screen.getX(), screen.getY())) return;
+        mapLayer.drawSpriteOn(object.getObject().getTextSprite(), screen);
     }
 
     @Override
@@ -61,7 +64,7 @@ public class MapDrawer implements Drawer<Cell> {
         Window.get().refresh();
     }
 
-    /** Заливает регион карты Palette.BASE на BACKGROUND-слое. UI-слой (рамка, header) не трогается. */
+    /** Заливает viewport карты Palette.BASE на BACKGROUND-слое. */
     @Override
     public void clear() {
         mapLayer.fill(region, ' ', Palette.SUBTEXT, Palette.BASE);

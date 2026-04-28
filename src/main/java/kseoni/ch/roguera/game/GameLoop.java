@@ -15,6 +15,7 @@ import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.ui.HeaderDrawer;
 import kseoni.ch.roguera.graphics.ui.layout.BorderStyle;
+import kseoni.ch.roguera.graphics.ui.layout.Camera;
 import kseoni.ch.roguera.graphics.ui.layout.Layout;
 import kseoni.ch.roguera.graphics.ui.parts.UIFrame;
 import kseoni.ch.roguera.input.KeyInput;
@@ -22,6 +23,7 @@ import kseoni.ch.roguera.map.*;
 import kseoni.ch.roguera.graphics.ui.MapDrawer;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
 import kseoni.ch.roguera.utils.Clock;
+import kseoni.ch.roguera.utils.Convert;
 import kseoni.ch.roguera.utils.ObjectPool;
 import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
@@ -51,6 +53,8 @@ public class GameLoop {
 
     private final UIFrame mapFrame;
 
+    private final Camera camera;
+
     private final HeaderDrawer headerDrawer;
 
     private final Map<Character, Runnable> keyBindings = new HashMap<>(Map.of(
@@ -61,7 +65,8 @@ public class GameLoop {
 
     public GameLoop(){
         layout = new Layout(Window.get().getWight(), Window.get().getHeight());
-        mapDrawer = new MapDrawer(layout.getMain().inset(1));
+        camera = new Camera(layout.getMain().inset(1), 2, new Position(0, 0));
+        mapDrawer = new MapDrawer(layout.getMain().inset(1), camera);
         mapFrame = new UIFrame(layout.getMain(), BorderStyle.SHARP, "Map");
         player = new Player("Player", new TextSprite('@', TextColor.ANSI.GREEN_BRIGHT, Palette.BASE));
         playerController = new PlayerController(player);
@@ -76,8 +81,13 @@ public class GameLoop {
     public void init(){
         player.setPosition(new Position(1,2));
         room.getCell(player.getPosition()).placeObject(player);
+        camera.centerOn(playerWorldPos());
         mapFrame.render(Window.get().getRenderLayer(TGLayer.UI));
         redrawFloor(floor);
+    }
+
+    private Position playerWorldPos() {
+        return Convert.toGlobalPosition(room.getRoomLeftTopPosition(), player.getPosition());
     }
 
 
@@ -130,10 +140,11 @@ public class GameLoop {
                 }
 
                 if(Dungeon.get().currentFloor().currentRoom() != room) {
-                    drawRoom(room);
                     room = Dungeon.get().currentFloor().currentRoom();
                 }
-                drawRoom(room);
+
+                camera.follow(playerWorldPos());
+                redrawFloor(floor);
             }
             EventLoop.get().getEvents().remove(event);
         }
@@ -166,6 +177,7 @@ public class GameLoop {
         room = floor.currentRoom();
         room.getCell(player.getPosition()).placeObject(player);
 
+        camera.centerOn(playerWorldPos());
         redrawFloor(floor);
     }
 }
