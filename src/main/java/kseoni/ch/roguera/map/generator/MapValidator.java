@@ -3,9 +3,7 @@ package kseoni.ch.roguera.map.generator;
 import kseoni.ch.roguera.game.entity.Door;
 import kseoni.ch.roguera.map.Room;
 
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class MapValidator {
 
@@ -17,21 +15,50 @@ public class MapValidator {
 
     public boolean validateRooms(){
 
-        if (!anyRoomHasDoor()){
+        if (!allRoomHasAtLeastOneDoor()){
+            System.out.println("Rooms are not full connected by doors");
             return false;
         }
 
-        Room room = rooms.iterator().next();
-
-        if(!validateRoomsConnectionDepth(room, room, 1)){
+        if(!isConnected()){
+            System.out.println("validate rooms connection depth false");
             return false;
         }
 
         return true;
     }
 
-    private boolean anyRoomHasDoor(){
-        return rooms.stream().noneMatch(room -> room.getDoors().isEmpty());
+    private boolean isConnected(){
+        if (rooms.isEmpty()) return true;
+
+        Set<Room> visited = new HashSet<>();
+        Deque<Room> queue = new ArrayDeque<>();
+
+        Room start = rooms.iterator().next();
+        queue.add(start);
+        visited.add(start);
+
+        while (!queue.isEmpty()) {
+            Room current = queue.poll();
+
+            for (Door door : current.getDoors().values()) {
+                Door next = door.getNextDoor();
+                if (next == null) return false;             // висячая дверь — считаем невалидной картой
+
+                Room neighbor = next.getCurretRoom();
+                if (neighbor == null) return false;          // дверь без комнаты — тоже невалидно
+
+                if (visited.add(neighbor)) {                 // add возвращает true, если добавили
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        return visited.size() == rooms.size();
+    }
+
+    private boolean allRoomHasAtLeastOneDoor(){
+        return rooms.stream().allMatch(room -> !room.getDoors().isEmpty());
     }
 
     private boolean validateRoomsConnectionDepth(Room roomFrom, Room roomTo, int depth){

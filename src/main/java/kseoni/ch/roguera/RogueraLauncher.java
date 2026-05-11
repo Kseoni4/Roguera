@@ -1,29 +1,57 @@
 package kseoni.ch.roguera;
 
+import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.game.EventLoop;
 import kseoni.ch.roguera.game.GameLoop;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
+import kseoni.ch.roguera.map.generator.MapGenerate;
 import kseoni.ch.roguera.utils.ObjectPool;
 import kseoni.ch.roguera.utils.RandomUtils;
 import kseoni.ch.roguera.utils.SettingsLoader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
 import java.util.stream.Collectors;
 
 public class RogueraLauncher {
 
     private static boolean debugShowSystemInfo;
 
-    public static void main(String[] args) {
+    private static boolean printIntoFile;
+
+    private static Properties settings;
+
+    private static PrintStream printStream;
+
+    public static void main(String[] args) throws FileNotFoundException {
+
+        settings = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
+
+        printIntoFile = Boolean.parseBoolean(settings.getProperty("debug.sout.print-into-file"));
+
+        if(printIntoFile) {
+            System.out.println("!!!Standard output stream override into file!!!");
+            FileOutputStream fileOutputStream = new FileOutputStream("%s-fulllog.txt".formatted(
+                    LocalDateTime.now()
+            ));
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+            printStream = new PrintStream(bufferedOutputStream);
+            System.setOut(printStream);
+        }
+
         System.out.println("========================ROGUERA===========================");
 
-        Properties settings = SettingsLoader.load(SettingsLoader.Settings.GAME_SETTINGS);
         String version = settings.getProperty("game.version");
 
+        Runtime.getRuntime().addShutdownHook(new Thread(RogueraLauncher::shutdownSequence));
 
         if(Boolean.parseBoolean(settings.getProperty("debug.show.system-info")))
             showSystemData();
@@ -53,6 +81,19 @@ public class RogueraLauncher {
 
         System.out.println("===Initializing Game Loop===");
 
+        if(printIntoFile)
+            EventLoop.get().send(new Event<>((Runnable) () -> {
+                Thread.currentThread().setName("Print stream autoflush thread");
+                while (window.isNotClosed()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    printStream.flush();
+                }
+            }));
+
         GameLoop gameLoop = new GameLoop();
 
         gameLoop.init();
@@ -64,6 +105,14 @@ public class RogueraLauncher {
         System.out.println("===Game Loop Ended===");
 
         window.refresh();
+    }
+
+
+    private static void shutdownSequence(){
+
+        EventLoop.get().send(Event.raise("Shutdown sequence"));
+
+        System.out.println("===Shutdown sequence===");
 
         System.out.println("===Dump logs into file===");
 
@@ -76,6 +125,14 @@ public class RogueraLauncher {
 
         if(debugDumpEvents)
             EventLoop.get().dumpEventLog();
+
+        System.out.println("Seed = %s".formatted(RandomUtils.getSeed()));
+
+        if(printIntoFile && Objects.nonNull(printStream)) {
+            printStream.flush();
+
+            printStream.close();
+        }
     }
 
     private static void showSystemData(){

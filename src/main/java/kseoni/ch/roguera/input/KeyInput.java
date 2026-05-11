@@ -17,4 +17,8 @@ public class KeyInput {
         return Optional.ofNullable(window.keyInput());
     }
 
+    public static Optional<KeyStroke> getWait() {
+        return Optional.ofNullable(window.keyWaitInput());
+    }
+
 }

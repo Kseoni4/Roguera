@@ -8,9 +8,7 @@ import kseoni.ch.roguera.map.Room;
 import kseoni.ch.roguera.map.Wall;
 import kseoni.ch.roguera.utils.Convert;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 class PhaseOneCreateRooms {
@@ -24,14 +22,14 @@ class PhaseOneCreateRooms {
         this.mapGen = mapGen;
     }
 
-    public HashMap<Integer, Room> createRooms(int roomCount){
+    public HashMap<Integer, Room> createRooms(int roomCount, int worldXBound, int worldYBound){
 
         HashMap<Integer, Room> roomMap = new HashMap<>();
 
         for (int i = 0; i < roomCount; i++) {
 
-            int x = rnd.nextInt(84);
-            int y = rnd.nextInt(25);
+            int x = rnd.nextInt(worldXBound);
+            int y = rnd.nextInt(worldYBound);
 
             Position topLeftPosition = new Position(x, y);
 
@@ -80,9 +78,9 @@ class PhaseOneCreateRooms {
         );
 
         mapGen.generateDebugLog("Cells count: " + room.getCells().size());
-
-        room.getCell(Position.ZERO.getRelativePosition(1, 1)).placeObject(new Wall(new TextSprite(Character.forDigit(roomId, Character.MAX_RADIX))));
-        room.getCell(room.getRoomCenter()).placeObject(new Wall(new TextSprite('*', TextColor.ANSI.MAGENTA_BRIGHT)));
+        //char c = Character.forDigit(roomId, Character.MAX_RADIX);
+        //room.getCell(Position.ZERO.getRelativePosition(1, 1)).placeObject(new Wall(new TextSprite(c)));
+        //room.getCell(room.getRoomCenter()).placeObject(new Wall(new TextSprite('*', TextColor.ANSI.MAGENTA_BRIGHT)));
 
         return room;
     }

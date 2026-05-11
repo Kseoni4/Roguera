@@ -78,7 +78,17 @@ public class Cell {
     public Cell[] getCellsAround(Room room){
         Cell[] cells = new Cell[8];
         int i = 0;
-        for(Position direction : Position.AroundPositions) {
+        for(Position direction : Position.AROUND_POSITIONS) {
+            cells[i] = room.getCell(position.getRelativePosition(direction));
+            i++;
+        }
+        return cells;
+    }
+
+    public Cell[] getCardinalCells(Room room){
+        Cell[] cells = new Cell[4];
+        int i = 0;
+        for(Position direction : Position.CARDINAL_POSITIONS){
             cells[i] = room.getCell(position.getRelativePosition(direction));
             i++;
         }

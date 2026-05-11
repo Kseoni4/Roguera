@@ -40,7 +40,7 @@ public class Dungeon {
 
     private void initDungeon(){
         int floorNumber = ++floorNumberCounter;
-        floors.put(floorNumber, new Floor(ROOM_COUNT_BASE, floorNumber));
+        floors.put(floorNumber, new Floor(ROOM_COUNT_BASE, floorNumber, worldXBound, worldYBound));
     }
 
     public Floor currentFloor(){

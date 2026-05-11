@@ -1,37 +1,33 @@
 package kseoni.ch.roguera.map.generator;
 
-import com.googlecode.lanterna.TextColor;
-import kseoni.ch.roguera.base.Position;
-import kseoni.ch.roguera.game.entity.Door;
-import kseoni.ch.roguera.graphics.sprites.AssetPool;
-import kseoni.ch.roguera.graphics.sprites.RectangleShape;
-import kseoni.ch.roguera.graphics.sprites.TextSprite;
-import kseoni.ch.roguera.map.Cell;
+import kseoni.ch.roguera.base.Event;
+import kseoni.ch.roguera.game.EventLoop;
 import kseoni.ch.roguera.map.Room;
-import kseoni.ch.roguera.map.Wall;
-import kseoni.ch.roguera.utils.Convert;
 import kseoni.ch.roguera.utils.ObjectPool;
 import kseoni.ch.roguera.utils.RandomUtils;
 import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.Getter;
-import lombok.SneakyThrows;
 
-import java.security.SecureRandom;
 import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class MapGenerate {
     private final Random rnd;
 
     private HashMap<Integer, Room> tempRoomMap;
 
+    private int worldXBound;
+
+    private int worldYBound;
+
     @Getter
     private final boolean debugShowDungeonGenerate;
 
-    public MapGenerate() {
+    public MapGenerate(int worldXBound, int worldYBound) {
         rnd = RandomUtils.getRandom();
         debugShowDungeonGenerate = Boolean.parseBoolean(SettingsLoader.getSettingValue("debug.show.dungeon-generate"));
+        this.worldXBound = worldXBound;
+        this.worldYBound = worldYBound;
+
     }
 
     public void setRndSeed(long seed) {
@@ -47,7 +43,9 @@ public class MapGenerate {
 
         // Phase one
         generateDebugLog("====Phase One====");
-        tempRoomMap = new PhaseOneCreateRooms(this, rnd).createRooms(roomCount);
+        tempRoomMap = new PhaseOneCreateRooms(this, rnd).createRooms(roomCount, worldXBound, worldYBound);
+
+        //KeyInput.getWait();
 
         // Phase two
         if (roomCount > 1) {
@@ -55,11 +53,15 @@ public class MapGenerate {
             new PhaseTwoMergeRooms(this, tempRoomMap).mergeRooms();
         }
 
+        //KeyInput.getWait();
+
         // Phase three
         if(tempRoomMap.size() > 1) {
             generateDebugLog("====Phase Three====");
             new PhaseThreeConnectClusters(this, tempRoomMap).connectRooms();
         }
+
+        //KeyInput.getWait();
 
         if(!new MapValidator(new HashSet<>(tempRoomMap.values())).validateRooms()){
             generateDebugLog("!!! Floor is not valid !!!");
@@ -70,11 +72,13 @@ public class MapGenerate {
         generateDebugLog("====Phase Four====");
         new PhaseFourCreateRoomStructure(this, tempRoomMap).createRoomStructure();
         generateDebugLog("==========GENERATION COMPLETE============");
+        EventLoop.get().send(Event.raise("Generation complete"));
         return tempRoomMap;
     }
 
     public void generateDebugLog(String message){
-        if(debugShowDungeonGenerate)
+        if(debugShowDungeonGenerate) {
             System.out.println(message);
+        }
     }
 }

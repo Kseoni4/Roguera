@@ -1,10 +1,8 @@
 package kseoni.ch.roguera.base;
 
-import kseoni.ch.roguera.graphics.render.Window;
 import lombok.*;
 
 import java.util.Objects;
-import java.util.Random;
 
 @Getter
 @Setter
@@ -53,7 +51,7 @@ public class Position {
     /**
      * Статический массив точек вокруг данной.
      */
-    public static final Position[] AroundPositions = {
+    public static final Position[] AROUND_POSITIONS = {
             NORTH,
             WEST,
             EAST,
@@ -62,6 +60,13 @@ public class Position {
             NORTH_EAST,
             SOUTH_WEST,
             SOUTH_EAST
+    };
+
+    public static final Position[] CARDINAL_POSITIONS = {
+            NORTH,
+            EAST,
+            SOUTH,
+            WEST
     };
 
     public static final Position FRONT = new Position(0,1);
@@ -80,9 +85,9 @@ public class Position {
     }
 
     public Position set(int x, int y){
-        this.x = x;
-        this.y = y;
-        return this;
+//        this.x = x;
+//        this.y = y;
+        return new Position(x, y);
     }
 
     public Position getRelativePosition(Position position){
@@ -108,10 +113,30 @@ public class Position {
     }
 
     public boolean isInBetweenX(int x1, int x2){
+        System.out.printf("""
+                        x0 = %s ; x1 = %s
+                        x0 = %s ; x2 = %s
+                        
+                        %s > %s && %s < %s
+                        
+                        %n""", this.x, x1,
+        this.x, x2,
+        this.x, x1, this.x, x2
+);
         return (this.x > x1 && this.x < x2);
     }
 
     public boolean isInBetweenY(int y1, int y2){
+        System.out.printf("""
+                        y0 = %s ; y1 = %s
+                        y0 = %s ; y2 = %s
+                        
+                        %s >= %s && %s <= %s
+                        
+                        %n""", this.y, y1,
+                this.y, y2,
+                this.y, y1, this.y, y2
+        );
         return (this.y >= y1 && this.y <= y2);
     }
 

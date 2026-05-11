@@ -5,6 +5,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.*;
@@ -15,8 +16,11 @@ import kseoni.ch.roguera.utils.SettingsLoader;
 import lombok.SneakyThrows;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class Window {
 
@@ -145,6 +149,11 @@ public class Window {
     }
 
     @SneakyThrows
+    public KeyStroke keyWaitInput(){
+        return terminal.readInput();
+    }
+
+    @SneakyThrows
     public boolean isNotClosed() {
         return !this.isClosed;
     }
@@ -177,5 +186,16 @@ public class Window {
 
     public TerminalScreen getRawScreen() {
         return terminal;
+    }
+
+    public boolean isTerminalWindowClosed(){
+        try {
+            KeyStroke keyStroke = terminal.pollInput();
+
+            return keyStroke != null
+                    && keyStroke.getKeyType().equals(KeyType.EOF);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

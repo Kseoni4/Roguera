@@ -13,6 +13,7 @@ import kseoni.ch.roguera.graphics.Palette;
 import kseoni.ch.roguera.graphics.render.RenderLayer;
 import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
+import kseoni.ch.roguera.graphics.sprites.TilesUtils;
 import kseoni.ch.roguera.graphics.ui.AnimationDrawer;
 import kseoni.ch.roguera.graphics.ui.EventsSidebar;
 import kseoni.ch.roguera.graphics.ui.FooterDrawer;
@@ -26,16 +27,17 @@ import kseoni.ch.roguera.input.KeyInput;
 import kseoni.ch.roguera.map.*;
 import kseoni.ch.roguera.graphics.ui.MapDrawer;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
-import kseoni.ch.roguera.utils.Clock;
-import kseoni.ch.roguera.utils.Convert;
-import kseoni.ch.roguera.utils.ObjectPool;
-import kseoni.ch.roguera.utils.SettingsLoader;
+import kseoni.ch.roguera.utils.*;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class GameLoop {
 
@@ -96,7 +98,13 @@ public class GameLoop {
 
     public void init(){
         player.setPosition(new Position(1,2));
-        room.getCell(player.getPosition()).placeObject(player);
+
+        Cell cell = room.getCell(player.getPosition());
+        while (Objects.isNull(cell)){
+            cell = room.getCell(RandomUtils.getRandomPosition(room.getWidth(), room.getHeight()));
+        }
+
+        cell.placeObject(player);
         camera.centerOn(playerWorldPos());
         mapFrame.render(Window.get().getRenderLayer(TGLayer.UI));
         redrawFloor(floor);
@@ -116,6 +124,25 @@ public class GameLoop {
     public void start() {
 
         long frameStart = System.nanoTime();
+
+        EventLoop.get().send(
+                new Event<>((Runnable) () -> {
+                    System.out.println("Start terminal frame watcher thread");
+                    Thread.currentThread().setName("Window active frame watcher thread");
+                    while (true){
+                        if(Window.get().isTerminalWindowClosed()) {
+                            System.out.println("Window frame is closed");
+                            Window.get().close();
+                        }
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(1500L);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
+                    }
+                    System.out.println("End terminal frame watcher thread");
+                })
+        );
 
         while (Window.get().isNotClosed()) {
 
@@ -170,6 +197,11 @@ public class GameLoop {
                 playerSidebar.render();
                 eventsSidebar.render();
             }
+
+            if(event.getValue() instanceof Runnable){
+                CompletableFuture.runAsync((Runnable) event.getValue());
+            }
+
             EventLoop.get().getEvents().remove(event);
         }
     }
@@ -198,7 +230,12 @@ public class GameLoop {
         playerController.reset();
         player.setPosition(new Position(1, 2));
         room = floor.currentRoom();
-        room.getCell(player.getPosition()).placeObject(player);
+        Cell cell = room.getCell(player.getPosition());
+        while (Objects.isNull(cell)){
+            cell = room.getCell(RandomUtils.getRandomPosition(room.getWidth(), room.getHeight()));
+        }
+
+        cell.placeObject(player);
 
         camera.centerOn(playerWorldPos());
         redrawFloor(floor);

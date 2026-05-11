@@ -1,6 +1,7 @@
 package kseoni.ch.roguera.game;
 
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import kseoni.ch.roguera.base.Event;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.input.KeyInput;
@@ -58,7 +59,11 @@ public class EventLoop {
 
     private Event<KeyStroke> pollInput(){
         Optional<KeyStroke> keyPressed = KeyInput.get();
-        return keyPressed.map(Event::new).orElse(null);
+        return keyPressed.map(this::filter).orElse(null);
+    }
+
+    private Event<KeyStroke> filter(KeyStroke keyStroke){
+        return keyStroke.getKeyType().equals(KeyType.EOF) ? null : new Event<>(keyStroke);
     }
 
     @NonNull

@@ -77,7 +77,6 @@ class PhaseTwoMergeRooms {
                 while (!toVisit.isEmpty()) {
                     Room currentRoom = toVisit.poll();
                     if (visited.add(currentRoom)) {
-                        currentRoom.getCell(Position.ZERO.getRelativePosition(2, 1)).placeObject(new Wall(new TextSprite(Character.forDigit(clusters.size(), Character.MAX_RADIX), null, TextColor.ANSI.CYAN)));
                         cluster.add(currentRoom);
                         rooms.stream()
                                 .filter(
@@ -86,8 +85,8 @@ class PhaseTwoMergeRooms {
                                             Position otherRoomCenterGlobal = Convert.toGlobalPosition(r.getRoomLeftTopPosition(), r.getRoomCenter());
                                             double betweenCentersDistance = currentRoomCenterGlobal.getDistance(otherRoomCenterGlobal);
                                             return !visited.contains(r)
-                                                    && (betweenCentersDistance <= (double) r.getWidth()
-                                                    || betweenCentersDistance <= (double) r.getHeight())
+/*                                                    && (betweenCentersDistance <= (double) r.getWidth()
+                                                    || betweenCentersDistance <= (double) r.getHeight())*/
                                                     && hasIntersects(currentRoom, r);
                                         })
                                 .forEach(toVisit::add);
@@ -130,7 +129,48 @@ class PhaseTwoMergeRooms {
         Position fLt = first.getRoomLeftTopPosition();
         Position sLt = second.getRoomLeftTopPosition();
 
-        //System.out.println("First left top = "+fLt);
+        Position newLt = new Position(
+                Math.min(fLt.getX(), sLt.getX()),
+                Math.min(fLt.getY(), sLt.getY())
+        );
+
+        // Сдвиги для перевода локальных координат в новый фрейм.
+        int dxFirst  = fLt.getX() - newLt.getX();
+        int dyFirst  = fLt.getY() - newLt.getY();
+        int dxSecond = sLt.getX() - newLt.getX();
+        int dySecond = sLt.getY() - newLt.getY();
+
+        HashMap<Position, Cell> newCells = new HashMap<>();
+
+        // 1) cells первой комнаты — со сдвигом dxFirst/dyFirst.
+        for (Cell c : first.getCells().values()) {
+            Position np = new Position(
+                    c.getPosition().getX() + dxFirst,
+                    c.getPosition().getY() + dyFirst
+            );
+            newCells.put(np, new Cell(np /*, content*/));   // НЕ мутируем старую позицию
+        }
+
+        // 2) cells второй — со сдвигом dxSecond/dySecond.
+        for (Cell c : second.getCells().values()) {
+            Position np = new Position(
+                    c.getPosition().getX() + dxSecond,
+                    c.getPosition().getY() + dySecond
+            );
+            newCells.putIfAbsent(np, new Cell(np /*, content*/));  // не перезаписываем пересечения
+        }
+
+        // 3) Размер — bounding box ПО КЛЕТКАМ, с +1.
+        int maxX = newCells.keySet().stream().mapToInt(Position::getX).max().orElse(0);
+        int maxY = newCells.keySet().stream().mapToInt(Position::getY).max().orElse(0);
+        int newWidth  = maxX + 1;
+        int newHeight = maxY + 1;
+
+        Room newRoom = new Room(first.getRoomId(), newWidth, newHeight, newLt);
+        newRoom.setCells(newCells);
+        return newRoom;
+
+        /*//System.out.println("First left top = "+fLt);
 
         //System.out.println("Second left top = "+sLt);
 
@@ -159,11 +199,11 @@ class PhaseTwoMergeRooms {
 
         int newWidth = newCells.keySet().stream()
                 .max(Comparator.comparingInt(Position::getX))
-                .map(Position::getX).get();
+                .map(Position::getX).get() + 1;
 
         int newHeight = newCells.keySet().stream()
                 .max(Comparator.comparingInt(Position::getY))
-                .map(Position::getY).get();
+                .map(Position::getY).get() + 1;
 
         Room newRoom = new Room(
                 first.getRoomId(),
@@ -174,14 +214,14 @@ class PhaseTwoMergeRooms {
         newRoom.setCells(newCells);
 
 
-        /*newRoom.getCells()
+        *//*newRoom.getCells()
                 .values()
                 .forEach(cell -> cell.placeObject(
                         new Wall(new TextSprite(Character.forDigit(newRoom.getRoomId(), Character.MAX_RADIX)
                         ))
-                ));*/
+                ));*//*
 
-        return newRoom;
+        return newRoom;*/
     }
 
     private boolean hasIntersects(Room first, Room second) {

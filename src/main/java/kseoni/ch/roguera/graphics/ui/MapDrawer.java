@@ -7,6 +7,7 @@ import kseoni.ch.roguera.graphics.render.TGLayer;
 import kseoni.ch.roguera.graphics.render.Window;
 import kseoni.ch.roguera.graphics.sprites.AssetPool;
 import kseoni.ch.roguera.graphics.sprites.TextSprite;
+import kseoni.ch.roguera.graphics.sprites.TilesUtils;
 import kseoni.ch.roguera.graphics.ui.layout.Camera;
 import kseoni.ch.roguera.graphics.ui.layout.Region;
 import kseoni.ch.roguera.map.Cell;
@@ -42,10 +43,10 @@ public class MapDrawer implements Drawer<Cell> {
         mapLayer.drawSpriteOn(sprite, screen);
 
         boolean fillBoth = object.isWall()
-                && sprite.getSpriteChar() == AssetPool.get().getAsset("wall_h");
+                && TilesUtils.continuesEast(sprite.getSpriteChar());
 
         mapLayer.drawSpriteOn(
-                new TextSprite(fillBoth ? sprite.getSpriteChar() : ' ',
+                new TextSprite(fillBoth ? TilesUtils.horizontalGlyph() : ' ',
                         sprite.getSpriteColor(TextSprite.ColorLayer.FOREGROUND),
                         sprite.getSpriteColor(TextSprite.ColorLayer.BACKGROUND)),
                 new Position(screen.getX() + 1, screen.getY())
