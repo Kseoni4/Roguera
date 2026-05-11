@@ -7,6 +7,17 @@ target/
 *_events.txt
 *_objects.txt
 
+# fulllog dumps from RogueraLauncher's print-into-file
+*-fulllog.txt
+/generation-log.txt
+
+# graphviz renders (research artifacts, not source)
+/rooms_graph.dot
+/rooms_graph.svg
+/rooms_graph_*.dot
+/rooms_graph_*.svg
+/rooms_graph_*.png
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
